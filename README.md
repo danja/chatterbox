@@ -9,14 +9,13 @@ Imagine that with a joystick & knobs.
 
 ## Introduction
 
-Not long ago I rediscovered an electronics magazine article I first saw whilst still at school, around 1979 : Chatterbox. It was a design for a simple speech synthesizer, controlled by means of a joystick, switches etc. I wanted to build one then; now ever more so. 
-
+Not long ago I rediscovered an electronics magazine article I first saw whilst still at school, around 1979 : [Chatterbox](https://github.com/danja/chatterbox/blob/master/reference/Chatterbox-1976.pdf). It was a design for a simple speech synthesizer, controlled by means of a joystick, switches etc. I wanted to build one then; now ever more so. 
 
 ![Original Chatterbox](https://github.com/danja/chatterbox/blob/master/reference/original-chatterbox.png "Original Chatterbox")
 
-The implementation then was with a handful of ICs, now I'd like to try something similar based around microcontroller(s). Also ties in nicely with other projects I have on the go.
+The (mighty elegant) implementation then was with a handful of ICs, now I'd like to try something similar based around microcontroller(s). Also ties in nicely with other projects I have on the go.
 
-The rational e for having such a machine is well made in the magazine article. But given a microcontroller, it should be relatively straightforward to add features such as MIDI I/O interface to make it a modern musical instrument, Web interface for the IoT, whatever. Should be fun.
+The rationale for having such a machine is well made in the magazine article. But given a microcontroller, it should be relatively straightforward to add features such as MIDI I/O interface to make it a modern musical instrument, Web interface for the IoT, whatever. Should be fun.
 
 On looking around this domain a little, some key material on numerically modelling the physics of human speech can be found in the work of Klatt (links below).
 
@@ -48,8 +47,9 @@ A potential issue is performance on the ESP32. The 7kHz @ 44.1kHz sine I got out
 
 links todo. https://github.com/chdh/klatt-syn has most others
 
-* Chatterbox [Witten & Madams, 1978]
+* [Chatterbox](https://github.com/danja/chatterbox/blob/master/reference/Chatterbox-1976.pdf)  [Witten & Madams, 1978]
 * Digital Filters For Music Synthesis [Nielsen, 2000]
+* links TODO - check under /references
 
 
 
