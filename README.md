@@ -3,7 +3,7 @@
 
 Based on ESP32 with external UDA1334A DAC.
 
-**Current prototype :**
+**Current prototype (YouTube video) :**
 
 [![Bleepy demo video](https://img.youtube.com/vi/DT7YRqZf7U4/0.jpg)](https://www.youtube.com/watch?v=DT7YRqZf7U4)
 
