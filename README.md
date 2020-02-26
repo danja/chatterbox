@@ -1,6 +1,12 @@
 # Chatterbox
 *A manually controlled speech-like sound generator*
 
+Based on ESP32 with external UDA1334A DAC.
+
+**Current prototype :**
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/DT7YRqZf7U4" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 ## Pre-Intro
 
 Go to [KlattSyn](http://www.source-code.biz/klattSyn/)
@@ -19,9 +25,15 @@ The rationale for having such a machine is well made in the magazine article. Bu
 
 On looking around this domain a little, some key material on numerically modelling the physics of human speech can be found in the work of Klatt (links below).
 
-## Progress
+## Status
 
-**2020-02-21** First sounds from core hard/software (stereo 7kHz sine from wavetable @ 44.1kHz, 16 bit). This repository created.
+* for more detail, see https://github.com/danja/chatterbox/notes.md *
+
+**2020-02-26** : First prototype case with controls put together ([Front panel v1.0](https://github.com/danja/chatterbox/blob/master/media/front-panel_v1.png "Front panel v1.0")). Digging into software.
+
+![Chatterbox prototype hardware v 1.0](https://github.com/danja/chatterbox/blob/master/media/chatterbox_1.0.jpg "prototype hardware v 1.0")
+
+* 2020-02-21 : First sounds from core hard/software (stereo 7kHz sine from wavetable @ 44.1kHz, 16 bit). This repository created.
 
 ## Proposed Implementation    
 
@@ -41,6 +53,19 @@ A potential issue is performance on the ESP32. The 7kHz @ 44.1kHz sine I got out
 * Plan C is to use an Arduino Due, considerably faster than the ESP32 but with expense, leaning to the point of might-as-well-use-a-Raspberry Pi.
 
 * Plan D is to drop all this, use a mobile phone, laptop. And/or, game handset.
+
+----
+
+**DAC Wiring**
+
+ESP32	DAC
+D26     BLCK
+D33     DIN
+D25     WSEL
+
+100R in between
+
+----
 
 ## Source Material
 *Local copies for reference, /reference*
