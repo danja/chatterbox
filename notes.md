@@ -15,7 +15,12 @@ Two likely causes -
 1. the looping around the wavetable has timing issues.
 2. the ESP32 docs say the ADCs can be prone to noise
 
-
 I've got a bit ahead of myself. Reckon I should dummy-out the ADC reading to isolate the timing. 
+
+Later... that made no difference. Finally spotted a *hilarious* oversight. The sine wave I was putting into the wavetable was from sin(0) to sin(TABLESIZE), not sin(0) to sin(2*PI)!
+
+Much, much better. Good enough for now.
+
+ 
 
 

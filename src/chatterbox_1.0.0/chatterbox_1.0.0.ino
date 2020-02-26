@@ -17,7 +17,7 @@ void setup()
   Serial.println("DAC TEST SETUP");
 
   // begin(int sampleRate = 44100, int dataPort = 0, int bclk = 26, int wsel = 25, int dout = 33);
-  dac.begin(44100, 0, 26, 25, 33);
+  dac.begin(16000, 0, 26, 25, 33);
 
   // Serial.println("portTICK_RATE_MS = " + portTICK_RATE_MS);
 
@@ -52,7 +52,17 @@ void setup()
   initSinLookup();
 
   // Lower priority input thread
-  xTaskCreate(ControlInput, "controls", 1024, NULL, 2, NULL);
+ // xTaskCreate(ControlInput, "controls", 1024, NULL, 2, NULL);
+   xTaskCreatePinnedToCore(
+    ControlInput,
+    "ControlInput",
+    4096, // was 4096
+    NULL,
+    1,
+    NULL,
+    1);
+
+    
   /*
     BaseType_t xTaskCreate(
                       TaskFunction_t pvTaskCode,
@@ -68,10 +78,11 @@ void setup()
 ////////////////////////////
 const unsigned int TABLESIZE = 1024;
 float sinLookup[TABLESIZE];
-
+ float tableStep = 1;
+ 
 void initSinLookup() {
   for (unsigned int i = 0; i < TABLESIZE; i++) {
-    sinLookup[i] = sin(i);
+    sinLookup[i] = sin(2.0 * PI * (float)i/(float)TABLESIZE);
   }
 }
 
@@ -88,14 +99,15 @@ void Output(void *pvParameter)
 
   //unsigned int counter = 0;
   float pointer = 0;
+ 
 
   while (1) {
-    pointer = pointer + (float)pitchRaw / (float)8192;
-    if ((unsigned int)pointer >= TABLESIZE) pointer = pointer - TABLESIZE;
+    pointer = pointer + tableStep;
+    if (pointer >= (float)TABLESIZE) pointer = pointer - (float)TABLESIZE;
     dac.writeSample(sinLookup[(unsigned int)(pointer + 0.5)], sinLookup[(unsigned int)(pointer + 0.5)]);
 
     // Pause thread after delivering 64 samples so that other threads can do stuff
-    if (frameCount++ % 8192 == 0) vTaskDelay(1); // was 64, 1
+    if (frameCount++ % 64 == 0) vTaskDelay(1); // was 64, 1
 
   }
 }
@@ -106,22 +118,33 @@ void loop() {}
 
 void ControlInput(void *pvParameter)
 {
-  while (1) {
-    // vTaskDelay(1000 / portTICK_RATE_MS); // was 1000
-    vTaskDelay(10);
     adc1_config_width(ADC_WIDTH_BIT_12);
     adc1_config_channel_atten(ADC1_CHANNEL_0, ADC_ATTEN_DB_0);
+  /* Disable input for testing
+  while (1) {
+    pitchRaw = 2048;
+    vTaskDelay(10);
+tableStep = (float)pitchRaw / (float)8192;
+    Serial.println("tick");
+  }
+*/
+  
+  while (1) {
+    // vTaskDelay(1000 / portTICK_RATE_MS); // was 1000
+    vTaskDelay(1);
 
     // take mean of ADC readings
-    int samples = 128;
+    int samples = 256;
     int sum = 0;
     for (int i = 0; i < samples; i++) {
       sum += adc1_get_raw(ADC1_CHANNEL_0);
     }
     pitchRaw = sum / samples;
+    
+    tableStep = (float)128.0*(float)pitchRaw/(float)TABLESIZE;
+    
 
-
-    // Serial.println(pitchRaw);
+    Serial.println(pitchRaw);
 
     // adcAttachPin(pitchIn);
     // pitchRaw = analogRead(pitchIn);
