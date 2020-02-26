@@ -1,4 +1,4 @@
-** 2020-02-26 **
+**2020-02-26**
 
 Trying to get a clean wavetable-generated waveform, pitch controlled by a pot.
 

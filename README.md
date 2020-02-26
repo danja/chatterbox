@@ -1,7 +1,7 @@
 # Chatterbox
 *A manually controlled speech-like sound generator*
 
-Based on ESP32 with external UDA1334A DAC.
+Based on ESP32 with external UDA1334A DAC. Very early days.
 
 **Current prototype (YouTube video) :**
 
@@ -11,7 +11,7 @@ Based on ESP32 with external UDA1334A DAC.
 
 Go to [KlattSyn](http://www.source-code.biz/klattSyn/)
 
-Imagine that with a joystick & knobs.
+Imagine that with a joystick, knobs & buttons.
 
 ## Introduction
 
@@ -27,7 +27,7 @@ On looking around this domain a little, some key material on numerically modelli
 
 ## Status
 
-* for more detail, see https://github.com/danja/chatterbox/notes.md *
+*for more detail, see https://github.com/danja/chatterbox/blob/master/notes.md*
 
 **2020-02-26** : First prototype case with controls put together ([Front panel v1.0](https://github.com/danja/chatterbox/blob/master/media/front-panel_v1.png "Front panel v1.0")). Digging into software.
 
@@ -59,8 +59,11 @@ A potential issue is performance on the ESP32. The 7kHz @ 44.1kHz sine I got out
 **DAC Wiring**
 
 ESP32	DAC
+
 D26     BLCK
+
 D33     DIN
+
 D25     WSEL
 
 100R in between
