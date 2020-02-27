@@ -7,12 +7,6 @@ Based on ESP32 with external UDA1334A DAC. Very early days.
 
 [![Bleepy demo video](https://img.youtube.com/vi/DT7YRqZf7U4/0.jpg)](https://www.youtube.com/watch?v=DT7YRqZf7U4)
 
-## Pre-Intro
-
-Go to [KlattSyn](http://www.source-code.biz/klattSyn/)
-
-Imagine that with a joystick, knobs & buttons.
-
 ## Introduction
 
 Not long ago I rediscovered an electronics magazine article I first saw whilst still at school, around 1979 : [Chatterbox](https://github.com/danja/chatterbox/blob/master/reference/Chatterbox-1976.pdf). It was a design for a simple speech synthesizer, controlled by means of a joystick, switches etc. I wanted to build one then; now ever more so. 
@@ -79,9 +73,14 @@ links todo. https://github.com/chdh/klatt-syn has most others
 
 * [Chatterbox](https://github.com/danja/chatterbox/blob/master/reference/Chatterbox-1976.pdf)  [Witten & Madams, 1978]
 * Digital Filters For Music Synthesis [Nielsen, 2000]
-* links TODO - check under /references
-* [Table Lookup Oscillators Using Generic Integrated Wavetables](http://mtg.upf.edu/node/485)
+
 * [Faust](https://faust.grame.fr/)
+* [KlattSyn](http://www.source-code.biz/klattSyn/)
+
+**Wavetable Aliasing**
+* [Alias-Free Digital Synthesis of Classic Analog Waveforms](https://ccrma.stanford.edu/~stilti/papers/blit.pdf)
+* [Table Lookup Oscillators Using Generic Integrated Wavetables](http://mtg.upf.edu/node/485)
+
 
 
 

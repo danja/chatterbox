@@ -1,3 +1,12 @@
+**2020-02-27**
+
+While I'm getting a relatively clean sine wave, other waveforms (including the larynx simulation) suffer quite badly from aliasing artifacts on harmonics. The frequency-changing caused by noise on the pitch ADC make this particularly noticeable & horrible.
+
+There are a good few strategies for reducing the aliasing. Interpolation is the obvious first thing to try.
+
+
+
+
 **2020-02-26**
 
 Trying to get a clean wavetable-generated waveform, pitch controlled by a pot.

@@ -12,14 +12,16 @@
 I2sDAC dac;
 TaskHandle_t AudioTask;
 
+
+// not used right now, values given via macros
 const int pitchIn = 27; // control pot
 const int waveSwitchIn = 39; // control pot
 
-const int WAVEFORM = SQUARE_WAVE;
+const int WAVEFORM = LARYNX_WAVE;
 
 int pitchRaw = 0;
 
-const unsigned int TABLESIZE = 1024;
+const unsigned int TABLESIZE = 4096;
 float tablesize = (float)TABLESIZE; // save a bit of casting
 
 float wavetable[TABLESIZE];
@@ -32,7 +34,7 @@ void setup()
 
 
   // begin(int sampleRate = 44100, int dataPort = 0, int bclk = 26, int wsel = 25, int dout = 33);
-  dac.begin(16000, 0, 26, 25, 33);
+  dac.begin(44100, 0, 26, 25, 33);
 
   initWavetable(WAVEFORM);
 
@@ -164,17 +166,21 @@ void Output(void *pvParameter)
   Serial.println(xPortGetCoreID());
 
   //unsigned int counter = 0;
-  float pointer = 0;
-
+  float rawPointer = 0;
+  int pointer = 0;
 
   while (1) {
-    pointer = pointer + tableStep;
-    if (pointer >= (float)TABLESIZE) pointer = pointer - (float)TABLESIZE;
+    rawPointer = rawPointer + tableStep;
+    
+    if (rawPointer >= (float)TABLESIZE) {
+      rawPointer = rawPointer - (float)TABLESIZE;
+
+   pointer = 
+    
     dac.writeSample(wavetable[(unsigned int)(pointer + 0.5)], wavetable[(unsigned int)(pointer + 0.5)]);
 
     // Pause thread after delivering 64 samples so that other threads can do stuff
-    if (frameCount++ % 64 == 0) vTaskDelay(1); // was 64, 1
-
+    if (frameCount++ % 16 == 0) vTaskDelay(1); // was 64, 1
   }
 }
 
@@ -185,7 +191,7 @@ void loop() {}
 void ControlInput(void *pvParameter)
 {
   adc1_config_width(ADC_WIDTH_BIT_12);
-  adc1_config_channel_atten(ADC1_CHANNEL_0, ADC_ATTEN_DB_0);
+  adc1_config_channel_atten(ADC1_CHANNEL_0, ADC_ATTEN_DB_11);
   /* Disable input for testing
     while (1) {
     pitchRaw = 2048;
@@ -226,13 +232,5 @@ void ControlInput(void *pvParameter)
       currentWaveChoice = waveSwitch;
       initWavetable(waveSwitch);
     }
-
-
-
-
-
-    // adcAttachPin(pitchIn);
-    // pitchRaw = analogRead(pitchIn);
-    // Serial.println(pitchRaw);
   }
 }
