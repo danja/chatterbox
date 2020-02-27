@@ -31,6 +31,8 @@ On looking around this domain a little, some key material on numerically modelli
 
 **2020-02-26** : First prototype case with controls put together ([Front panel v1.0](https://github.com/danja/chatterbox/blob/master/media/front-panel_v1.png "Front panel v1.0")). Digging into software.
 
+Getting fairly reasonable waveforms out now, see [notes](https://github.com/danja/chatterbox/blob/master/notes.md).
+
 ![Chatterbox prototype hardware v 1.0](https://github.com/danja/chatterbox/blob/master/media/chatterbox_1.0.jpg "prototype hardware v 1.0")
 
 * 2020-02-21 : First sounds from core hard/software (stereo 7kHz sine from wavetable @ 44.1kHz, 16 bit). This repository created.
@@ -78,6 +80,8 @@ links todo. https://github.com/chdh/klatt-syn has most others
 * [Chatterbox](https://github.com/danja/chatterbox/blob/master/reference/Chatterbox-1976.pdf)  [Witten & Madams, 1978]
 * Digital Filters For Music Synthesis [Nielsen, 2000]
 * links TODO - check under /references
+* [Table Lookup Oscillators Using Generic Integrated Wavetables](http://mtg.upf.edu/node/485)
+* [Faust](https://faust.grame.fr/)
 
 
 
