@@ -9,19 +9,44 @@
 #define SAWTOOTH_WAVE 3
 #define TRIANGLE_WAVE 4
 
+#define POTS 7
+#define SWITCHES 5
+
 I2sDAC dac;
 TaskHandle_t AudioTask;
 
+int potValue[POTS];
+char potChannel[POTS];
+bool switchValue[SWITCHES];
+char switchChannel[SWITCHES];
+
+void initInputs(){
+  for(char i=0; i<POTS; i++) potValue[i] = 0;
+  for(char i=0; i<SWITCHES; i++) switchValue[i] = 0;
+// ADC1_CHANNEL_0  
+
+/*
+GPIO 32 7DC1_CHANNEL_CH4
+GPIO 33 ADC1_CHANNEL_CH5
+GPIO 34 ADC1_CHANNEL_CH6
+GPIO 35 ADC1_CHANNEL_CH7
+GPIO 36 ADC1_CHANNEL_CH0
+GPIO 39 ADC1_CHANNEL_CH3
+ */
+}
+
+
+
 
 // not used right now, values given via macros
-const int pitchIn = 27; // control pot
-const int waveSwitchIn = 39; // control pot
+// const int pitchIn = 27; // control pot
+// const int waveSwitchIn = 39; // control pot
 
 const int WAVEFORM = LARYNX_WAVE;
 
 int pitchRaw = 0;
 
-const unsigned int TABLESIZE = 4096;
+const unsigned int TABLESIZE = 2048;
 float tablesize = (float)TABLESIZE; // save a bit of casting
 
 float wavetable[TABLESIZE];
@@ -34,7 +59,7 @@ void setup()
 
 
   // begin(int sampleRate = 44100, int dataPort = 0, int bclk = 26, int wsel = 25, int dout = 33);
-  dac.begin(44100, 0, 26, 25, 33);
+  dac.begin(16000, 0, 26, 25, 27);
 
   initWavetable(WAVEFORM);
 
@@ -49,7 +74,7 @@ void setup()
 
   // High priority audio thread
   xTaskCreatePinnedToCore(
-    Output,
+    OutputDAC,
     "audio",
     4096, // was 4096
     NULL,
@@ -143,20 +168,39 @@ void initTriangleWave() {
 
 void initLarynxWave() {
   Serial.println("Init larynx wavetable");
-  for (unsigned int i = 0; i < TABLESIZE / 2; i++) {
+  for (unsigned int i = 0; i < TABLESIZE / 4; i++) {
     wavetable[i] = -0.99;
   }
-  for (unsigned int i = TABLESIZE / 2; i < 3 * TABLESIZE / 4; i++) {
+  for (unsigned int i = TABLESIZE / 4; i < TABLESIZE / 2; i++) {
     wavetable[i] = (float)i * 2.0 / (tablesize / 4) - 1;
   }
-  for (unsigned int i = 3 * TABLESIZE / 4; i < TABLESIZE; i++) {
+  for (unsigned int i = TABLESIZE / 2; i < TABLESIZE; i++) {
     wavetable[i] = 1 - (float)i * 2.0 / (tablesize / 4);
+  }
+}
+
+int flat = 0;
+
+void initLarynxWave2() {
+  Serial.println("Init larynx2 wavetable");
+  int scale = flat / (TABLESIZE * 2);
+  int bottomSize = TABLESIZE - TABLESIZE / scale;
+
+  for (unsigned int i = 0; i < bottomSize / 2; i++) {
+    wavetable[i] = (float)i * 2.0 / (bottomSize / 4) - 1;
+  }
+  for (unsigned int i = bottomSize / 2; i < bottomSize; i++) {
+    wavetable[i] = 1 - (float)i * 2.0 / (bottomSize / 4);
+  }
+
+  for (unsigned int i = bottomSize; i < TABLESIZE; i++) {
+    wavetable[i] = -0.99;
   }
 }
 
 
 // ==== ==== ==== ==== ==== ==== ==== ==== ==== ==== ==== ====
-void Output(void *pvParameter)
+void OutputDAC(void *pvParameter)
 {
   unsigned int frameCount = 0;
   int16_t sample[2];
@@ -166,21 +210,24 @@ void Output(void *pvParameter)
   Serial.println(xPortGetCoreID());
 
   //unsigned int counter = 0;
-  float rawPointer = 0;
+  // float rawPointer = 0;
   int pointer = 0;
+  float val = 0;
+  float err = 0;
 
   while (1) {
-    rawPointer = rawPointer + tableStep;
-    
-    if (rawPointer >= (float)TABLESIZE) {
-      rawPointer = rawPointer - (float)TABLESIZE;
+    pointer = pointer + tableStep;
 
-   pointer = 
-    
-    dac.writeSample(wavetable[(unsigned int)(pointer + 0.5)], wavetable[(unsigned int)(pointer + 0.5)]);
+    if (pointer >= (float)TABLESIZE) pointer = pointer - (float)TABLESIZE;
+
+    // interpolate between neighbouring values
+    err = pointer - floor(pointer);
+    val = wavetable[(int)floor(pointer)] * err + wavetable[((int)ceil(pointer)) % TABLESIZE] * (1 - err);
+
+    dac.writeSample(val, val);
 
     // Pause thread after delivering 64 samples so that other threads can do stuff
-    if (frameCount++ % 16 == 0) vTaskDelay(1); // was 64, 1
+    if (frameCount++ % 64 == 0) vTaskDelay(1); // was 64, 1
   }
 }
 
@@ -203,6 +250,7 @@ void ControlInput(void *pvParameter)
 
   int currentWaveChoice = 0;
 
+
   while (1) {
     // vTaskDelay(1000 / portTICK_RATE_MS); // was 1000
     vTaskDelay(1);
@@ -216,9 +264,16 @@ void ControlInput(void *pvParameter)
     pitchRaw = sum / samples;
     // -- mean
 
-    tableStep = (float)128.0 * (float)pitchRaw / (float)TABLESIZE;
+    tableStep = (float)512.0 * (float)pitchRaw / tablesize;
 
-    // Serial.println(waveSwitch);
+
+    sum = 0;
+    for (int i = 0; i < samples; i++) {
+      sum += adc1_get_raw(ADC1_CHANNEL_3); // is get_raw best input?
+    }
+    flat = sum / samples;
+
+    // Serial.println(flat);
 
     // take mean of ADC readings, they are prone to noise
     sum = 0;

@@ -1,11 +1,77 @@
+**2020-02-28**
+
+Wondering about inputs.
+
+Have been reading [Klatt 1979] : "one might wish to vary as many as 20 of the 39 parameters to achieve optimum matches to an arbitrary English sentence".
+
+The original Chatterbox has : 
+
+* slider pot (pitch)
+* joystick (filters)  
+* 5 switches
+	* voicing 
+	* whisper
+	* **S**alt
+	* **F**ish
+	* **Sh**ips
+
+On prototype hardware v1, for input I've (fairly arbitrarily) provided :
+
+* 5 rotary pots
+* joystick
+* 5 push switches
+
+Now, something I'd skimmed over is the ESP32 I/O. First impressions is it's virtually unlimited, but looking closer, not all the chip pins are exposed on the dev boards, and then pretty much everything's multiplexed. 
+Most annoyingly, ADC2 is out-of-bounds when WiFi is enabled. I want this thing to be HTTP-accessible (ideally both for programming the DSP config and for using the controls as a UI).
+
+Which only leaves 6 channels on ADC1.
+*Potentially*, I could multiplex the inputs, but that would detract from immediacy, would prefer to avoid.
+
+This is a useful [reference](https://randomnerdtutorials.com/esp32-pinout-reference-gpios/)
+
+Available ADCs :
+
+GPIO 32
+GPIO 33
+GPIO 34
+GPIO 35
+GPIO 36
+GPIO 39
+
+
+I'm currently using the following for DAC interface:
+
+GPIO 25          WSEL
+GPIO 26          BLCK
+GPIO 27 (was 33) DIN
+
+So, I think I can use:
+
+GPIO 12
+GPIO 13
+GPIO 14
+
+
+
+## Provisional Controls
+Pitch
+Joystick X : Formant 1 
+Joystick Y : Formant 2
+Formant 3 freq
+Nasal (cut filter) freq
+Nasal BW
+
+
+
+ 
+
 **2020-02-27**
 
 While I'm getting a relatively clean sine wave, other waveforms (including the larynx simulation) suffer quite badly from aliasing artifacts on harmonics. The frequency-changing caused by noise on the pitch ADC make this particularly noticeable & horrible.
 
 There are a good few strategies for reducing the aliasing. Interpolation is the obvious first thing to try.
 
-
-
+Implemented. Slight performance hit. Not entirely sure about improvements, but reckon I'll leave in place.
 
 **2020-02-26**
 

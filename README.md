@@ -21,7 +21,7 @@ On looking around this domain a little, some key material on numerically modelli
 
 ## Status
 
-*for more detail, see https://github.com/danja/chatterbox/blob/master/notes.md*
+For more detail, see [quasi-blog notes.md](https://github.com/danja/chatterbox/blob/master/notes.md).
 
 **2020-02-26** : First prototype case with controls put together ([Front panel v1.0](https://github.com/danja/chatterbox/blob/master/media/front-panel_v1.png "Front panel v1.0")). Digging into software.
 
@@ -58,7 +58,7 @@ ESP32	DAC
 
 D26     BLCK
 
-D33     DIN
+D27 (was D33)     DIN
 
 D25     WSEL
 
@@ -81,7 +81,8 @@ links todo. https://github.com/chdh/klatt-syn has most others
 * [Alias-Free Digital Synthesis of Classic Analog Waveforms](https://ccrma.stanford.edu/~stilti/papers/blit.pdf)
 * [Table Lookup Oscillators Using Generic Integrated Wavetables](http://mtg.upf.edu/node/485)
 
-
+**ESP32**
+* [ESP32 Pinout Reference: Which GPIO pins should you use?](https://randomnerdtutorials.com/esp32-pinout-reference-gpios/)
 
 
 
