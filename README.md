@@ -21,15 +21,15 @@ On looking around this domain a little, some key material on numerically modelli
 
 ## Status
 
+**2020-02-29** : I now have the main controls hooked into the code : joystick, 4x potentiometers, 5x push-button switches. Of these only 2 pots and 1 switch are actually doing anything. 
+
 For more detail, see [quasi-blog notes.md](https://github.com/danja/chatterbox/blob/master/notes.md).
 
-**2020-02-26** : First prototype case with controls put together ([Front panel v1.0](https://github.com/danja/chatterbox/blob/master/media/front-panel_v1.png "Front panel v1.0")). Digging into software.
-
-Getting fairly reasonable waveforms out now, see [notes](https://github.com/danja/chatterbox/blob/master/notes.md).
+2020-02-26 : First prototype case with controls put together ([Front panel v1.0](https://github.com/danja/chatterbox/blob/master/media/front-panel_v1.png "Front panel v1.0")). Digging into software.
 
 ![Chatterbox prototype hardware v 1.0](https://github.com/danja/chatterbox/blob/master/media/chatterbox_1.0.jpg "prototype hardware v 1.0")
 
-* 2020-02-21 : First sounds from core hard/software (stereo 7kHz sine from wavetable @ 44.1kHz, 16 bit). This repository created.
+**2020-02-21** : First sounds from core hard/software (stereo 7kHz sine from wavetable @ 44.1kHz, 16 bit). This repository created.
 
 ## Proposed Implementation    
 

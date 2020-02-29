@@ -1,3 +1,37 @@
+**2020-02-29**
+
+For now at least I've settled on using 6 ADC channels (all on ADC1). I've hooked these and all 5 switches up to code, although the only controls that are currently doing anything are:
+
+* Switch 0 : Waveform Switch - larynx/sine/square/sawtooth/triangle
+* Pot 5 : Pitch (freq range is around what's needed, low end would never be an issue (10Hz is quite clean), high end it gets to about 8kHz)
+* Pot 4 : Larynx Waveshape
+
+The original Chatterbox article suggests the larynx typically produces a waveform like this:
+
+![Larynx Waveform](https://github.com/danja/chatterbox/blob/master/media/larynx-wave.png "Larynx Waveform")
+
+Various papers I've seen online pretty much concur, just slightly more ramp-like and less sharp transitions (hence probably much lower high harmonics). It's also noted that the amount of breath-force on the larynx changes the resulting waveform.I was curious to see what difference changing the ratio of 'flat' and 'peak' sections would make, so I rigged this up to a potentiometer. Interesting, maybe serenditous. The effect does sound like a human-ish vocalisation, so this control *might* stay.
+
+At one extreme, it's just a regular triangle wave:
+
+![Triangle Waveform](https://github.com/danja/chatterbox/blob/master/media/triangle-wave.png "Triangle Waveform")
+
+Towards the other, it's getting more like an impulse train, with the expected broad spread of harmonics (and aliasing when the freq is high).
+
+![Extreme Larynx Waveform](https://github.com/danja/chatterbox/blob/master/media/extreme-larynx-wave.png "Extreme Larynx Waveform")
+
+I've refactored the code a bit, using arrays for the inputs. I've also flipped from using the ESP-IDF style methods & macros to using the usual Android IDE ones, so it's now like :
+
+analogRead(potChannel[pot])
+
+rather than
+
+adc1_get_raw(ADC1_CHANNEL_0)
+
+**Issues**
+* There is still a significant problem with aliasing on the signal harmonics, but I'm not going to worry about that right now. I want to get the filters set up to get a clearer picture of what will be required.
+* The switches are seriously bouncy! Putting an RC filter on them doesn't seem to make a great deal of difference. But again, I'm not going to worry about this until a bit more of the meat of the code is done.
+
 **2020-02-28**
 
 Wondering about inputs.
@@ -23,6 +57,7 @@ On prototype hardware v1, for input I've (fairly arbitrarily) provided :
 
 Now, something I'd skimmed over is the ESP32 I/O. First impressions is it's virtually unlimited, but looking closer, not all the chip pins are exposed on the dev boards, and then pretty much everything's multiplexed. 
 Most annoyingly, ADC2 is out-of-bounds when WiFi is enabled. I want this thing to be HTTP-accessible (ideally both for programming the DSP config and for using the controls as a UI).
+*"Note that GPIO6-11 are usually used for SPI flash. GPIO34-39 can only be set as input mode and do not have software pullup or pulldown functions."*
 
 Which only leaves 6 channels on ADC1.
 *Potentially*, I could multiplex the inputs, but that would detract from immediacy, would prefer to avoid.
@@ -38,8 +73,7 @@ GPIO 35
 GPIO 36
 GPIO 39
 
-
-I'm currently using the following for DAC interface:
+Regarding switch inputs, I'm currently using the following for DAC interface:
 
 GPIO 25          WSEL
 GPIO 26          BLCK
@@ -47,11 +81,11 @@ GPIO 27 (was 33) DIN
 
 So, I think I can use:
 
+GPIO 1
+GPIO 3
 GPIO 12
 GPIO 13
 GPIO 14
-
-
 
 ## Provisional Controls
 Pitch
@@ -60,10 +94,6 @@ Joystick Y : Formant 2
 Formant 3 freq
 Nasal (cut filter) freq
 Nasal BW
-
-
-
- 
 
 **2020-02-27**
 
