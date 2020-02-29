@@ -18,7 +18,7 @@ At one extreme, it's just a regular triangle wave:
 
 Towards the other, it's getting more like an impulse train, with the expected broad spread of harmonics (and aliasing when the freq is high).
 
-![Extreme Larynx Waveform](https://github.com/danja/chatterbox/blob/master/media/extreme-larynx-wave.png "Extreme Larynx Waveform")
+![Extreme Larynx Waveform](https://github.com/danja/chatterbox/blob/master/media/larynx-wave-extreme.png "Extreme Larynx Waveform")
 
 I've refactored the code a bit, using arrays for the inputs. I've also flipped from using the ESP-IDF style methods & macros to using the usual Android IDE ones, so it's now like :
 
