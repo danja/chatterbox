@@ -23,6 +23,9 @@ On looking around this domain a little, some key material on numerically modelli
 
 For more detail, see [quasi-blog notes.md](https://github.com/danja/chatterbox/blob/master/notes.md).
 
+**2020-02-29** : I've got pot 5 controlling the pitch of a wavetable-generated larynx-like tone. Pot 4 controls the waveform. (Switch 0 is hooked up to change between test waveforms).
+First attempts at a filter, cutoff freq on pot 3. Something very wrong - it's industrial noises in a box. Well, pulsed farty noises...
+
 **2020-02-29** : I now have the main controls hooked into the code : joystick, 4x potentiometers, 5x push-button switches. Of these only 2 pots and 1 switch are actually doing anything. 
 
 2020-02-26 : First prototype case with controls put together ([Front panel v1.0](https://github.com/danja/chatterbox/blob/master/media/front-panel_v1.png "Front panel v1.0")). Digging into software.
@@ -103,4 +106,4 @@ links todo. https://github.com/chdh/klatt-syn has most others
 * [Fixed Point Math Library for C](https://sourceforge.net/p/fixedptc/)
 * [related thread on StackOverflow](https://stackoverflow.com/questions/10067510/fixed-point-arithmetic-in-c-programming)
 
-
+https://www.switchdoc.com/2018/04/esp32-tutorial-debouncing-a-button-press-using-interrupts/

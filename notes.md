@@ -22,9 +22,23 @@ So right now I can get an output like this:
 
 ![pulse-inverted.png](https://github.com/danja/chatterbox/blob/master/media/pulse-inverted.png "pulse-inverted.png")
 
+*LATER*
 
+So I had a quick go at coding a biquad filter. There wasn't any difference between input and output. So then I had a look for an existing implementation. Ok, this looked essentially the same as mine...and I got the same lack of effect.
 
-https://www.switchdoc.com/2018/04/esp32-tutorial-debouncing-a-button-press-using-interrupts/
+The constructor looks like this: **Biquad(int type, double f, double Q, double peakGainDB)**
+
+where f is actually cutoff freq/sample rate.
+
+D'oh! Silly me. I was turning the pitch pot expecting an effect, but the filter was only happening as a one-shot event at start up. But as I was trying to figure this out, another - significant - d'oh! hit me. Given the dependency of the filter's response on the sample rate, I wanted to find what that was. I had been assuming it was being determined by the delay in my processing. **Nope.** The DAC must be acting synchronously, the max freq is exactly half the sample rate specified for the DAC.
+
+I'm stopping now, too tired to think straight.
+But the code version I'm saving now  chatterbox_1.0.3 is funny! Industrial sounds in a box. Well, pulsed farty noises.
+
+I tried putting a buffer on the output datastream, applying filter to it, freq controlled by pot 3. Got something horrendously wrong.
+
+Tomorrow's another day.
+
 
 **2020-02-29**
 
