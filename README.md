@@ -21,9 +21,9 @@ On looking around this domain a little, some key material on numerically modelli
 
 ## Status
 
-**2020-02-29** : I now have the main controls hooked into the code : joystick, 4x potentiometers, 5x push-button switches. Of these only 2 pots and 1 switch are actually doing anything. 
-
 For more detail, see [quasi-blog notes.md](https://github.com/danja/chatterbox/blob/master/notes.md).
+
+**2020-02-29** : I now have the main controls hooked into the code : joystick, 4x potentiometers, 5x push-button switches. Of these only 2 pots and 1 switch are actually doing anything. 
 
 2020-02-26 : First prototype case with controls put together ([Front panel v1.0](https://github.com/danja/chatterbox/blob/master/media/front-panel_v1.png "Front panel v1.0")). Digging into software.
 
@@ -58,7 +58,7 @@ ESP32	DAC
 
 D26     BLCK
 
-D27 (was D33)     DIN
+D27     DIN
 
 D25     WSEL
 
@@ -67,22 +67,40 @@ D25     WSEL
 ----
 
 ## Source Material
-*Local copies for reference, /reference*
+*Some have local copies for reference, see /reference*
 
 links todo. https://github.com/chdh/klatt-syn has most others
 
+**Key Sources**
 * [Chatterbox](https://github.com/danja/chatterbox/blob/master/reference/Chatterbox-1976.pdf)  [Witten & Madams, 1978]
 * Digital Filters For Music Synthesis [Nielsen, 2000]
 
 * [Faust](https://faust.grame.fr/)
 * [KlattSyn](http://www.source-code.biz/klattSyn/)
 
-**Wavetable Aliasing**
+**ESP32**
+* [ESP32 Projects & Tutorials](https://randomnerdtutorials.com/projects-esp32/)
+* [ESP32 Peripherals](https://randomnerdtutorials.com/esp32-pinout-reference-gpios/)
+* [ESP32 Pinout Reference: Which GPIO pins should you use?](https://randomnerdtutorials.com/esp32-pinout-reference-gpios/)
+* [The best input and output pins on the NodeMCU ESP32 and ESP8266 (YouTube)](https://www.youtube.com/watch?v=c0tMGlJVmkw)
+* [ESP32 ADC – Read Analog Values with Arduino IDE](https://randomnerdtutorials.com/esp32-adc-analog-read-arduino-ide/)
+* [Using the ESP32 ADC and some of its more advanced functions (YouTube)](https://www.youtube.com/watch?v=RlKMJknsNpo)
+* [esp32-dac](https://github.com/wjslager/esp32-dac)
+* [ESP32-ADC-Accuracy-Improvement-function](https://github.com/G6EJD/ESP32-ADC-Accuracy-Improvement-function)
+* [Polynomial Regression Data Fit](https://arachnoid.com/polysolve/)
+
+* [ESP-IDF Hello World](https://exploreembedded.com/wiki/Hello_World_with_ESP32_Explained)
+* [ESP-IDF ADC API](https://docs.espressif.com/projects/esp-idf/en/latest/api-reference/peripherals/adc.html)
+* [ESP-DSP](https://github.com/espressif/esp-dsp)
+* [ESP32 Parallel Programming](https://home.roboticlab.eu/en/iot-open/getting_familiar_with_your_hardware_rtu_itmo_sut/esp/esp_parallel_programming)
+
+**Wavetables etc.**
+* [the_synth](https://github.com/dzlonline/the_synth)
 * [Alias-Free Digital Synthesis of Classic Analog Waveforms](https://ccrma.stanford.edu/~stilti/papers/blit.pdf)
 * [Table Lookup Oscillators Using Generic Integrated Wavetables](http://mtg.upf.edu/node/485)
 
-**ESP32**
-* [ESP32 Pinout Reference: Which GPIO pins should you use?](https://randomnerdtutorials.com/esp32-pinout-reference-gpios/)
-
+**Fixed-point maths**
+* [Fixed Point Math Library for C](https://sourceforge.net/p/fixedptc/)
+* [related thread on StackOverflow](https://stackoverflow.com/questions/10067510/fixed-point-arithmetic-in-c-programming)
 
 

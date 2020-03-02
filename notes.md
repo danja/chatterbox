@@ -1,3 +1,31 @@
+**2020-03-02**
+
+*version chatterbox_1.0.2*
+
+I want to start looking at filter design. To creep towards this I've split out the two channels, so wavetableL[] is pumped to the left channel out of the DAC, wavetableR[] to the right.
+
+Later on I'll need to figure out some kind of general pipeline for 
+
+**wavetable/source  -> filters -> DAC**
+
+but for now I've simply got
+
+**wavetableL[] -> [*insert filter here*] -> wavetableR[]**
+
+**wavetableL[] -> DAC_L**
+**wavetableR[] -> DAC_R**
+
+as a placeholder for a filter I've got **value = -value**.
+
+I've also tweak the square wave wavetable generator to give it a variable pulse width, controlled by pot 4. 
+So right now I can get an output like this:
+
+![pulse-inverted.png](https://github.com/danja/chatterbox/blob/master/media/pulse-inverted.png "pulse-inverted.png")
+
+
+
+https://www.switchdoc.com/2018/04/esp32-tutorial-debouncing-a-button-press-using-interrupts/
+
 **2020-02-29**
 
 For now at least I've settled on using 6 ADC channels (all on ADC1). I've hooked these and all 5 switches up to code, although the only controls that are currently doing anything are:
