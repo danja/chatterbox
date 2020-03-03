@@ -23,7 +23,9 @@ On looking around this domain a little, some key material on numerically modelli
 
 For more detail, see [quasi-blog notes.md](https://github.com/danja/chatterbox/blob/master/notes.md).
 
-**2020-02-29** : I've got pot 5 controlling the pitch of a wavetable-generated larynx-like tone. Pot 4 controls the waveform. (Switch 0 is hooked up to change between test waveforms).
+**2020-03-03** : **Milestone!** first formant filter essentially working.
+
+**2020-02-02** : I've got pot 5 controlling the pitch of a wavetable-generated larynx-like tone. Pot 4 controls the waveform. (Switch 0 is hooked up to change between test waveforms).
 First attempts at a filter, cutoff freq on pot 3. Something very wrong - it's industrial noises in a box. Well, pulsed farty noises...
 
 **2020-02-29** : I now have the main controls hooked into the code : joystick, 4x potentiometers, 5x push-button switches. Of these only 2 pots and 1 switch are actually doing anything. 

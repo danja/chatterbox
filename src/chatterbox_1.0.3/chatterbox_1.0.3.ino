@@ -18,7 +18,6 @@
 #define SAWTOOTH_WAVE 3
 #define TRIANGLE_WAVE 5
 #define MAX_WAVE 6
-#define FILTERED_WAVE 7
 
 #define ADC_SAMPLES 64 // pot reading takes mean over this number of values
 
@@ -34,7 +33,7 @@ I2sDAC dac;
 TaskHandle_t AudioTask;
 
 const int WAVEFORML = LARYNX_WAVE;
-const int WAVEFORMR = FILTERED_WAVE;
+// const int WAVEFORMR = FILTERED_WAVE;
 
 char currentWave = WAVEFORML;
 
@@ -67,7 +66,7 @@ void setup()
   dac.begin(SAMPLERATE, 0, 26, 25, 27);
 
   initWavetable(wavetableL, WAVEFORML);
-  initWavetable(wavetableR, WAVEFORMR);
+//  initWavetable(wavetableR, WAVEFORMR);
   // Serial.println("portTICK_RATE_MS = " + portTICK_RATE_MS);
 
   // Try to start the DAC
@@ -103,6 +102,8 @@ void setup()
 
 int tableSplit = 1024;
 int fc = 2048;
+
+
 
 void initWavetable(float wavetable[], char waveform) {
   switch (waveform) {
@@ -186,27 +187,6 @@ void initWavetable(float wavetable[], char waveform) {
         break;
       }
 
-    case FILTERED_WAVE:
-      {
-        // Biquad(int type, double Fc, double Q, double peakGainDB)
-
-        Biquad *filter1 = new Biquad(peak, (float)fc * 16 / SAMPLERATE, 0.707, 0);
-        Biquad *filter2 = new Biquad(peak, (float)fc * 16 / SAMPLERATE, 0.707, 0);
-
-        float x1, x2, x3, x4, x5, x6, x7, x8;
-
-        for (int i = 0; i < TABLESIZE; i++) {
-          x1 = filter1->process(wavetableL[i]);
-          x2 = filter1->process(x1);
-          x3 = filter2->process(x2);
-          x4 = filter2->process(x3);
-          x5 = filter2->process(x4);
-          x6 = filter2->process(x5);
-          x7 = filter2->process(x6);
-          x8 = filter2->process(x7);
-          wavetableR[i] = - filter1->process(x8);
-        }
-
         /*
           // 2nd order IIR
           float a0 = 1;
@@ -255,8 +235,6 @@ void initWavetable(float wavetable[], char waveform) {
 
           }
         */
-        break;
-      }
       // default:
   }
 }
@@ -296,6 +274,9 @@ void initInputs() {
   }
 }
 /* END INITIALISE INPUTS */
+
+//   Biquad(int type, float Fc, float Q, float peakGainDB);
+Biquad *filter = new Biquad(lowpass, (float)fc / (float)SAMPLERATE, 2.0, 0);
 
 /* INPUT THREAD */
 void ControlInput(void *pvParameter)
@@ -339,9 +320,6 @@ void ControlInput(void *pvParameter)
 
     if (abs(tableSplit - potValue[POT_LARYNX]) > 8) {
       tableSplit = potValue[POT_LARYNX];
-      ///////////////////////////////
-      initWavetable(wavetableL, currentWave);
-      initWavetable(wavetableR, FILTERED_WAVE);
       initWavetable(wavetableL, currentWave);
     }
 
@@ -349,10 +327,8 @@ void ControlInput(void *pvParameter)
       // Serial.println(potValue[POT_FC], DEC);
       fc = potValue[POT_FC];
       currentFc = potValue[POT_FC];
-      ///////////////////////////////
-      //  initWavetable(wavetableL, currentWave);
-      initWavetable(wavetableR, FILTERED_WAVE);
-      //  initWavetable(wavetableL, currentWave);
+     //  Serial.println(fc, DEC);
+      filter->setFc((float)fc/(float)SAMPLERATE);
     }
 
     // Serial.println("\nSwitches -------------");
@@ -374,19 +350,7 @@ void ControlInput(void *pvParameter)
 }
 /* END INPUT THREAD */
 
-const int BUFFER_SIZE = 256;
-float wBuffer[BUFFER_SIZE];
 
-
-void bufferWrite(float x) {
-  bufferIndex = bufferIndex++ % BUFFER_SIZE;
-  wBuffer[bufferIndex] = x;
-}
-
-float bufferRead() {
-  bufferIndex = bufferIndex++ % BUFFER_SIZE;
-  return wBuffer[bufferIndex];
-}
 
 /* OUTPUT THREAD */
 void OutputDAC(void *pvParameter)
@@ -399,10 +363,6 @@ void OutputDAC(void *pvParameter)
   Serial.println(xPortGetCoreID());
 
   int pointer = 0;
-
-  for (int i = 0; i < 256; i++) {
-    wBuffer[i] = 0.0;
-  }
 
   while (1) {
     pointer = pointer + tableStep;
@@ -421,17 +381,10 @@ void OutputDAC(void *pvParameter)
     float valR = wavetableR[lower] * err + wavetableR[upper] * (1 - err);
 
     //--------------------------------
-    Biquad *filter = new Biquad(peak, (float)fc / SAMPLERATE, 0.707, 0);
 
-    bufferWrite(valL);
+    valR = filter->process(valL/2.0);
 
-    for (int i = 0; i < BUFFER_SIZE; i++) {
-
-      wBuffer[i] = filter->process(wBuffer[i]);
-      //------------------
-    }
-
-    dac.writeSample(bufferRead(), valR);
+    dac.writeSample(valL, valR);
 
     // Pause thread after delivering 64 samples so that other threads can do stuff
     if (frameCount++ % 64 == 0) vTaskDelay(1); // was 64, 1

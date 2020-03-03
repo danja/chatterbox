@@ -1,3 +1,8 @@
+**2020-03-03** : **Milestone!** first formant filter essentially working.
+
+*version chatterbox_1.0.3*
+
+
 **2020-03-02**
 
 *version chatterbox_1.0.2*
