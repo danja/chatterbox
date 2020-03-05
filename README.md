@@ -13,7 +13,7 @@ Not long ago I rediscovered an electronics magazine article I first saw whilst s
 
 ![Original Chatterbox](https://github.com/danja/chatterbox/blob/master/reference/original-chatterbox.png "Original Chatterbox")
 
-The (mighty elegant) implementation then was with a handful of ICs, now I'd like to try something similar based around microcontroller(s). Also ties in nicely with other projects I have on the go.
+The (mighty elegant) implementation then was with a handful of mostly analog ICs, now I'd like to try something similar based around microcontroller(s). Also ties in nicely with other projects I have on the go.
 
 The rationale for having such a machine is well made in the magazine article. But given a microcontroller, it should be relatively straightforward to add features such as MIDI I/O interface to make it a modern musical instrument, Web interface for the IoT, whatever. Should be fun.
 
