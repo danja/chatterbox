@@ -1,7 +1,8 @@
 # Chatterbox
 *A manually controlled speech-like sound generator*
 
-Based on ESP32 with external UDA1334A DAC. Work in progress.
+Based on ESP32 with external UDA1334A DAC. 
+Very much **active** work in progress, March 2020. It is making sounds, but changing day-to-day. I'm updating these docs with every development.
 
 **Prototype hardware demo (YouTube video) :**
 
@@ -14,6 +15,8 @@ Not long ago I rediscovered an electronics magazine article I first saw whilst s
 ![Original Chatterbox](https://github.com/danja/chatterbox/blob/master/reference/original-chatterbox.png "Original Chatterbox")
 
 The (mighty elegant) implementation then was with a handful of mostly analog ICs, now I'd like to try something similar based around microcontroller(s). Also ties in nicely with other projects I have on the go.
+
+The human interface is probably the most appealing part of the original Chatterbox. So joystick, bunch of switches, a few pots. Use an inexpensive microcontroller to do the work.
 
 The rationale for having such a machine is well made in the magazine article. But given a microcontroller, it should be relatively straightforward to add features such as MIDI I/O interface to make it a modern musical instrument, Web interface for the IoT, whatever. Should be fun.
 
@@ -40,22 +43,13 @@ First attempts at a filter, cutoff freq on pot 3. Something very wrong - it's in
 
 ## Proposed Implementation    
 
-The human interface is probably the most appealing part of the original Chatterbox. So joystick, bunch of switches, a few pots. Use an inexpensive microcontroller to do the work.
+
 
 * Hardware : currently I'm looking at an ESP32 module, plus an external UDA1334A DAC module (using I2S). Old-school analog joystick, pots & switches. 
 
 * Software : Initial larynx/glottal sounds, wavetable is fast & easy. Formants (essentially tuned filters mimicing the tubes around throat, mouth, nose), I'm quite entranced by the Swiss Army Knife DSP design. Make a little lib based on that, plug together. 
 
-## Considerations
-The 12-bit ADCs of the ESP32 should be adequate for analog input from joystick & a few pots. Hopefully, given an external DAC, 16 bit output signal shouldn't be too demanding. 
 
-A potential issue is performance on the ESP32. The 7kHz @ 44.1kHz sine I got out of the box was generated using floats with minimal arithmetic. The original Chatterbox employed 5 formant filters, the computational demand of those (plus sound generation, interface recognition) might get heavy. 
-
-* Plan B is to use fixed-point arithmetic for the DSP calculations. Potentially orders of magnitude speed increase in speed of calculations, at the cost of spending lots of time figuring it all out.
-
-* Plan C is to use an Arduino Due, considerably faster than the ESP32 but with expense, leaning to the point of might-as-well-use-a-Raspberry Pi.
-
-* Plan D is to drop all this, use a mobile phone, laptop. And/or, game handset.
 
 ----
 
@@ -74,16 +68,35 @@ D25     WSEL
 ----
 
 ## Source Material
-*Some have local copies for reference, see /reference*
+*Some are local copies, see /reference*
 
-links todo. https://github.com/chdh/klatt-syn has most others
+links todo.  has most others
 
-**Key Sources**
+**Formant-based Speech Synthesis**
 * [Chatterbox](https://github.com/danja/chatterbox/blob/master/reference/Chatterbox-1976.pdf)  [Witten & Madams, 1978]
-* Digital Filters For Music Synthesis [Nielsen, 2000]
+
+* [Analysis, synthesis, and perception of voice quality variations among female and male talkers](http://www.fon.hum.uva.nl/david/ma_ssp/doc/Klatt-1990-JAS000820.pdf)
+* [Software for a cascade/parallel formant synthesizer](http://www.fon.hum.uva.nl/david/ma_ssp/doc/Klatt-1980-JAS000971.pdf)
+*Dennis H. Klatt, the author of the two papers above has [a wealth of other related material](https://www.researchgate.net/scientific-contributions/2033647470_Dennis_H_Klatt)*
 
 * [Faust](https://faust.grame.fr/)
-* [KlattSyn](http://www.source-code.biz/klattSyn/)
+
+**Wavetables etc.**
+* [the_synth](https://github.com/dzlonline/the_synth)
+* [Alias-Free Digital Synthesis of Classic Analog Waveforms](https://ccrma.stanford.edu/~stilti/papers/blit.pdf)
+* [Table Lookup Oscillators Using Generic Integrated Wavetables](http://mtg.upf.edu/node/485)
+
+**Filters**
+* [Digital Filters For Music Synthesis](https://github.com/danja/chatterbox/blob/master/reference/karmafx_digitalfilters.pdf)
+* [musicdsp.org](https://www.musicdsp.org/)
+* [KVR Forum](https://www.kvraudio.com/forum/)
+* [Biquads](https://www.earlevel.com/main/2003/02/28/biquads/)
+* [The digital state variable filter](https://www.earlevel.com/main/2003/03/02/the-digital-state-variable-filter/)
+* [A Collection of Useful C++ Classes for Digital Signal Processing](https://github.com/vinniefalco/DSPFilters)
+
+**Fixed-point maths**
+* [Fixed Point Math Library for C](https://sourceforge.net/p/fixedptc/)
+* [related thread on StackOverflow](https://stackoverflow.com/questions/10067510/fixed-point-arithmetic-in-c-programming)
 
 **ESP32**
 * [ESP32 Projects & Tutorials](https://randomnerdtutorials.com/projects-esp32/)
@@ -100,21 +113,4 @@ links todo. https://github.com/chdh/klatt-syn has most others
 * [ESP-IDF ADC API](https://docs.espressif.com/projects/esp-idf/en/latest/api-reference/peripherals/adc.html)
 * [ESP-DSP](https://github.com/espressif/esp-dsp)
 * [ESP32 Parallel Programming](https://home.roboticlab.eu/en/iot-open/getting_familiar_with_your_hardware_rtu_itmo_sut/esp/esp_parallel_programming)
-
-**Wavetables etc.**
-* [the_synth](https://github.com/dzlonline/the_synth)
-* [Alias-Free Digital Synthesis of Classic Analog Waveforms](https://ccrma.stanford.edu/~stilti/papers/blit.pdf)
-* [Table Lookup Oscillators Using Generic Integrated Wavetables](http://mtg.upf.edu/node/485)
-
-**Filters**
-* [musicdsp.org](https://www.musicdsp.org/)
-* [KVR Forum](https://www.kvraudio.com/forum/)
-* [Biquads](https://www.earlevel.com/main/2003/02/28/biquads/)
-* [The digital state variable filter](https://www.earlevel.com/main/2003/03/02/the-digital-state-variable-filter/)
-* [A Collection of Useful C++ Classes for Digital Signal Processing](https://github.com/vinniefalco/DSPFilters)
-
-**Fixed-point maths**
-* [Fixed Point Math Library for C](https://sourceforge.net/p/fixedptc/)
-* [related thread on StackOverflow](https://stackoverflow.com/questions/10067510/fixed-point-arithmetic-in-c-programming)
-
-https://www.switchdoc.com/2018/04/esp32-tutorial-debouncing-a-button-press-using-interrupts/
+* [Debouncing a Button Press using Interrupts](https://www.switchdoc.com/2018/04/esp32-tutorial-debouncing-a-button-press-using-interrupts/)
