@@ -72,6 +72,39 @@ For a first prototype I've mounted everything on some pieces of thin acrylic I h
 
 I had allowed for one pot for volume control but effectively had the one in the middle left over. But it has occured to me that I can produce a different output on DAC channel 2 (say something from further up the filter chain), direct this passively through the extra control.
 
+----
+
+**DAC Wiring**
+
+**ESP32	DAC**
+
+D26     BLCK
+
+D27     DIN
+
+D25     WSEL
+
+100R in between
+
+[reference](https://randomnerdtutorials.com/esp32-pinout-reference-gpios/)
+
+ADCs :
+
+GPIO 32
+GPIO 33
+GPIO 34
+GPIO 35
+GPIO 36
+GPIO 39
+
+Switches:
+
+GPIO 1
+GPIO 3
+GPIO 12
+GPIO 13
+GPIO 14
+
 ## Initial Considerations
 
 These were notes I had in README.md. After some experimentation I can answer them all, very positively.

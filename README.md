@@ -41,30 +41,6 @@ First attempts at a filter, cutoff freq on pot 3. Something very wrong - it's in
 
 **2020-02-21** : First sounds from core hard/software (stereo 7kHz sine from wavetable @ 44.1kHz, 16 bit). This repository created.
 
-## Proposed Implementation    
-
-
-
-* Hardware : currently I'm looking at an ESP32 module, plus an external UDA1334A DAC module (using I2S). Old-school analog joystick, pots & switches. 
-
-* Software : Initial larynx/glottal sounds, wavetable is fast & easy. Formants (essentially tuned filters mimicing the tubes around throat, mouth, nose), I'm quite entranced by the Swiss Army Knife DSP design. Make a little lib based on that, plug together. 
-
-
-
-----
-
-**DAC Wiring**
-
-ESP32	DAC
-
-D26     BLCK
-
-D27     DIN
-
-D25     WSEL
-
-100R in between
-
 ----
 
 ## Source Material
