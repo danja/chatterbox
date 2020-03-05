@@ -17,11 +17,13 @@ The (mighty elegant) implementation then was with a handful of ICs, now I'd like
 
 The rationale for having such a machine is well made in the magazine article. But given a microcontroller, it should be relatively straightforward to add features such as MIDI I/O interface to make it a modern musical instrument, Web interface for the IoT, whatever. Should be fun.
 
-On looking around this domain a little, some key material on numerically modelling the physics of human speech can be found in the work of Klatt (links below).
+* [Design Notes](https://github.com/danja/chatterbox/blob/master/design.md) 
+* [Quasi-blog Notes](https://github.com/danja/chatterbox/blob/master/notes.md)
+* [ToDo list](https://github.com/danja/chatterbox/blob/master/todo.md)
 
 ## Status
 
-For more detail, see [quasi-blog notes.md](https://github.com/danja/chatterbox/blob/master/notes.md).
+**2020-03-05** : All available pots set to filter controls, using a state variable. Between stages have added soft clipping (tanh), works a treat! 
 
 **2020-03-03** : **Milestone!** first formant filter essentially working.
 
@@ -103,6 +105,13 @@ links todo. https://github.com/chdh/klatt-syn has most others
 * [the_synth](https://github.com/dzlonline/the_synth)
 * [Alias-Free Digital Synthesis of Classic Analog Waveforms](https://ccrma.stanford.edu/~stilti/papers/blit.pdf)
 * [Table Lookup Oscillators Using Generic Integrated Wavetables](http://mtg.upf.edu/node/485)
+
+**Filters**
+* [musicdsp.org](https://www.musicdsp.org/)
+* [KVR Forum](https://www.kvraudio.com/forum/)
+* [Biquads](https://www.earlevel.com/main/2003/02/28/biquads/)
+* [The digital state variable filter](https://www.earlevel.com/main/2003/03/02/the-digital-state-variable-filter/)
+* [A Collection of Useful C++ Classes for Digital Signal Processing](https://github.com/vinniefalco/DSPFilters)
 
 **Fixed-point maths**
 * [Fixed Point Math Library for C](https://sourceforge.net/p/fixedptc/)

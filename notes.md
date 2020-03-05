@@ -1,3 +1,21 @@
+**2020-03-05**
+
+Out of the box, the biquad filter I've tried has stability issues, so now on the lookout for something better.
+[SvfLinearTrapOptimised2 (State Variable Filter)](https://github.com/FredAntonCorvest/Common-DSP) based on [this paper](http://www.cytomic.com/files/dsp/SvfLinearTrapOptimised2.pdf) seems promising, though I'm struggling to get the levels right.
+
+*(I never learnt C++ properly so there's a lot of guesswork around using 3rd party code, so many different styles...)*
+
+Something else I'm looking at is allowing quite mad ranges on things like the Q but inserting code into the filter chain to keep levels within bounds. The easiest auto level control is soft clipping, for which the tanh function is indicated, and pretty fast approximations are possible : [Approximating hyperbolic tangent](https://mathr.co.uk/blog/2017-09-06_approximating_hyperbolic_tangent.html)
+
+Wow! The combination of SvfLinearTrapOptimised2 and soft clipping is wonderful!
+(Might have been as good with the original biquad, may play later).
+
+I've put this type of filter on all controls, saved as *version chatterbox_1.0.5*.
+
+Added documents : [Design Notes](https://github.com/danja/chatterbox/blob/master/design.md), [ToDo list](https://github.com/danja/chatterbox/blob/master/todo.md)
+
+
+
 **2020-03-03** : **Milestone!** first formant filter essentially working.
 
 *version chatterbox_1.0.3*
