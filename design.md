@@ -40,6 +40,107 @@ As noted this is all **provisional**. Aside from the overall topology, a couple 
 
 I'm coding using the Arduino IDE. Standard libs + ESP32 extensions, plus playing with 3rd party generic C++ filter designs.
 
+### Parameters
+
+Values are needed for the various frequencies, Qs etc. The original Chatterbox provides what will hopefully be good starting points for most, with the help of a bit of literature-dredging.
+
+#### Sample Rate
+
+Klatt [1980] states that "most of the sound energy in speech is contained in frequencies between 80 and 8000Hz" (and goes on to say that intelligibility isn't much affected using 5kHz). So a sample rate of 16kHz+ is desirable.  
+
+The DAC used here will comfortably support stereo 16 bit @ 44.1kHz, but to help pre-empt any potential performance issues I've provisionally gone for a sample rate of 22050, which should be plenty for speech. 
+
+#### Fundamental Pitch
+
+The Chatterbox article talks of a fundamental (laryngeal) pitch for male speech being about 20-250Hz, with a median of 100Hz. The implementation uses 20-200Hz.
+
+Klatt & Klatt [1990] talks of female speech parameters being typically 1.7 * the frequency of male. Their implementation (KLSYN88) uses a range of 0-500Hz, typical 100Hz.
+
+So here 0-500Hz seems reasonable. Some scaling of the potentiometer value to provide effective control will be desirable, probably a simple polynomial. (Note that at the extremes the ESP32's ADCs are very non-linear, this will probably need compensation too).
+
+F_MIN = 0
+F_MAX = 500
+
+#### Variable Filters
+
+These are the two formant filters F1, F2 and the 'auxiliary' F3. 
+
+**Frequencies**
+
+Chatterbox has the first formant at range required 300-750Hz (but calculated for filter implementation 180-550Hz). The second, 750-2250Hz (calculated 940-2850Hz). Noting that this is male voice only, to cover the female range the high ends can be scaled by 1.7, to 1275Hz and 3825Hz.
+
+The Klatts' KLSYN88 has F1 = 180-1300Hz, typically 500, F2 = 550-3000Hz, typ. 1500.
+
+Note that KLSYN88 includes 5 formant filters for voiced sounds, the highest going from 3000-4990Hz typ. 3700 (there is an F6 for fricative sounds only,  3000-4990Hz, typ. 4990Hz).
+
+So a first trial here of F1 = 150-1400Hz, F2 = 500-5000Hz seems reasonable.
+
+F3 functionality is really something to decide later, but to avoid significant interference with F1 & F2, a freq. range of 50-7000Hz should make a reasonable starting range.
+
+F_MIN = 0
+F_MAX = 500
+
+**Bandwidth**
+
+The original Chatterbox implements F1 bandwidth 110Hz, F2 bandwidth 160Hz, but mentions published values 50-100Hz, opting for the higher values to avoid instability.
+
+KLATTSYN88 has F1 bandwidth range 30-1000Hz, typ. 60Hz, and F2 40-1000Hz, typ. 90Hz.
+
+F1 & F2 have fixed bandwidth here, so a first guess of F1 : 50Hz and F2 : 100Hz seems reasonable.
+
+F3, again to be decided so probably best to keep out of the way for now. It is variable. Give it a min. bandwidth of 200Hz.
+
+**Q**
+
+Q = f/bandwidth ([Wikipedia](https://en.wikipedia.org/wiki/Q_factor#Relationship_between_Q_and_bandwidth))
+
+Assuming the following typical freq. values, F1 = 500Hz, F2 = 1500Hz, F3 = 1000Hz. Bandwidth 50Hz, 100Hz, 200Hz.
+
+F1_Q = 10
+F2_Q = 15
+F3_Q (max) = 5
+
+*Those all seem very high...*
+
+#### Fixed Filters
+
+These are the initial filters for sibilant/fricative sounds.
+
+For now, taking values around those of original Chatterbox.
+
+**SF1** (sh) : frequency 2100Hz bandwidth 200Hz 
+**SF2** (ff) : frequency 3700Hz bandwidth 300Hz 
+**SF3** (sh) : frequency 5600Hz bandwidth 400Hz 
+
+F_MIN = 0
+F_MAX = 500
+
+F1_LOW = 150
+F1_HIGH = 1400
+F2_LOW = 500
+F2_HIGH = 5000
+F3_LOW = 50
+F3_HIGH = 7000
+
+F1_Q = 10
+F2_Q = 15
+F3_Q (max) = 5
+
+SF1_F = 2100
+SF2_F = 3700
+SF3_F = 5600
+
+SF1_Q = 10
+SF2_Q = 12
+SF3_Q = 14
+
+**Notes**
+Chances are the relationship between Q and frequency of speech formants is fixed as assumed above. Experimentation and more research required to see if some kind of tracking may be beneficial.
+
+It might be desirable to implement additional filters combined with F1, F2, F3 with frequencies locked to multiples of their centre frequencies, ie. harmonics. 
+
+The Chatterbox article notes that the fricative sounds have different amplitudes, 'fff' being much weaker. This should be easy to sort out later.
+
 ### Hardware Implementation
 
 The core of the system is an ESP32 system-on-a-chip with external UDA1334A DAC.
@@ -47,6 +148,8 @@ The core of the system is an ESP32 system-on-a-chip with external UDA1334A DAC.
 I'm using modules sourced from Banggood, China : [ESP32 Development Board WiFi+bluetooth Ultra Low Power Consumption Dual Cores ESP-32 ESP-32S Board Geekcreit](https://www.banggood.com/ESP32-Development-Board-WiFibluetooth-Ultra-Low-Power-Consumption-Dual-Cores-ESP-32-ESP-32S-Board-p-1109512.html) which I believe is the same as "ESP32 DEVKIT V1 - DOIT version with 36 GPIOs", and [CJMCU-1334 UDA1334A I2S Audio Stereo Decoder Module Board](https://www.banggood.com/CJMCU-1334-UDA1334A-I2S-Audio-Stereo-Decoder-Module-Board-3_3V-5V-p-1296295.html) which appears to be common across many other suppliers. (Banggood are inexpensive, at the cost of delivery time).
 
 Simple push switches are used for S0-S4, used to trigger/maintain sounds.
+
+*The original Chatterbox used touch switches and coincidentally the ESP32 has built-in support for capacit
 
 P0 & P1 are the X & Y axes of an analog (potentiometer) joystick (I got mine from [Banggood](https://www.banggood.com/Joystick-potentiometer-JH-D202X-R2R4-10K-2D-Monitor-Keyboard-ball-controller-For-Photographic-Film-p-1144188.html)).
 

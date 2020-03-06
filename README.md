@@ -53,9 +53,14 @@ links todo.  has most others
 
 * [Analysis, synthesis, and perception of voice quality variations among female and male talkers](http://www.fon.hum.uva.nl/david/ma_ssp/doc/Klatt-1990-JAS000820.pdf)
 * [Software for a cascade/parallel formant synthesizer](http://www.fon.hum.uva.nl/david/ma_ssp/doc/Klatt-1980-JAS000971.pdf)
+
 *Dennis H. Klatt, the author of the two papers above has [a wealth of other related material](https://www.researchgate.net/scientific-contributions/2033647470_Dennis_H_Klatt)*
 
 * [Faust](https://faust.grame.fr/)
+
+**Speech**
+* [Relative contribution of envelope and fine structure to the subcortical encoding of noise-degraded speech](https://asa.scitation.org/doi/10.1121/1.4965248)
+* [Temporal information in speech: acoustic, auditory and linguistic aspects](https://royalsocietypublishing.org/doi/pdf/10.1098/rstb.1992.0070)
 
 **Wavetables etc.**
 * [the_synth](https://github.com/dzlonline/the_synth)

@@ -7,7 +7,7 @@
 #include "Biquad.h";
 #include "SvfLinearTrapOptimised2.hpp";
 
-#define SAMPLERATE 22000
+#define SAMPLERATE 22050
 
 #define ADC_TOP 4096
 
@@ -23,7 +23,7 @@
 #define ADC_SAMPLES 64 // pot reading takes mean over this number of values
 
 #define POTS 6
-#define SWITCHES 5
+// #define SWITCHES 5
 
 #define POT_F1     0
 #define POT_F2     1
@@ -58,9 +58,17 @@ int bufferIndex = 0;
 // Inputs
 int potChannel[POTS]; // adc1_channel_t
 int potValue[POTS];
-char switchChannel[SWITCHES];
-char switchInput[SWITCHES];
-char switchState[SWITCHES];
+
+char switchChannel[] = {22, 23, 12, 13, 14};
+float switchGain[] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+char nswitches =  (int)(sizeof(switchChannel) / sizeof(switchChannel[0]));
+
+float attackTime = 0.01f; // 10mS
+float attackStep = (float)ADC_TOP / (samplerate*attackTime);
+
+float decayTime = 0.01f; // 10mS
+float decayStep = (float)ADC_TOP / (samplerate*decayTime);
+
 
 void loop() {};
 
@@ -73,14 +81,33 @@ float fc = 0.1;
 SvfLinearTrapOptimised2 formant1;
 SvfLinearTrapOptimised2 formant2;
 SvfLinearTrapOptimised2 formant3;
-// SvfLinearTrapOptimised2::FLT_TYPE type = SvfLinearTrapOptimised2::BAND_PASS_FILTER;
+
+SvfLinearTrapOptimised2::FLT_TYPE formant1_type = SvfLinearTrapOptimised2::BAND_PASS_FILTER;
+SvfLinearTrapOptimised2::FLT_TYPE formant2_type = SvfLinearTrapOptimised2::BAND_PASS_FILTER;
+SvfLinearTrapOptimised2::FLT_TYPE formant3_type = SvfLinearTrapOptimised2::HIGH_SHELF_FILTER;
+
+float formant1_Q = 5;
+float formant2_Q = 5;
+float formant3_Q = 5;
+
+SvfLinearTrapOptimised2 sf1;
+SvfLinearTrapOptimised2 sf2;
+SvfLinearTrapOptimised2 sf3;
+
+SvfLinearTrapOptimised2::FLT_TYPE sf1_type = SvfLinearTrapOptimised2::HIGH_PASS_FILTER;
+SvfLinearTrapOptimised2::FLT_TYPE sf2_type = SvfLinearTrapOptimised2::HIGH_PASS_FILTER;
+SvfLinearTrapOptimised2::FLT_TYPE sf3_type = SvfLinearTrapOptimised2::HIGH_PASS_FILTER;
+
+float sf1_Q = 2;
+float sf2_Q = 2;
+float sf3_Q = 2;
 
 
 // ==== ==== ==== ==== ==== ==== ==== ==== ==== ==== ==== ====
 void setup()
 {
   Serial.begin(115200);
-
+  Serial.println("\n*** Starting Chatterbox ***\n");
   // begin(int sampleRate = 44100, int dataPort = 0, int bclk = 26, int wsel = 25, int dout = 33);
   dac.begin(SAMPLERATE, 0, 26, 25, 27);
 
@@ -125,12 +152,12 @@ void initWavetable(float wavetable[], char waveform) {
   switch (waveform) {
     case LARYNX_WAVE:
       {
-        Serial.println("LARYNX_WAVE selected");
-        Serial.println("Init larynx wavetableL");
+        //      Serial.println("LARYNX_WAVE selected");
+        //    Serial.println("Init larynx wavetableL");
         int bottomSize = (TABLESIZE * tableSplit) / ADC_TOP;
 
-        Serial.println(potValue[1], DEC);
-        Serial.println(bottomSize, DEC);
+        //     Serial.println(potValue[1], DEC);
+        //     Serial.println(bottomSize, DEC);
 
         for (unsigned int i = 0; i < bottomSize / 2; i++) {
           wavetable[i] = 2.0 * (float)i / (float)bottomSize - 1;
@@ -275,21 +302,26 @@ void initInputs() {
     potValue[i] = 0;
   }
 
-  // init switch inputs
-  switchChannel[0] = 22; //  GPIO 22
-  switchChannel[1] = 23; //  GPIO 23
-  switchChannel[2] = 12; // GPIO 12
-  switchChannel[3] = 13; // GPIO 13
-  switchChannel[4] = 14; // GPIO 14
+  //   (sizeof(x) / sizeof((x)[0]))
 
-  for (char i = 0; i < SWITCHES; i++) {
-    switchInput[i] = 0;
-    switchState[i] = 0;
+
+  // init switch inputs
+  /*
+    switchChannel[0] = 22; //  GPIO 22
+    switchChannel[1] = 23; //  GPIO 23
+    switchChannel[2] = 12; // GPIO 12
+    switchChannel[3] = 13; // GPIO 13
+    switchChannel[4] = 14; // GPIO 14
+  */
+  for (char i = 0; i < nswitches; i++) {
+    // switchInput[i] = 0;
+    switchGain[i] = 0;
     pinMode (switchChannel[i], INPUT);
     pinMode(switchChannel[i], INPUT_PULLDOWN);
   }
 }
 /* END INITIALISE INPUTS */
+
 
 /*
    see https://mathr.co.uk/blog/2017-09-06_approximating_hyperbolic_tangent.html
@@ -304,6 +336,9 @@ float softClip(float x) {
 //* INPUT THREAD */
 void ControlInput(void *pvParameter)
 {
+  Serial.print("Input thread started at core: ");
+  Serial.println(xPortGetCoreID());
+
   initInputs();
   /* Disable input for testing
     while (1) {
@@ -313,28 +348,37 @@ void ControlInput(void *pvParameter)
     Serial.println("tick");
     }
   */
+
   float pitchHz = 100; // Pitch
   float leveldB = 0;  // Level
 
   float filterGaindB = -6; // Gain to boost or cut the cutoff
   //float linearLevel = pow(10.0, leveldB / 20.0);
-  float Q = 5; // Q
+//  float Q = 5; // Q
 
-  SvfLinearTrapOptimised2::FLT_TYPE formant1_type = SvfLinearTrapOptimised2::BAND_PASS_FILTER;
-  SvfLinearTrapOptimised2::FLT_TYPE formant2_type = SvfLinearTrapOptimised2::BAND_PASS_FILTER;
-    SvfLinearTrapOptimised2::FLT_TYPE formant3_type = SvfLinearTrapOptimised2::HIGH_SHELF_FILTER;
 
-     // LOW_PASS_FILTER, BAND_PASS_FILTER, HIGH_PASS_FILTER, NOTCH_FILTER, PEAK_FILTER, ALL_PASS_FILTER, BELL_FILTER, LOW_SHELF_FILTER, HIGH_SHELF_FILTER, NO_FLT_TYPE};
+
+
+  // createSaw(nbSamples, pitchHz, leveldB, type, cutoffStartHz, cutoffEndHz, Q, filterGaindB);
 
   formant1.setGain(filterGaindB);
-  formant1.updateCoefficients(fc, Q, formant1_type, 22000);
-  
+  formant1.updateCoefficients(fc, formant1_Q, formant1_type, SAMPLERATE);
+
   formant2.setGain(filterGaindB);
-  formant2.updateCoefficients(fc, Q, formant2_type, 22000);
-  
+  formant2.updateCoefficients(fc, formant2_Q, formant2_type, SAMPLERATE);
+
   formant3.setGain(filterGaindB);
-  formant3.updateCoefficients(fc, 10, formant3_type, 22000);
-  // createSaw(nbSamples, pitchHz, leveldB, type, cutoffStartHz, cutoffEndHz, Q, filterGaindB);
+  formant3.updateCoefficients(fc, formant3_Q, formant3_type, SAMPLERATE);
+
+  sf1.setGain(filterGaindB);
+  sf1.updateCoefficients(fc, sf1_Q, sf1_type, SAMPLERATE);
+
+  sf2.setGain(filterGaindB);
+  sf2.updateCoefficients(fc, sf2_Q, sf2_type, SAMPLERATE);
+
+  sf3.setGain(filterGaindB);
+  sf3.updateCoefficients(fc, sf3_Q, sf3_type, SAMPLERATE);
+
 
   while (1) {
     // vTaskDelay(1000 / portTICK_RATE_MS); // was 1000
@@ -369,16 +413,15 @@ void ControlInput(void *pvParameter)
       #define POT_LARYNX 4
     */
     float Q = 2;
-      fc = potValue[POT_F1];
-    formant1.updateCoefficients(fc, Q, formant1_type, samplerate);
+    fc = potValue[POT_F1];
+    formant1.updateCoefficients(fc, formant1_Q, formant1_type, samplerate);
 
-      fc = potValue[POT_F2];
-    formant2.updateCoefficients(fc, Q, formant2_type, samplerate);
+    fc = potValue[POT_F2];
+    formant2.updateCoefficients(fc, formant2_Q, formant2_type, samplerate);
 
-   
     fc = potValue[POT_F3_F];
     float f3Q = (float)potValue[POT_F3_Q] / 256.0;
-    
+
     formant3.updateCoefficients(fc, f3Q, formant3_type, samplerate);
     // updateCoefficients(double cutoff, double q = 0.5, FLT_TYPE type = LOW_, double sampleRate = 44100)
     /*
@@ -408,37 +451,54 @@ void ControlInput(void *pvParameter)
           Serial.println(filter->getB2(), DEC);
           Serial.println(filter->getC1(), DEC);
     */
+    //Serial.println("ONE");
+    // Serial.println(nswitches, DEC);
+    // Serial.println("TWO");
+    for (char i = 0; i < nswitches; i++) {
+      if (digitalRead(switchChannel[i]) == 1) {
+        switchGain[i] += attackStep;
+        if (switchGain[i] > 1) switchGain[i] = 1;
+      } else {
+        switchGain[i] -= decayStep;
+        if (switchGain[i] < 1) switchGain[i] = 0;
+      }
+      //  Serial.println(switchGain[i], DEC);
+      //   vTaskDelay(1);
+    }
   }
 
   // Serial.println("\nSwitches -------------");
 
-  for (char svitch = 0; svitch < SWITCHES; svitch++) {
-    switchInput[svitch] = digitalRead(switchChannel[svitch]);
-    // Serial.print(svitch, DEC);
-    // Serial.print(" : ");
-    // Serial.println(switchState[svitch], DEC);
-    // vTaskDelay(1);
-  }
-
-  if (switchInput[SWITCH_WAVEFORM] != switchState[SWITCH_WAVEFORM]) {
-    switchState[SWITCH_WAVEFORM] = switchInput[SWITCH_WAVEFORM];
-    if (currentWave++ > NWAVES) currentWave = 0;
-    initWavetable(wavetableL, currentWave);
-  }
+  /*
+    for (char svitch = 0; svitch < nswitches; svitch++) {
+      switchInput[svitch] = digitalRead(switchChannel[svitch]);
+      // Serial.print(svitch, DEC);
+      // Serial.print(" : ");
+      // Serial.println(switchState[svitch], DEC);
+      // vTaskDelay(1);
+    }
+  */
+  /*
+    if (switchInput[SWITCH_WAVEFORM] != switchState[SWITCH_WAVEFORM]) {
+      switchState[SWITCH_WAVEFORM] = switchInput[SWITCH_WAVEFORM];
+      if (currentWave++ > NWAVES) currentWave = 0;
+      initWavetable(wavetableL, currentWave);
+    }
+  */
 }
 /* END INPUT THREAD */
-
-
 
 /* OUTPUT THREAD */
 void OutputDAC(void *pvParameter)
 {
+  Serial.print("Output thread started at core: ");
+  Serial.println(xPortGetCoreID());
+
   unsigned int frameCount = 0;
   int16_t sample[2];
   float sampleFloat[2];
 
-  Serial.print("Audio thread started at core: ");
-  Serial.println(xPortGetCoreID());
+
 
   int pointer = 0;
 
@@ -466,6 +526,10 @@ void OutputDAC(void *pvParameter)
     valR = softClip(formant1.tick(valL));
     valR = softClip(formant2.tick(valR));
     valR = softClip(formant3.tick(valR));
+
+    valL = switchGain[0] * random(-32768, 32767) / 32768.0f;
+    // (float)randy()/16384.0f - 1.0f;
+
     dac.writeSample(valL, valR);
 
     // Pause thread after delivering 64 samples so that other threads can do stuff

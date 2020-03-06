@@ -1,3 +1,19 @@
+**2020-03-06**
+
+NOTES TO SELF: remember larynx wave is recalculated on every change of that pot, source of glitches. Larynx wave is not at full scale
+
+Last night I did a quick check, C's built-in random function does seem to produce reasonable-sounding white noise using :
+
+random(-32768, 32767)/32768.0f
+
+pushed directly to the DAC2 output.
+
+Now seems a good time to look at the envelope-shaping components. I'm thinking of having a simple attack (on switch push), sustain (on switch hold) and decay (on switch release). Looking at the literature 10mS seems to be ballpark time for each of A & D. But what shape curve? I suppose it makes sense to start with linear and see what it sounds like.
+
+Lol, that couldn't have been easier! And no need for switch debouncing!
+
+
+
 **2020-03-05**
 
 Out of the box, the biquad filter I've tried has stability issues, so now on the lookout for something better.
@@ -13,8 +29,6 @@ Wow! The combination of SvfLinearTrapOptimised2 and soft clipping is wonderful!
 I've put this type of filter on all controls, saved as *version chatterbox_1.0.5*.
 
 Added documents : [Design Notes](https://github.com/danja/chatterbox/blob/master/design.md), [ToDo list](https://github.com/danja/chatterbox/blob/master/todo.md)
-
-
 
 **2020-03-03** : **Milestone!** first formant filter essentially working.
 
