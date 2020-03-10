@@ -1,13 +1,16 @@
 #include <Arduino.h>
-#include "i2sdac.h" // see src/lib - based on https://github.com/wjslager/esp32-dac 
-
 #include <driver/adc.h> // depends on Espressif ESP32 libs
-
-
-#include "Biquad.h";
+#include "i2sdac.h" // see src/lib - based on https://github.com/wjslager/esp32-dac 
+// #include "Biquad.h";
 #include "SvfLinearTrapOptimised2.hpp";
 
 #define SAMPLERATE 22050
+
+// I2C DAC interface
+#define GPIO_DAC_DATAPORT 0 
+#define GPIO_DAC_BCLK 26
+#define GPIO_DAC_WSEL 25
+#define GPIO_DAC_DOUT 27
 
 #define ADC_TOP 4096
 
@@ -113,9 +116,9 @@ SvfLinearTrapOptimised2::FLT_TYPE formant1_type = SvfLinearTrapOptimised2::BAND_
 SvfLinearTrapOptimised2::FLT_TYPE formant2_type = SvfLinearTrapOptimised2::BAND_PASS_FILTER;
 SvfLinearTrapOptimised2::FLT_TYPE formant3_type = SvfLinearTrapOptimised2::HIGH_SHELF_FILTER;
 
-float formant1_Q = 5;
-float formant2_Q = 5;
-float formant3_Q = 5;
+float formant1_Q;
+float formant2_Q;
+float formant3_Q;
 
 SvfLinearTrapOptimised2 sf1;
 SvfLinearTrapOptimised2 sf2;
@@ -135,8 +138,8 @@ void setup()
 {
   Serial.begin(115200);
   Serial.println("\n*** Starting Chatterbox ***\n");
-  // begin(int sampleRate = 44100, int dataPort = 0, int bclk = 26, int wsel = 25, int dout = 33);
-  dac.begin(SAMPLERATE, 0, 26, 25, 27);
+  
+  dac.begin(SAMPLERATE, GPIO_DAC_DATAPORT, GPIO_DAC_BCLK, GPIO_DAC_WSEL, GPIO_DAC_DOUT);
 
   initWavetable(wavetableL, WAVEFORML);
   //  initWavetable(wavetableR, WAVEFORMR);

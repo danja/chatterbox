@@ -449,9 +449,9 @@ void OutputDAC(void *pvParameter)
 
     float f1_in = (voice + aspiration) / 2.0f;
 
-    float s1 = sf1.tick(noise) * switchGain[SWITCH_SF1]/2.0f;
-    float s2 = sf2.tick(noise) * switchGain[SWITCH_SF2]/2.0f;
-    float s3 = sf3.tick(noise) * switchGain[SWITCH_SF3]/2.0f;
+    float s1 = sf1.tick(noise) * switchGain[SWITCH_SF1]/4.0f;
+    float s2 = sf2.tick(noise) * switchGain[SWITCH_SF2]/4.0f;
+    float s3 = sf3.tick(noise) * switchGain[SWITCH_SF3]/4.0f;
 
     float sibilants = softClip(s1 + s2 + s3);
 
