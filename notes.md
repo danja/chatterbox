@@ -1,12 +1,14 @@
 **2020-03-10**
 
-Made a lot of progress in the past few days, despite myself. Getting impatient, tried to do too much at once, made loads of silly mistakes, had to backtract a long way to fix.
+Made a lot of progress in the past few days, despite myself. Getting impatient, tried to do too much at once, made loads of silly mistakes, had to backtrack a long way to fix.
 
 But basically all working!
 
 Performance appeared to become an issue, weird artifacts on wave generation, so I temporarily moved sample rate from 22050 down to 16000, which fixed the worst. The SVF I'm using uses doubles internally. Flipping them all to floats has allowed me to go back up to 22050, but it's a nice warning that I'm getting close to the limit. I'm sure there are plenty of optimising tweaks I can do and can maybe get better timing params.
 
 There is an awful lot of tweaking to do, getting the parameters optimised. I may well need to work on simple transfer functions from the pot/ADC values to the filter parameters.
+
+Given that the source signal is very simple, using a wavetable is rather overkill (and inefficient, the way I have it set up). Inline generation is a definite possibility. But I do quite like the versatility this could offer, as and when it has more music-oriented synth bit (ie. MIDI).
 
 If I've got enough processor performance space, I really want to try adding extra filters with their frequencies locked to multiples of those of formants F1 and F2. 
 Either way, having the auxiliary filter F3 with pot-variable freq & Q, as a low pass seems to offer some nice effects. 
