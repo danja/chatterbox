@@ -4,9 +4,10 @@ Made a lot of progress in the past few days, despite myself. Getting impatient, 
 
 But basically all working!
 
-Performance appeared to become an issue, weird artifacts on wave generation, so I temporarily moved sample rate from 22050 down to 16000, which fixed the worst. The SVF I'm using uses doubles internally. Flipping them all to floats has allowed me to go back up to 22050, but it's a nice warning that I'm getting close to the limit. I'm sure there are plenty of optimising tweaks I can do and can maybe get better timing params.
+Performance appeared to become an issue, weird artifacts on wave generation, so I temporarily moved sample rate from 22050 down to 16000, which fixed the worst. The SVF I'm using uses doubles internally. Flipping them all to floats has allowed me to go back up to 22050, but it's a nice warning that I'm getting close to the limit. 
 
-There is an awful lot of tweaking to do, getting the parameters optimised. I may well need to work on simple transfer functions from the pot/ADC values to the filter parameters.
+There is an awful lot of tweaking to do, getting the timing & filter parameters optimised. 
+I may well need to work on simple transfer functions from the pot/ADC values to the filter parameters. I also need to do something to deal with the effects of noise on the controls. As I'm typing it's making occasional popping noises all on it's own.
 
 Given that the source signal is very simple, using a wavetable is rather overkill (and inefficient, the way I have it set up). Inline generation is a definite possibility. But I do quite like the versatility this could offer, as and when it has more music-oriented synth bit (ie. MIDI).
 
