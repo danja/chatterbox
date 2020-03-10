@@ -2,11 +2,11 @@
 *A manually controlled speech-like sound generator*
 
 Based on ESP32 with external UDA1334A DAC. 
-Very much **active** work in progress, March 2020. It is making sounds, but changing day-to-day. I'm updating these docs with every development.
+Very much **active** work in progress, March 2020. It is basically working, but changing day-to-day. I'm updating these docs with every development.
 
-**Prototype hardware demo (YouTube video) :**
+**Prototype demo/intro (YouTube video) :**
 
-[![Bleepy demo video](https://img.youtube.com/vi/DT7YRqZf7U4/0.jpg)](https://www.youtube.com/watch?v=DT7YRqZf7U4)
+[![Bleepy demo video](https://img.youtube.com/vi/DT7YRqZf7U4/0.jpg)](https://youtu.be/ta3ENgdaIzM)
 
 ## Introduction
 
@@ -14,7 +14,7 @@ Not long ago I rediscovered an electronics magazine article I first saw whilst s
 
 ![Original Chatterbox](https://github.com/danja/chatterbox/blob/master/reference/original-chatterbox.png "Original Chatterbox")
 
-The (mighty elegant) implementation then was with a handful of mostly analog ICs, now I'd like to try something similar based around microcontroller(s). Also ties in nicely with other projects I have on the go.
+The (mighty elegant) implementation then was with a handful of op amps & CMOS logic ICs, now I'd like to try something similar based around microcontroller(s). Also ties in nicely with other projects I have on the go.
 
 The human interface is probably the most appealing part of the original Chatterbox. So joystick, bunch of switches, a few pots. Use an inexpensive microcontroller to do the work.
 
@@ -25,6 +25,8 @@ The rationale for having such a machine is well made in the magazine article. Bu
 * [ToDo list](https://github.com/danja/chatterbox/blob/master/todo.md)
 
 ## Status
+
+**2020-03-10** : **Milestone!**  All core functionality basically working, see video above.
 
 **2020-03-05** : All available pots set to filter controls, using a state variable. Between stages have added soft clipping (tanh), works a treat! 
 
@@ -73,7 +75,9 @@ links todo.  has most others
 * [KVR Forum](https://www.kvraudio.com/forum/)
 * [Biquads](https://www.earlevel.com/main/2003/02/28/biquads/)
 * [The digital state variable filter](https://www.earlevel.com/main/2003/03/02/the-digital-state-variable-filter/)
+* [Introduction to Digital Filters with Audio Applications](https://ccrma.stanford.edu/~jos/filters/)
 * [A Collection of Useful C++ Classes for Digital Signal Processing](https://github.com/vinniefalco/DSPFilters)
+* [DSP Tips & Tricks](https://web.archive.org/web/20070427190833/http://www.cspl.umd.edu/spm/tips-n-tricks/)
 
 **Fixed-point maths**
 * [Fixed Point Math Library for C](https://sourceforge.net/p/fixedptc/)
@@ -95,3 +99,6 @@ links todo.  has most others
 * [ESP-DSP](https://github.com/espressif/esp-dsp)
 * [ESP32 Parallel Programming](https://home.roboticlab.eu/en/iot-open/getting_familiar_with_your_hardware_rtu_itmo_sut/esp/esp_parallel_programming)
 * [Debouncing a Button Press using Interrupts](https://www.switchdoc.com/2018/04/esp32-tutorial-debouncing-a-button-press-using-interrupts/)
+
+**DAC**
+[UDA1334ATS Info](https://lcav.gitbook.io/dsp-labs/passthrough/audio-io/dac)

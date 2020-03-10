@@ -1,3 +1,22 @@
+**2020-03-10**
+
+Made a lot of progress in the past few days, despite myself. Getting impatient, tried to do too much at once, made loads of silly mistakes, had to backtract a long way to fix.
+
+But basically all working!
+
+Performance appeared to become an issue, weird artifacts on wave generation, so I temporarily moved sample rate from 22050 down to 16000, which fixed the worst. The SVF I'm using uses doubles internally. Flipping them all to floats has allowed me to go back up to 22050, but it's a nice warning that I'm getting close to the limit. I'm sure there are plenty of optimising tweaks I can do and can maybe get better timing params.
+
+There is an awful lot of tweaking to do, getting the parameters optimised. I may well need to work on simple transfer functions from the pot/ADC values to the filter parameters.
+
+If I've got enough processor performance space, I really want to try adding extra filters with their frequencies locked to multiples of those of formants F1 and F2. 
+Either way, having the auxiliary filter F3 with pot-variable freq & Q, as a low pass seems to offer some nice effects. 
+
+So, tweaking for good sounds and optimisation is on the cards.
+
+But I also should start thinking about Web & MIDI interfaces. I'm hoping that the hard work for these has already been done for the ESP32.
+
+Once I've got skeleton functionality for those parts working I can get on with shifting the thing of the breadboard and into a decent box. Oh yeah, and build a little audio amp.
+
 **2020-03-06**
 
 NOTES TO SELF: remember larynx wave is recalculated on every change of that pot, source of glitches. Larynx wave is not at full scale
@@ -11,8 +30,6 @@ pushed directly to the DAC2 output.
 Now seems a good time to look at the envelope-shaping components. I'm thinking of having a simple attack (on switch push), sustain (on switch hold) and decay (on switch release). Looking at the literature 10mS seems to be ballpark time for each of A & D. But what shape curve? I suppose it makes sense to start with linear and see what it sounds like.
 
 Lol, that couldn't have been easier! And no need for switch debouncing!
-
-
 
 **2020-03-05**
 

@@ -1,5 +1,7 @@
 ## Chatterbox ToDo
 
+*I've hardly been using this, left here just as a last-ditch reminder...*
+
 ### Signal Generation
 * add noise gen
 

@@ -49,7 +49,7 @@ public:
      @param gainDb
         Gain in dB to boost or cut the cutoff point of the Low shelf filter
      */
-    void setGain(double gainDb) {
+    void setGain(float gainDb) {
         _coef.setGain(gainDb);
     }
     
@@ -63,7 +63,7 @@ public:
      @param sampleRate
         Sample rate. Default value is 44100hz. Do not forget to call resetState before changing the sample rate
      */
-    inline void updateCoefficients(double cutoff, double q = 0.5, FLT_TYPE type = LOW_PASS_FILTER, double sampleRate = 44100) {
+    inline void updateCoefficients(float cutoff, float q = 0.5, FLT_TYPE type = LOW_PASS_FILTER, float sampleRate = 44100) {
         _coef.update(cutoff, q, type, sampleRate);
     }
     
@@ -80,7 +80,7 @@ public:
      @class FacAbstractFilter
      @brief Tick method. Apply the filter on the provided material
      */
-    inline double tick(double v0) {
+    inline float tick(float v0) {
         _v3 = v0 - _ic2eq;
         _v1 = _coef._a1*_ic1eq + _coef._a2*_v3;
         _v2 = _ic2eq + _coef._a2*_ic1eq + _coef._a3*_v3;
@@ -97,9 +97,9 @@ private:
             _A = _ASqrt = 1;
         }
         
-        void update(double cutoff, double q = 0.5, SvfLinearTrapOptimised2::FLT_TYPE type = LOW_PASS_FILTER, double sampleRate = 44100) {
-            double g = tan((cutoff / sampleRate) * M_PI);
-            double k = computeK(q, type == BELL_FILTER /*USE GAIN FOR BELL FILTER ONLY*/);
+        void update(float cutoff, float q = 0.5, SvfLinearTrapOptimised2::FLT_TYPE type = LOW_PASS_FILTER, float sampleRate = 44100) {
+            float g = tan((cutoff / sampleRate) * M_PI);
+            float k = computeK(q, type == BELL_FILTER /*USE GAIN FOR BELL FILTER ONLY*/);
             
             switch (type) {
                 case LOW_PASS_FILTER:
@@ -164,31 +164,31 @@ private:
             }
         }
         
-        void setGain(double gainDb) {
+        void setGain(float gainDb) {
             _A = pow(10.0, gainDb / 40.0);
             _ASqrt = sqrt(_A);
         }
         
-        double computeK(double q, bool useGain=false) {
+        float computeK(float q, bool useGain=false) {
             return 1.f / (useGain ? (q*_A) : q);
         }
         
-        void computeA(double g, double k) {
+        void computeA(float g, float k) {
             _a1 = 1/(1 + g*(g + k));
             _a2 = g*_a1;
             _a3 = g*_a2;
         }
         
-        double _a1, _a2, _a3;
-        double _m0, _m1, _m2;
+        float _a1, _a2, _a3;
+        float _m0, _m1, _m2;
         
-        double _A;
-        double _ASqrt;
+        float _A;
+        float _ASqrt;
     } _coef;
     
-    double _ic1eq;
-    double _ic2eq;
-    double _v1, _v2, _v3;
+    float _ic1eq;
+    float _ic2eq;
+    float _v1, _v2, _v3;
 };
 
 #endif /* SvfLinearTrapOptimised2_hpp */

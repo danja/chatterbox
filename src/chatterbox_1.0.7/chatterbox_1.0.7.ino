@@ -1,13 +1,15 @@
 /*
- *  Chatterbox
- *  
- *  a voice-like sound generator
- *  
- *  see http://github.com/danja/chatterbox
- * 
- *  unless otherwise stated, MIT license for code, attribution appreciated
- * 
- */
+    Chatterbox
+
+    a voice-like sound generator
+
+    see http://github.com/danja/chatterbox
+
+    unless otherwise stated, MIT license for code, attribution appreciated
+
+    Danny Ayers 2020 | danny.ayers@gmail.com | #danja | http://hyperdata.it
+
+*/
 
 #include <Arduino.h>
 #include <driver/adc.h> // depends on Espressif ESP32 libs
@@ -15,7 +17,7 @@
 // #include "Biquad.h";
 #include "SvfLinearTrapOptimised2.hpp";
 
-#define SAMPLERATE 16000
+#define SAMPLERATE 22050
 
 // I2C DAC interface
 #define GPIO_DAC_DATAPORT 0
@@ -59,8 +61,8 @@
 #define F_MIN 20
 #define F_MAX 500
 
-#define LARYNX_MIN 0
-#define LARYNX_MAX 4096
+#define LARYNX_MIN 5 // % of wave is larynx open
+#define LARYNX_MAX 95
 #define F1_LOW  150
 #define F1_HIGH  1400
 #define F2_LOW  500
@@ -147,7 +149,7 @@ void setup()
   xTaskCreatePinnedToCore(
     OutputDAC,
     "audio",
-    4096, 
+    4096,
     NULL,
     1,
     &AudioTask,
@@ -157,7 +159,7 @@ void setup()
   xTaskCreatePinnedToCore(
     ControlInput,
     "ControlInput",
-    4096, 
+    4096,
     NULL,
     1,
     NULL,
@@ -166,35 +168,50 @@ void setup()
 
 /* INITIALIZE WAVETABLE */
 
- int bottomSize = TABLESIZE/2;
- int tableSplit = 1024;
-
+int bottomSize = TABLESIZE / 2;
+int tableSplit = 1024;
 
 void initWavetable(float wavetable[], char waveform) {
   switch (waveform) {
     case LARYNX_WAVE:
       {
-       // Serial.println("LARYNX_WAVE selected");
-       // Serial.println("Init larynx wavetableL");
-   
-       bottomSize =  (TABLESIZE * tableSplit) / ADC_TOP;
-     //   Serial.println(potValue[1], DEC);
-      //  Serial.println(bottomSize, DEC);
 
-        for (unsigned int i = 0; i < bottomSize / 2; i++) {
-          wavetable[i] = 2.0 * (float)i / (float)bottomSize - 1;
+
+        // Serial.println("Init larynx wavetable");
+        // tableSplit = inputOffset[POT_LARYNX] + inputScale[POT_LARYNX] * potValue[POT_LARYNX];
+
+
+        for (unsigned int i = 0; i < tableSplit / 2; i++) { // up slope /
+          wavetable[i] = 2.0f * (float)i / (float)tableSplit - 1.0f;
         }
-        for (unsigned int i = bottomSize / 2; i < bottomSize; i++) {
-          wavetable[i] = 1 - 2.0 * (float)i / (float)bottomSize ;
+        for (unsigned int i = tableSplit / 2; i < tableSplit; i++) { // down slope
+          wavetable[i] = 1.0f - 2.0f * (float)i / (float)tableSplit ;
         }
 
-        for (unsigned int i = bottomSize; i < TABLESIZE; i++) {
+        for (unsigned int i = tableSplit; i < TABLESIZE; i++) { // flat section
           wavetable[i] = -0.99;
         }
 
-        for (unsigned int i = TABLESIZE / 2; i < TABLESIZE / 2; i++) {
-          wavetable[i] = (float)i * 2.0 / (tablesize / 4) - 1;
-        }
+        /*
+                bottomSize =  (TABLESIZE * tableSplit) / ADC_TOP; // amount of /\ compared to ___
+
+                for (unsigned int i = 0; i < bottomSize / 2; i++) { // up slope /
+                  wavetable[i] = 2.0f * (float)i / (float)bottomSize - 1.99f;
+                }
+                for (unsigned int i = bottomSize / 2; i < bottomSize; i++) { // down slope \
+                  wavetable[i] = 2.0f - 1.99f * (float)i / (float)bottomSize ;
+                }
+
+                for (unsigned int i = bottomSize; i < TABLESIZE; i++) { // flat section
+                  wavetable[i] = -0.99;
+                }
+        */
+
+        /*
+                for (unsigned int i = TABLESIZE / 2; i < TABLESIZE / 2; i++) {
+                  wavetable[i] = (float)i * 2.0 / (tablesize / 4) - 1;
+                }
+        */
         break;
       }
 
@@ -275,6 +292,11 @@ void initInputs() {
     inputScale[i] = 1.0f;
   }
 
+  inputOffset[POT_PITCH] =  F_MIN;
+  inputScale[POT_PITCH] = (float)(F_MAX - F_MIN) / (float)ADC_TOP;
+  inputScale[POT_LARYNX] =  tablesize * (float)(LARYNX_MAX - LARYNX_MIN) / 100.0f;
+  inputOffset[POT_LARYNX] = tablesize * (float)LARYNX_MIN / 100.0f;
+
   inputOffset[POT_F1] = F1_LOW;
   inputScale[POT_F1] = (float)(F1_HIGH - F1_LOW) / (float)ADC_TOP;
   inputOffset[POT_F2] = F2_LOW;
@@ -283,10 +305,7 @@ void initInputs() {
   inputScale[POT_F3_F] = (float)(F3_HIGH - F3_LOW) / (float)ADC_TOP;
   inputOffset[POT_F3_Q] =  F3_Q_MIN;
   inputScale[POT_F3_Q] = (float)(F3_Q_MAX - F3_Q_MIN) / (float)ADC_TOP;
-  inputOffset[POT_LARYNX] =  F3_Q_MIN;
-  inputScale[POT_LARYNX] =  (float)(LARYNX_MAX - LARYNX_MIN) / (float)ADC_TOP;
-  inputOffset[POT_PITCH] =  F_MIN;
-  inputScale[POT_PITCH] = (float)(F_MAX - F_MIN) / (float)ADC_TOP;
+
 
   // init switch inputs
   switchChannel[0] = 22; //  GPIO 22
@@ -296,8 +315,6 @@ void initInputs() {
   switchChannel[4] = 14; // GPIO 14
 
   for (char i = 0; i < SWITCHES; i++) {
-    //  switchInput[i] = 0;
-    // switchState[i] = 0;
     switchGain[i] = 0;
     pinMode (switchChannel[i], INPUT);
     pinMode(switchChannel[i], INPUT_PULLDOWN);
@@ -308,7 +325,7 @@ void initInputs() {
 /*
    see https://mathr.co.uk/blog/2017-09-06_approximating_hyperbolic_tangent.html
 */
-float softClip(float x) {
+float softClip(float x) { // tanh approx
   float x2 = x * x;
   float x4 = x2 * x2;
   return x * (10395 + 1260 * x2 + 21 * x4) / (10395 + 4725 * x2 + 210 * x4 + x2 * x4);
@@ -338,9 +355,6 @@ SvfLinearTrapOptimised2::FLT_TYPE sf3_type = SvfLinearTrapOptimised2::HIGH_PASS_
 void ControlInput(void *pvParameter)
 {
   initInputs();
- 
-  // float pitchHz = 100; // Pitch
-  // float leveldB = 0;  // Level
 
   float filterGaindB = 0; // Gain to boost or cut the cutoff
   //float linearLevel = pow(10.0, leveldB / 20.0);
@@ -362,15 +376,18 @@ void ControlInput(void *pvParameter)
       potValue[pot] = sum / ADC_SAMPLES;
     }
 
-    // PITCH POT
+    // PITCH CONTROL
     float pitch = ((float)inputOffset[POT_PITCH] + inputScale[POT_PITCH] *  (float)potValue[POT_PITCH]);
 
     tableStep = pitch * tablesize / samplerate; // tableStep aka delta
 
-    // LARYNX (OQ) POT
-    
+    // LARYNX WAVEFORM CONTROL
     if (abs(tableSplit - potValue[POT_LARYNX]) > 8) {
-      tableSplit = inputOffset[POT_LARYNX] + inputScale[POT_LARYNX] * potValue[POT_LARYNX];
+      // tableSplit = inputOffset[POT_LARYNX] + inputScale[POT_LARYNX] * potValue[POT_LARYNX];
+
+
+      float potU = (float)potValue[POT_LARYNX] / (float)ADC_TOP;
+      tableSplit = inputOffset[POT_LARYNX] + potU * inputScale[POT_LARYNX];
       initWavetable(wavetableL, currentWave);
     }
 
@@ -391,7 +408,7 @@ void ControlInput(void *pvParameter)
       formant2.updateCoefficients(fc, Q, formant2_type, samplerate);
       }
     */
-    
+
     for (char i = 0; i < nswitches; i++) {
       if (digitalRead(switchChannel[i]) == 1) {
         switchGain[i] += attackStep;
@@ -428,9 +445,11 @@ void OutputDAC(void *pvParameter)
   int pointer = 0;
 
   while (1) {
+
+    // *** Read wavetable voice ***
     pointer = pointer + tableStep;
 
-    if (pointer >= (float)TABLESIZE) pointer = pointer - (float)TABLESIZE;
+    if (pointer >= tablesize) pointer = pointer - (float)tablesize;
 
     float err = 0;
 
@@ -441,23 +460,24 @@ void OutputDAC(void *pvParameter)
     int upper = ((int)ceil(pointer)) % TABLESIZE;
 
     float voice = wavetableL[lower] * err + wavetableL[upper] * (1 - err);
+
     float noise = random(-32768, 32767) / 32768.0f;
     noise = noise / 4.0f;
 
+    // *** System block connections ***
     voice = switchGain[SWITCH_VOICED] * voice;
     float aspiration = switchGain[SWITCH_ASPIRATED] * noise;
 
     float f1_in = (voice + aspiration) / 2.0f;
 
-    float s1 = sf1.tick(noise) * switchGain[SWITCH_SF1]/4.0f;
-    float s2 = sf2.tick(noise) * switchGain[SWITCH_SF2]/4.0f;
-    float s3 = sf3.tick(noise) * switchGain[SWITCH_SF3]/4.0f;
+    float s1 = sf1.tick(noise) * switchGain[SWITCH_SF1] / 8.0f;
+    float s2 = sf2.tick(noise) * switchGain[SWITCH_SF2] / 4.0f;
+    float s3 = sf3.tick(noise) * switchGain[SWITCH_SF3] / 2.0f;
 
     float sibilants = softClip(s1 + s2 + s3);
 
     float f3_in = softClip(formant1.tick(f1_in) + sibilants);
     float f2_in = softClip(formant3.tick(f3_in));
-    // float f2_in = softClip(formant1.tick(f1_in));
 
     float  valL = softClip(formant2.tick(f2_in));
     float  valR = softClip(voice);
