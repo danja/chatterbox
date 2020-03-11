@@ -1,8 +1,22 @@
+**2020-03-11**
+
+Ok, I want to play around with parameters. But the edit-compile-upload cycle is very tedious. So I reckon it's time to look at the Web interface. 
+
+[ESPAsyncWebServer](https://github.com/me-no-dev/ESPAsyncWebServer) (with [AsyncTCP](https://github.com/me-no-dev/AsyncTCP)) looked promising. The *Hello World!* using it described [here](https://techtutorialsx.com/2017/12/01/esp32-arduino-asynchronous-http-webserver/) worked on first attempt!
+
+I keep forgetting that the ESP32 I'm using is dual-core... I currently have the Chatterbox input control managed by one of these, the signal generation/filtering the other. I want the sig gen part as fast as possible, so I need to get the Web server running as a thread on the input core. Time to RTFM.
+
+After a lot of playing around, decided for now to keep it simple and forget about the core question unless it becomes an issue.
+
+Also, for now I've got network config hardcoded.
+
 **2020-03-10**
 
 Made a lot of progress in the past few days, despite myself. Getting impatient, tried to do too much at once, made loads of silly mistakes, had to backtrack a long way to fix.
 
 But basically all working!
+
+*version chatterbox_1.0.7*
 
 Performance appeared to become an issue, weird artifacts on wave generation, so I temporarily moved sample rate from 22050 down to 16000, which fixed the worst. The SVF I'm using uses doubles internally. Flipping them all to floats has allowed me to go back up to 22050, but it's a nice warning that I'm getting close to the limit. 
 

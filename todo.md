@@ -2,8 +2,12 @@
 
 *I've hardly been using this, left here just as a last-ditch reminder...*
 
+### Documentation
+* Schematic
+* Manual
+
 ### Signal Generation
-* add noise gen
+* 
 
 ### Web Interface
 * basic comms, static page
