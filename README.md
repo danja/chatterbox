@@ -20,7 +20,7 @@ The human interface is probably the most appealing part of the original Chatterb
 
 The rationale for having such a machine is well made in the magazine article. But given a microcontroller, it should be relatively straightforward to add features such as MIDI I/O interface to make it a modern musical instrument, Web interface for the IoT, whatever. Should be fun.
 
-* [Design Notes](https://github.com/danja/chatterbox/blob/master/design.md) 
+* [Design Notes](https://github.com/danja/chatterbox/blob/master/manual/design.md) 
 * [Quasi-blog Notes](https://github.com/danja/chatterbox/blob/master/notes.md)
 * [ToDo List](https://github.com/danja/chatterbox/blob/master/todo.md)
 * [Links](https://github.com/danja/chatterbox/blob/master/links.md)

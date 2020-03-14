@@ -74,7 +74,7 @@ Wow! The combination of SvfLinearTrapOptimised2 and soft clipping is wonderful!
 
 I've put this type of filter on all controls, saved as *version chatterbox_1.0.5*.
 
-Added documents : [Design Notes](https://github.com/danja/chatterbox/blob/master/design.md), [ToDo list](https://github.com/danja/chatterbox/blob/master/todo.md)
+Added documents : [Design Notes](https://github.com/danja/chatterbox/blob/master/manual/design.md), [ToDo list](https://github.com/danja/chatterbox/blob/master/todo.md)
 
 **2020-03-03** : **Milestone!** first formant filter essentially working.
 

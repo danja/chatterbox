@@ -8,4 +8,4 @@
 * Parts List
 
 ### Software
-* Design
+* [Design](https://github.com/danja/chatterbox/blob/master/manual/design.md)
