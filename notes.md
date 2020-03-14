@@ -1,3 +1,17 @@
+**2020-03-14**
+
+Yay! Very crude, but Web interface now showing control values :
+
+![Web Interface 1](https://github.com/danja/chatterbox/blob/master/media/web-interface-1.png "Web Interface 1")
+
+**2020-03-12** *version chatterbox_1.0.9*
+
+So I've got [ESPAsyncWebServer](https://github.com/me-no-dev/ESPAsyncWebServer) working ok, reading static files from SPIFFS. This also includes a minimal templater, which is very convenient.
+
+So next I guess is to publish all the settings & control values to a Web page. 
+
+The standard way of configuring network settings in a system like this seems to be to use a captive portal. Example code is available, something to look at later. 
+
 **2020-03-11**
 
 Ok, I want to play around with parameters. But the edit-compile-upload cycle is very tedious. So I reckon it's time to look at the Web interface. 
@@ -10,13 +24,11 @@ After a lot of playing around, decided for now to keep it simple and forget abou
 
 Also, for now I've got network config hardcoded.
 
-**2020-03-10**
+**2020-03-10** *version chatterbox_1.0.7*
 
 Made a lot of progress in the past few days, despite myself. Getting impatient, tried to do too much at once, made loads of silly mistakes, had to backtrack a long way to fix.
 
 But basically all working!
-
-*version chatterbox_1.0.7*
 
 Performance appeared to become an issue, weird artifacts on wave generation, so I temporarily moved sample rate from 22050 down to 16000, which fixed the worst. The SVF I'm using uses doubles internally. Flipping them all to floats has allowed me to go back up to 22050, but it's a nice warning that I'm getting close to the limit. 
 

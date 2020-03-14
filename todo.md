@@ -3,11 +3,15 @@
 *I've hardly been using this, left here just as a last-ditch reminder...*
 
 ### Documentation
+* Hardware block diagram
 * Schematic
 * Manual
 
 ### Signal Generation
 * 
+
+### Module Wiring
+* implement some kind of connection class
 
 ### Web Interface
 * basic comms, static page

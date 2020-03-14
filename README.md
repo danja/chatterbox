@@ -22,7 +22,7 @@ The rationale for having such a machine is well made in the magazine article. Bu
 
 * [Design Notes](https://github.com/danja/chatterbox/blob/master/design.md) 
 * [Quasi-blog Notes](https://github.com/danja/chatterbox/blob/master/notes.md)
-* [ToDo list](https://github.com/danja/chatterbox/blob/master/todo.md)
+* [ToDo List](https://github.com/danja/chatterbox/blob/master/todo.md)
 * [Links](https://github.com/danja/chatterbox/blob/master/links.md)
 * [Local References](https://github.com/danja/chatterbox/tree/master/reference)
 

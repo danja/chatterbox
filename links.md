@@ -54,6 +54,8 @@
 
 **ESP32/HTTP**
 * [ESP32 Arduino: Asynchronous HTTP web server](https://techtutorialsx.com/2017/12/01/esp32-arduino-asynchronous-http-webserver/)
+* [ESP32 Web Server using SPIFFS (SPI Flash File System)](https://randomnerdtutorials.com/esp32-web-server-spiffs-spi-flash-file-system/)
+* [Install ESP32 Filesystem Uploader in Arduino IDE](https://randomnerdtutorials.com/install-esp32-filesystem-uploader-arduino-ide/)
 * [Async Web Server for ESP8266 and ESP32](https://github.com/me-no-dev/ESPAsyncWebServer)
 * [Async TCP Library for ESP32](https://github.com/me-no-dev/AsyncTCP)
 
