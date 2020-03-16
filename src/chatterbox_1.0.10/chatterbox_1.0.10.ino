@@ -557,10 +557,17 @@ void startWebServer()
     // request->send(200, "text/plain", "Hello from Chatterbox!");
     request->send(SPIFFS, "/index.html", String(), false, pageProcessor);
   });
+  
     server.on("/chatterbox.html", HTTP_GET, [](AsyncWebServerRequest * request) {
-    // request->send(200, "text/plain", "Hello from Chatterbox!");
     request->send(SPIFFS, "/chatterbox.html", String(), false, pageProcessor);
+  });  
+        server.on("/chatterbox.css", HTTP_GET, [](AsyncWebServerRequest * request) {
+    request->send(SPIFFS, "/chatterbox.css", String(), false, pageProcessor);
   });
+
+      server.on("/favicon.ico", HTTP_GET, [](AsyncWebServerRequest * request) {
+    request->send(SPIFFS, "/favicon.ico", String(), false, pageProcessor);
+  });  
 }
 /* END WEB SERVER */
 

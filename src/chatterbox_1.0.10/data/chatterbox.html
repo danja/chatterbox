@@ -4,10 +4,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Chatterbox</title>
-    <link rel="stylesheet" href="js/jquery-ui-1.12.1/jquery-ui.css" />
-    <link rel="stylesheet" href="css/chatterbox.css" />
-    <script src="js/jquery-3.4.1.min.js"></script>
-    <script src="js/jquery-ui-1.12.1/jquery-ui.js"></script>
+     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
+    <link rel="stylesheet" href="chatterbox.css" />
+    
     <script>
 var config =
     { analog : [
@@ -99,11 +100,17 @@ updateFromControls();
 
 	function updateFromControls() {
 		$("#pitch").slider("value", %PITCH%);
+		$("#pitchValue").text(%PITCH%);
 		$("#larynx").slider("value", %WAVEFORM%);
+		$("#larynxValue").text(%WAVEFORM%);
 		$("#f1").slider("value", %F1%);
+		$("#f1Value").text(%F1%);
 		$("#f2").slider("value", %F2%);
-		$("#f3f").slider("value", %F3_F%);
-		$("#f3q").slider("value", %F3_Q%);
+		$("#f2Value").text(%F2%);
+		$("#f3_f").slider("value", %F3_F%);
+		$("#f3_fValue").text(%F3_F%);
+		$("#f3_q").slider("value", %F3_Q%);
+		$("#f3_qValue").text(%F3_Q%);
 	}
 	
 }); // end $(function()

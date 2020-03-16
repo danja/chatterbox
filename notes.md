@@ -1,3 +1,18 @@
+**2020-03-16** *version chatterbox_1.0.9*
+
+Spent hours yesterday working on web interface, sliders based on JQueryUI. Working out the UI just running a laptop-local nginx server.
+
+I'm very out of practice with this stuff and was trying to adapt demos to what I wanted. Could hardly even remember any CSS. Wrong approach. Eventually gave up.
+
+Today, started again on it. Dynamically building the sliders via JQuery. Aah, progress.
+
+Got the sliders close to what I want, so now trying to hook into place with the server on the ESP32. Oops, **ESP32 SPIFFS doesn't support directories**. D'oh! Oh well, just use online-remote JQuery/JQueryUI files for now.
+
+I've got some very basic comms going on now, but depends on reloading the page to update values. Need to look at polling or some other protocol to avoid this.
+
+Also my lovely layout appears to have broken, boo!
+
+
 **2020-03-14**
 
 Yay! Very crude, but Web interface now showing control values :
