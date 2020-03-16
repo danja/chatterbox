@@ -44,6 +44,9 @@
 
 #define ADC_SAMPLES 64 // pot reading takes mean over this number of values
 
+#define INPUT_LOCAL 0
+#define INPUT_WEB 1
+
 #define POTS 6
 #define SWITCHES 5
 
@@ -62,9 +65,9 @@
 
 #define SWITCH_WAVEFORM 0
 
+// Variable parameter ranges
 #define F_MIN 20
 #define F_MAX 500
-
 #define LARYNX_MIN 5 // % of wave is larynx open
 #define LARYNX_MAX 95
 #define F1_LOW  150
@@ -73,11 +76,12 @@
 #define F2_HIGH  5000
 #define F3_LOW  50 //
 #define F3_HIGH  7000 //
-
-#define F1_Q 10
-#define F2_Q 15
 #define F3_Q_MIN  1
 #define F3_Q_MAX  5
+
+// Fixed parameter values
+#define F1_Q 10
+#define F2_Q 15
 
 #define SF1_F  2100
 #define SF2_F  3700
@@ -298,6 +302,8 @@ void initWavetable(float wavetable[], char waveform) {
 }
 /* END INITIALIZE WAVETABLE */
 
+char controlSource = INPUT_LOCAL;
+
 /* INITIALISE INPUTS */
 void initInputs() {
 
@@ -376,6 +382,10 @@ SvfLinearTrapOptimised2::FLT_TYPE sf1_type = SvfLinearTrapOptimised2::HIGH_PASS_
 SvfLinearTrapOptimised2::FLT_TYPE sf2_type = SvfLinearTrapOptimised2::HIGH_PASS_FILTER;
 SvfLinearTrapOptimised2::FLT_TYPE sf3_type = SvfLinearTrapOptimised2::HIGH_PASS_FILTER;
 
+float formant1freq;
+float formant2freq;
+float f3freq;
+float f3Q;
 
 //* INPUT THREAD */
 void ControlInput(void *pvParameter)
@@ -405,7 +415,8 @@ void ControlInput(void *pvParameter)
     // PITCH CONTROL
     float pitch = ((float)inputOffset[POT_PITCH] + inputScale[POT_PITCH] *  (float)potValue[POT_PITCH]);
 
-    tableStep = pitch * tablesize / samplerate; // tableStep aka delta
+    if (controlSource == INPUT_LOCAL)
+      tableStep = pitch * tablesize / samplerate; // tableStep aka delta
 
     // LARYNX WAVEFORM CONTROL
     if (abs(tableSplit - potValue[POT_LARYNX]) > 8) {
@@ -413,21 +424,25 @@ void ControlInput(void *pvParameter)
 
 
       float potU = (float)potValue[POT_LARYNX] / (float)ADC_TOP;
-      tableSplit = inputOffset[POT_LARYNX] + potU * inputScale[POT_LARYNX];
+
+      if (controlSource == INPUT_LOCAL)
+        tableSplit = inputOffset[POT_LARYNX] + potU * inputScale[POT_LARYNX];
+
       initWavetable(wavetableL, currentWave);
     }
 
-    float formant1freq = inputOffset[POT_F1] + (float)potValue[POT_F1] * inputScale[POT_F1];
+    if (controlSource == INPUT_LOCAL) {
+      formant1freq = inputOffset[POT_F1] + (float)potValue[POT_F1] * inputScale[POT_F1];
+      formant2freq = inputOffset[POT_F2] + (float)potValue[POT_F2] * inputScale[POT_F2];
+      f3freq = inputOffset[POT_F3_F] + (float)potValue[POT_F3_F] * inputScale[POT_F3_F];
+      f3Q = inputOffset[POT_F3_Q] + (float)potValue[POT_F3_Q] * inputScale[POT_F3_Q];
+    }
+
     formant1.updateCoefficients(formant1freq, F1_Q, formant1_type, samplerate);
-
-    float formant2freq = inputOffset[POT_F2] + (float)potValue[POT_F2] * inputScale[POT_F2];
     formant2.updateCoefficients(formant2freq, F2_Q, formant2_type, samplerate);
-
-    float f3freq = inputOffset[POT_F3_F] + (float)potValue[POT_F3_F] * inputScale[POT_F3_F];
-    float f3Q = inputOffset[POT_F3_Q] + (float)potValue[POT_F3_Q] * inputScale[POT_F3_Q];
-
     formant3.updateCoefficients(f3freq, f3Q, formant3_type, samplerate);
     // updateCoefficients(double cutoff, double q = 0.5, FLT_TYPE type = LOW_, double sampleRate = 44100)
+
 
     /* using biquad
       fc = potValue[POT_F2];
@@ -567,7 +582,7 @@ String pageProcessor(const String& var) {
         return "On";
       }
     }
-  
+
   }
 
   /*
