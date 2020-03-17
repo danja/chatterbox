@@ -1,8 +1,7 @@
 # Chatterbox
 *A manually controlled speech-like sound generator*
 
-Based on ESP32 with external UDA1334A DAC. 
-Very much **active** work in progress, March 2020. It is basically working, but changing day-to-day. I'm updating these docs with every development.
+Based on ESP32 with external UDA1334A DAC. Very much **active** work in progress, March 2020. It is basically working, but changing day-to-day. I'm updating these docs with every development.
 
 **Prototype demo/intro (YouTube video) :**
 
@@ -18,8 +17,9 @@ The (mighty elegant) implementation then was with a handful of op amps & CMOS lo
 
 The human interface is probably the most appealing part of the original Chatterbox. So joystick, bunch of switches, a few pots. Use an inexpensive microcontroller to do the work.
 
-The rationale for having such a machine is well made in the magazine article. But given a microcontroller, it should be relatively straightforward to add features such as MIDI I/O interface to make it a modern musical instrument, Web interface for the IoT, whatever. Should be fun.
+*The rationale for having such a machine is well made in the magazine article. But I like the notion of treating it a source of speech-like sounds, not a speech synth per se. Given a microcontroller, it should be relatively straightforward to add features such as MIDI I/O interface to make it a modern musical instrument, Web interface for the IoT, whatever. Should be fun.*
 
+* [Source Code](https://github.com/danja/chatterbox/tree/master/src)
 * [Design Notes](https://github.com/danja/chatterbox/blob/master/manual/design.md) 
 * [Quasi-blog Notes](https://github.com/danja/chatterbox/blob/master/notes.md)
 * [ToDo List](https://github.com/danja/chatterbox/blob/master/todo.md)
@@ -27,6 +27,10 @@ The rationale for having such a machine is well made in the magazine article. Bu
 * [Local References](https://github.com/danja/chatterbox/tree/master/reference)
 
 ## Status
+
+The core hardware & software is currently working, though in need of refinement. I'll get back to that after putting basic Web interface code in place.
+
+**2020-03-17** *version chatterbox_1.0.10* work on 
 
 **2020-03-11** : mini-milestone! Added a minimal Web server.
 

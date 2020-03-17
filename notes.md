@@ -1,10 +1,22 @@
+**2020-03-17** *version chatterbox_1.0.10*
+
+Ok, so to some extent the choice of comms with the Chatterbox is quite arbitrary. But webiness is *good*, WebSockets is nearby and supported by [ESPAsyncWebServer](https://github.com/me-no-dev/ESPAsyncWebServer), which I'm already using.
+
+So...
+
+* I found a [tutorial using ESPAsyncWebServer for WebSockets](https://techtutorialsx.com/2018/08/14/esp32-async-http-web-server-websockets-introduction/), has code for a simple WebSockets server and some (Python) client code. 
+* A [WebSocket server on node.js](https://github.com/websockets/ws) looks straightforward.  
+* The [nginx documentation for WebSockets proxying](https://www.nginx.com/blog/websocket-nginx/) looks pretty good (I anticipate using port 80 for everything, this may be useful).
+
+- should get me started.
+
 **2020-03-16** *version chatterbox_1.0.9*
 
 Spent hours yesterday working on web interface, sliders based on JQueryUI. Working out the UI just running a laptop-local nginx server.
 
-I'm very out of practice with this stuff and was trying to adapt demos to what I wanted. Could hardly even remember any CSS. Wrong approach. Eventually gave up.
+I'm very out of practice with this stuff and was trying to adapt demos to what I wanted. Could hardly even remember any CSS. Eventually gave up.
 
-Today, started again on it. Dynamically building the sliders via JQuery. Aah, progress.
+Today, started again on it, bit more thought before action. Dynamically building the sliders via JQuery. Aah, progress.
 
 Got the sliders close to what I want, so now trying to hook into place with the server on the ESP32. Oops, **ESP32 SPIFFS doesn't support directories**. D'oh! Oh well, just use online-remote JQuery/JQueryUI files for now.
 

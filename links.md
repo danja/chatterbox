@@ -10,6 +10,7 @@
 
 *Dennis H. Klatt, the author of the two papers above has [a wealth of other related material](https://www.researchgate.net/scientific-contributions/2033647470_Dennis_H_Klatt)*
 
+* [eSpeakNG](https://github.com/espeak-ng/espeak-ng) - mature open-source project for formant-based speech synthesis
 * [Faust](https://faust.grame.fr/)
 
 **Speech**

@@ -98,19 +98,19 @@ $(function(){
 updateFromControls();
         });
 
-	function updateFromControls() {
-		$("#pitch").slider("value", %PITCH%);
-		$("#pitchValue").text(%PITCH%);
-		$("#larynx").slider("value", %WAVEFORM%);
-		$("#larynxValue").text(%WAVEFORM%);
-		$("#f1").slider("value", %F1%);
-		$("#f1Value").text(%F1%);
-		$("#f2").slider("value", %F2%);
-		$("#f2Value").text(%F2%);
-		$("#f3_f").slider("value", %F3_F%);
-		$("#f3_fValue").text(%F3_F%);
-		$("#f3_q").slider("value", %F3_Q%);
-		$("#f3_qValue").text(%F3_Q%);
+	function updateFromControls() { // the %TEMPLATE% bits will be fulfilled in ESP32
+		$("#pitch").slider("value", "%PITCH%");
+		$("#pitchValue").text("%PITCH%");
+		$("#larynx").slider("value", "%WAVEFORM%");
+		$("#larynxValue").text("%WAVEFORM%");
+		$("#f1").slider("value", "%F1%");
+		$("#f1Value").text("%F1%");
+		$("#f2").slider("value", "%F2%");
+		$("#f2Value").text("%F2%");
+		$("#f3_f").slider("value", "%F3_F%");
+		$("#f3_fValue").text("%F3_F%");
+		$("#f3_q").slider("value", "%F3_Q%");
+		$("#f3_qValue").text("%F3_Q%");
 	}
 	
 }); // end $(function()
