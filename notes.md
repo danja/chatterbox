@@ -10,6 +10,9 @@ So...
 
 - should get me started.
 
+1. node.js WebSocket client & server on port 8080
+2.
+
 **2020-03-16** *version chatterbox_1.0.9*
 
 Spent hours yesterday working on web interface, sliders based on JQueryUI. Working out the UI just running a laptop-local nginx server.
