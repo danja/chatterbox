@@ -1,3 +1,16 @@
+**2020-03-18**
+
+- [x] 1. node.js WebSocket client & server on port 8080
+2. nginx on 80 proxying WebSocket to 8080
+3. node.js WebSocket server on 8080, client on 80
+4. Python client to 80
+5. minimal browser client to 80
+6. work out message shape
+7. mock Chatterbox on node.js WebSocket server on 8080
+8. Chatterbox browser client talking to mock
+9. minimal ESPAsyncWebServer WebSocket on ESP32
+10. ESPAsyncWebServer WebSocket on ESP32 to Chatterbox internals
+
 **2020-03-17** *version chatterbox_1.0.10*
 
 Ok, so to some extent the choice of comms with the Chatterbox is quite arbitrary. But webiness is *good*, WebSockets is nearby and supported by [ESPAsyncWebServer](https://github.com/me-no-dev/ESPAsyncWebServer), which I'm already using.
@@ -9,9 +22,6 @@ So...
 * The [nginx documentation for WebSockets proxying](https://www.nginx.com/blog/websocket-nginx/) looks pretty good (I anticipate using port 80 for everything, this may be useful).
 
 - should get me started.
-
-1. node.js WebSocket client & server on port 8080
-2.
 
 **2020-03-16** *version chatterbox_1.0.9*
 
