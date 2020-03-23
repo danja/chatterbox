@@ -1,15 +1,26 @@
+**2020-03-23** *version chatterbox_1.0.10*
+
+**Boo!** I wasted hours trying to get nginx working as a WebSocket proxy. The whole idea was for it to be a timesaver... First big problem was I'd forgotten that I had nginx running on this machine in a Docker container, so when I thought I was changing the config I wasn't, d'oh! But even once I'd realised, I couldn't get a config to work, so I've given up on that.
+
+**Hooray!** I used the demo code from [this tutorial](https://techtutorialsx.com/2018/08/14/esp32-async-http-web-server-websockets-introduction/) for a minimal WS server on the ESP32, Python client. Worked first time!
+
+
+
 **2020-03-18**
 
 - [x] 1. node.js WebSocket client & server on port 8080
-2. nginx on 80 proxying WebSocket to 8080
-3. node.js WebSocket server on 8080, client on 80
-4. Python client to 80
-5. minimal browser client to 80
-6. work out message shape
-7. mock Chatterbox on node.js WebSocket server on 8080
-8. Chatterbox browser client talking to mock
-9. minimal ESPAsyncWebServer WebSocket on ESP32
-10. ESPAsyncWebServer WebSocket on ESP32 to Chatterbox internals
+
+**bleahhhh!**
+
+- [ ] 2. nginx on 80 proxying WebSocket to 8080
+- [ ] 3. node.js WebSocket server on 8080, client on 80
+- [ ] 4. Python client to 80
+- [ ] 5. minimal browser client to 80
+- [ ] 6. work out message shape
+- [ ] 7. mock Chatterbox on node.js WebSocket server on 8080
+- [ ] 8. Chatterbox browser client talking to mock
+- [ ] 9. minimal ESPAsyncWebServer WebSocket on ESP32
+- [ ] 10. ESPAsyncWebServer WebSocket on ESP32 to Chatterbox internals
 
 **2020-03-17** *version chatterbox_1.0.10*
 
