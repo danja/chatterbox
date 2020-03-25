@@ -1,9 +1,32 @@
+**2020-03-25** *version chatterbox_1.0.11*
+
+I've got values read from pots (ADCs) being written to WebSocket, picked up by node WS client. Format is :
+
+...
+f1f:831
+f1f:773
+f2f:1810
+f2f:1725
+f1f:732
+...
+
+The client crashes with fast changes.
+
+I also had to set the resolution for change detection to be 32 (/4096) because of the massive variation just to noise (?).
+
+This needs work!
+
+I messed up a doc-global search & replace (ignore case), had to go through line-by-line to properly fix. Took the opportunity to do a bit of tidying up, added some more comments.
+
+**2020-03-24** 
+
+Aside: thinking about handling manual control inputs, is has occurred to me that interrupts might have been appropriate, only for the obvious kind of implementation is a non-starter due to the noise the controls pick up. It may be that something event-driven might be a good idea for performance purposes, but right now that seems like unnecessary complexity - stick to polling.
+
 **2020-03-23** *version chatterbox_1.0.10*
 
 **Boo!** I wasted hours trying to get nginx working as a WebSocket proxy. The whole idea was for it to be a timesaver... First big problem was I'd forgotten that I had nginx running on this machine in a Docker container, so when I thought I was changing the config I wasn't, d'oh! But even once I'd realised, I couldn't get a config to work, so I've given up on that.
 
 **Hooray!** I used the demo code from [this tutorial](https://techtutorialsx.com/2018/08/14/esp32-async-http-web-server-websockets-introduction/) for a minimal WS server on the ESP32, Python client. Worked first time!
-
 
 
 **2020-03-18**

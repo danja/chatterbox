@@ -25,25 +25,25 @@ var config =
 			max: 95,
 			default: 50
 		},{
-			id: "f1f",
+			id: "f1",
 			label: "Formant 1 Frequency",
 			min: 150,
 			max: 1400,
 			default: 500
 		},{
-			id: "f2f",
+			id: "f2",
 			label: "Formant 2 Frequency",
 			min: 500,
 			max: 5000,
 			default: 2000
 		},{
-			id: "f3f",
+			id: "f3_f",
 			label: "Aux Filter Frequency",
 			min: 50,
 			max: 7000,
 			default: 6000
 		},{
-			id: "f3q",
+			id: "f3_q",
 			label: "Aux Filter Q",
 			min: 1,
 			max: 5,
@@ -103,14 +103,14 @@ updateFromControls();
 		$("#pitchValue").text("%PITCH%");
 		$("#larynx").slider("value", "%WAVEFORM%");
 		$("#larynxValue").text("%WAVEFORM%");
-		$("#f1f").slider("value", "%F1%");
-		$("#f1fValue").text("%F1%");
-		$("#f2f").slider("value", "%F2%");
-		$("#f2fValue").text("%F2%");
-		$("#f3f").slider("value", "%F3_F%");
-		$("#f3fValue").text("%F3_F%");
-		$("#f3q").slider("value", "%F3_Q%");
-		$("#f3qValue").text("%F3_Q%");
+		$("#f1").slider("value", "%F1%");
+		$("#f1Value").text("%F1%");
+		$("#f2").slider("value", "%F2%");
+		$("#f2Value").text("%F2%");
+		$("#f3_f").slider("value", "%F3_F%");
+		$("#f3_fValue").text("%F3_F%");
+		$("#f3_q").slider("value", "%F3_Q%");
+		$("#f3_qValue").text("%F3_Q%");
 	}
 	
 }); // end $(function()
