@@ -1,0 +1,95 @@
+# Turtle RDF Representation of Common English Phonemes
+
+@base <http://hyperdata.it/vocabs/chatterbox/phonemes/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# labels are from diagram in http://research.cs.tamu.edu/prism/lectures/sp/l3.pdf
+# in turn from [Rabiner & Schafer, 1978]
+# https://idoc.pub/documents/digital-processing-of-speech-signals-rabiner-schafer-1978pdf-x4e6pvq2rgn3
+# frequencies from various sources, symbols were very inconsistent
+
+<phoneme_IY> a <Phoneme> ;
+	rdfs:label "IY" ;
+	a <Vowel> ;
+	<location> <Front> ;
+	<ipa> "i:" ;
+	<example> "see" ;
+	<example> "heat" ;
+	rdfs:label "IY" .
+
+<p1_IY> a <PhonemeInstance> ;
+	<targetPhoneme> <phoneme_IY> ;
+	<formant1> "240" ;
+	<formant2> "2400" .
+
+<phoneme_I> a <Phoneme> ;
+	rdfs:label "I" ;
+	a <Vowel> ;
+	<location> <Front> ;
+	<ipa> "I" ;
+	<example> "hit" ;
+	<example> "sitting" ;
+	rdfs:label "I" .
+
+<p1_I> a <PhonemeInstance> ;
+	<targetPhoneme> <phoneme_I> ;
+	<formant1> "390";
+	<formant2> "1990" .
+	
+<speaker1> a <Speaker> ;
+	rdfs:label "Wikipedia" ;
+	<includesPhoneme> <p1_IY> ;
+	<includesPhoneme> <p1_I> .
+	
+
+	
+vowels
+IPA	examples	listen	 
+ʌ	CUP, LUCK	AM	 
+ɑ:	ARM, FATHER	AM BR	 
+æ	CAT, BLACK	AM	 
+e	MET, BED	AM	1
+ə	AWAY, CINEMA	AM	2
+ɜ:ʳ	TURN, LEARN	AM BR	2
+ɪ	HIT, SITTING	AM	 
+ 
+ɒ	HOT, ROCK	AM BR	3
+ɔ:	CALL, FOUR	AM BR	4 5
+ʊ	PUT, COULD	AM	 
+u:	BLUE, FOOD	AM	 
+aɪ	FIVE, EYE	AM	 
+aʊ	NOW, OUT	AM	 
+eɪ	SAY, EIGHT	AM	 
+oʊ	GO, HOME	AM	6
+ɔɪ	BOY, JOIN	AM	 
+eəʳ	WHERE, AIR	AM BR	1 7
+ɪəʳ	NEAR, HERE	AM BR	7
+ʊəʳ	PURE, TOURIST	AM BR	7
+
+consonants
+IPA	examples	listen	 
+b	BAD, LAB	AM	 
+d	DID, LADY	AM	 
+f	FIND, IF	AM	 
+g	GIVE, FLAG	AM	 
+h	HOW, HELLO	AM	 
+j	YES, YELLOW	AM	 
+k	CAT, BACK	AM	 
+l	LEG, LITTLE	AM	 
+m	MAN, LEMON	AM	 
+n	NO, TEN	AM	 
+ŋ	SING, FINGER	AM	 
+p	PET, MAP	AM	 
+r	RED, TRY	AM	8
+s	SUN, MISS	AM	 
+ʃ	SHE, CRASH	AM	 
+t	TEA, GETTING	AM	9
+tʃ	CHECK, CHURCH	AM	 
+θ	THINK, BOTH	AM	 
+ð	THIS, MOTHER	AM	 
+v	VOICE, FIVE	AM	 
+w	WET, WINDOW	AM	 
+z	ZOO, LAZY	AM	 
+ʒ	PLEASURE, VISION	AM	 
+dʒ	JUST, LARGE	AM	 

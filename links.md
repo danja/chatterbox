@@ -5,6 +5,8 @@
 **Formant-based Speech Synthesis**
 * [Chatterbox](https://github.com/danja/chatterbox/blob/master/reference/Chatterbox-1976.pdf)  [Witten & Madams, 1978]
 
+* [The Source-Filter Model of Speech Production](http://www.phon.ox.ac.uk/jcoleman/source_filter.htm)
+* [Formant (Wikipedia)](https://en.wikipedia.org/wiki/Formant)
 * [Analysis, synthesis, and perception of voice quality variations among female and male talkers](http://www.fon.hum.uva.nl/david/ma_ssp/doc/Klatt-1990-JAS000820.pdf)
 * [Software for a cascade/parallel formant synthesizer](http://www.fon.hum.uva.nl/david/ma_ssp/doc/Klatt-1980-JAS000971.pdf)
 
@@ -12,6 +14,9 @@
 
 * [eSpeakNG](https://github.com/espeak-ng/espeak-ng) - mature open-source project for formant-based speech synthesis
 * [Faust](https://faust.grame.fr/)
+
+* [Linear predictive coding](https://en.wikipedia.org/wiki/Linear_predictive_coding)
+* Speak & Spell
 
 **Speech**
 * [Relative contribution of envelope and fine structure to the subcortical encoding of noise-degraded speech](https://asa.scitation.org/doi/10.1121/1.4965248)

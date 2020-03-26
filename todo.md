@@ -26,6 +26,11 @@
 * write values to controls
 * WebSockets
 
+**Command Line Interface**
+ 
+* Write out phonemes as numbers
+* formants from my voice
+
 **Controls**
 * Envelope Generator for switches
 * linearise pots - lookup table? polynomial?

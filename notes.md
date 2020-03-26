@@ -1,3 +1,84 @@
+**2020-03-26** *version chatterbox_1.0.12*
+
+This morning I did a bit of reading around phonemes, planning ahead. Found lots of tables of formant frequencies for vowels, a lot less similar material for consonants. I've been trying to compile the different material into an RDF representation (Turtle) so I can then run SPARQL against it, pull out the bits I need.
+
+On a skim of a few papers, the formant freqs given seem to vary a lot. What might be interesting is to pull values from my own voice, robot danny.
+
+I had a quick look at how to do analysis with Octave (/Matlab), but then stumbled on Praat. It's really good, though user interface is awful...
+
+Ok, I just had a more thorough look at analysing speech. In Audacity I sampled me saying "foooood" and trimmed it to "oooo".
+The material is in chatterbox/analysis/
+
+**Audacity**
+Spectrogram, Hann Window, eyeballing peaks.
+
+83Hz -7.2dB
+171Hz -8dB (flattish curve)
+276Hz -1.2dB
+2085Hz -45dB
+3232Hz -49dB
+
+**Octave LPC Formant Extraction**
+chatterbox/analysis/food-analysis.m, based on [Formant Estimation with LPC Coefficients](https://it.mathworks.com/help/signal/ug/formant-estimation-with-lpc-coefficients.html)
+Needed chatterbox/analysis/lpc.m - found [around the Octave site](https://savannah.gnu.org/patch/?8575) but hasn't made it into the distro yet.
+
+Freq     BW
+246Hz    10Hz
+8567Hz   457Hz
+16296Hz  225Hz
+19413Hz  651Hz
+
+**Praat**
+I'm really not very clear on a lot of what I'm looking at here, but the most direct thing seemed to be to autocorrelation, then go for the formants menu. I've dropped a couple of screenshots into chatterbox/analysis/
+
+Pitch 91Hz
+F1 205Hz
+F2 283Hz
+F3 2238Hz
+F4 3174Hz
+
+And as a sanity check, here are some values I got from the literature:
+
+F1 250Hz
+F2 595Hz
+
+F1 440Hz
+F2 1020Hz
+F3 2240Hz
+
+F1 290Hz
+F2 680Hz
+F3 2320Hz
+F4 3150Hz
+
+Hardly any agreement!
+
+**Command line interface** added to TODO list. This is in effect already covered as a testing/precursor to the web interface, use WebSocket for comms. But having it read text would be a nice target.
+
+----
+
+One hardware change I'm tempted to make is the addition of another switch for nasal sounds. This would turn on the voiced signal, maybe have a (flattish) overall fixed filter but then also take the value(s) from joystick and use those to mod the characteristics of totally different filter(s).
+ "Nasals have several antiformants. Little energy above approximately 3500 Hz. Also, the vocal tract produces an antiformant between 800 and 2000 Hz"
+ [Consonant acoustics](http://www.phon.ox.ac.uk/jcoleman/consonant_acoustics.htm)
+ So flip the bandpass filters of F1, F2 into bandstops?
+ 
+ See also [Nasal Acoustics Notes](https://www.phonetik.uni-muenchen.de/~hoole/kurse/akustikfort/nasalacousticsnotes.pdf).
+
+This is a point though - there are likely to be free digital GPIO pins left available, why not wire these to further switches?
+Possibilities:
+
+* nasal as above
+* stressed : up the amplitude
+* roughness : pink noise modulate the pitch
+* de-stressed : down the amplitude
+* squillo : "Studies of the frequency spectrum of trained classical singers, especially male singers, indicate a clear formant around 3000 Hz (between 2800 and 3400 Hz) that is absent in speech or in the spectra of untrained singers." [Wikipedia : Formant]
+
+(I like the first 3, this would make 8 switches in total, tidy :)
+
+Another point here is that any of the controls can be overidden, so when say roughness is enabled, the larynx control could flip over to controlling the level of the roughness.
+
+Toggle switches could be used for something(s) too...
+
 **2020-03-25** *version chatterbox_1.0.11*
 
 I've got values read from pots (ADCs) being written to WebSocket, picked up by node WS client. Format is :
