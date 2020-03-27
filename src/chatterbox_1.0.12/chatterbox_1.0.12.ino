@@ -40,7 +40,6 @@
 
 /* CONTROLS */
 #define N_POTS 6
-#define N_SWITCHES 5
 
 #define POT_F1F     0
 #define POT_F2F     1
@@ -49,11 +48,22 @@
 #define POT_PITCH  5
 #define POT_LARYNX 4
 
+#define N_SWITCHES 12
+
 #define SWITCH_VOICED 3
 #define SWITCH_ASPIRATED 4
 #define SWITCH_SF1 0 // Sibilance Filter 1
 #define SWITCH_SF2 1
 #define SWITCH_SF3 2
+
+#define SWITCH_X5 5
+#define SWITCH_X6 6
+#define SWITCH_X7 7
+
+#define TOGGLE_T0 0
+#define TOGGLE_T1 1
+#define TOGGLE_T2 2
+#define TOGGLE_T3 3
 
 // Variable parameter ranges
 #define PITCH_MIN 20
@@ -122,17 +132,19 @@ String switchID[N_SWITCHES];
 float inputScale[N_POTS];
 int inputOffset[N_POTS];
 
-// Inputs
-int potChannel[N_POTS]; // adc1_channel_t
+// Inputs TODO move to defines
+int potChannel[] = {36, 39, 32, 33, 34, 35};
 int potValue[N_POTS];
 int previousPotValue[N_POTS];
 
-char switchChannel[] = {22, 23, 12, 13, 14}; // TODO move this to a define,
+// TODO move to defines
+char switchChannel[] = {19, 23, 12, 13, 14,    17, 18, 5,     16, 15, 2, 4}; // TODO move this to a define,
 // is N_SWITCHES
-char nswitches =  (int)(sizeof(switchChannel) / sizeof(switchChannel[0]));
+// char nswitches =  (int)(sizeof(switchChannel) / sizeof(switchChannel[0]));
 
 float switchGain[N_SWITCHES];
-float switchValue[] = {false, false, false, false, false};  // TODO move this to a loop
+float switchValue[] = {false, false, false, false, false, false, false, false, false, false, false, false};  // TODO move these to a loop
+float previousSwitchValue[] = {false, false, false, false, false, false, false, false, false, false, false, false};
 
 float attackTime = ATTACK_TIME; // 10mS
 float attackStep = (float)ADC_TOP / (samplerate*attackTime);
@@ -196,6 +208,15 @@ void setup()
   switchID[3] = "voiced";
   switchID[4] = "aspirated";
 
+  switchID[5] = "x5";
+  switchID[6] = "x6";
+  switchID[7] = "x7";
+
+  switchID[8] = "T0";
+  switchID[9] = "T1";
+  switchID[10] = "T2";
+  switchID[11] = "T3";
+
   startWebServer();
 }
 /*** END SETUP() ***/
@@ -226,21 +247,6 @@ void initInputs() {
   // init ADC inputs (pots)
   adc1_config_width(ADC_WIDTH_BIT_12);
   adc1_config_channel_atten(ADC1_CHANNEL_0, ADC_ATTEN_DB_11);
-
-  // TODO move to defines
-  potChannel[0] = 36; // GPIO 36
-  potChannel[1] = 39; // GPIO 39
-  potChannel[2] = 32; // GPIO 32
-  potChannel[3] = 33; // GPIO 33
-  potChannel[4] = 34; // GPIO 34
-  potChannel[5] = 35; // GPIO 35
-
-  // TODO move to defines
-  switchChannel[0] = 22; //  GPIO 22
-  switchChannel[1] = 23; //  GPIO 23
-  switchChannel[2] = 12; // GPIO 12
-  switchChannel[3] = 13; // GPIO 13
-  switchChannel[4] = 14; // GPIO 14
 
   for (char i = 0; i < N_POTS; i++) {
     adcAttachPin(potChannel[i]);
@@ -333,7 +339,6 @@ void ControlInput(void *pvParameter)
 
     // pitch control
     pitch = ((float)inputOffset[POT_PITCH] + inputScale[POT_PITCH] *  (float)potValue[POT_PITCH]);
-
     if (controlSource == INPUT_LOCAL)
       tableStep = pitch * tablesize / samplerate; // tableStep aka delta
 
@@ -360,7 +365,7 @@ void ControlInput(void *pvParameter)
     f3.updateCoefficients(f3f, f3q, f3Type, samplerate);
     // updateCoefficients(double cutoff, double q = 0.5, FLT_TYPE type = LOW_, double sampleRate = 44100)
 
-    for (char i = 0; i < nswitches; i++) { // switch envelope generator
+    for (char i = 0; i < N_SWITCHES; i++) { // switch envelope generator
       switchValue[i] = digitalRead(switchChannel[i]);
       if (switchValue[i] == 1) {
         switchGain[i] += attackStep;
@@ -381,10 +386,24 @@ const int potResolution = 32; // TODO sort out noise!!!!
 void pushToWebSocket() {
   for (int i = 0; i < N_POTS; i++) {
     if (abs(potValue[i] - previousPotValue[i]) >= potResolution) {
+      convertAndPush(potID[i], potChannel[i]);
       convertAndPush(potID[i], potValue[i]);
       previousPotValue[i] = potValue[i];
     }
   }
+
+  for (char i = 0; i < N_SWITCHES; i++) {
+    if (switchValue[i] != previousSwitchValue[i]) {
+      convertAndPush(switchID[i], switchChannel[i]);
+      if (switchValue[i]) {
+        convertAndPush(switchID[i], 1);
+      } else {
+        convertAndPush(switchID[i], 0);
+      }
+      previousSwitchValue[i] = switchValue[i];
+    }
+  }
+
 }
 
 void convertAndPush(String id, int value) {
@@ -396,6 +415,25 @@ void convertAndPush(String id, int value) {
   //   ws.textAll((char*)text);
 }
 
+void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) {
+
+  if (type == WS_EVT_CONNECT) {
+
+    Serial.println("Websocket client connection received");
+    client->text("Hello from ESP32 Server");
+
+  } else if (type == WS_EVT_DISCONNECT) {
+    Serial.println("WS Client disconnected");
+  }  else if (type == WS_EVT_DATA) {
+
+    Serial.println("Data received: ");
+
+    for (int i = 0; i < len; i++) {
+      Serial.print((char) data[i]);
+    }
+    Serial.println();
+  }
+}
 
 
 /* OUTPUT THREAD */
@@ -538,14 +576,6 @@ String pageProcessor(const String& var) {
     itoa(f3q, snum, 10);
     return snum;
   }
-  /*
-    for (char i = 0; i < N_POTS; i++) {
-      if (var.compareTo(potID[i]) == 0) {
-        itoa(potValue[i], snum, 10);
-        return snum;
-      }
-    }
-  */
 
   for (char i = 0; i < N_SWITCHES; i++) {
     if (var.compareTo(switchID[i]) == 0) {
@@ -571,18 +601,4 @@ String pageProcessor(const String& var) {
     if (var == "Y") return c;
   */
   return String();
-}
-
-
-void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) {
-
-  if (type == WS_EVT_CONNECT) {
-
-    Serial.println("Websocket client connection received");
-    client->text("Hello from ESP32 Server");
-
-  } else if (type == WS_EVT_DISCONNECT) {
-    Serial.println("Client disconnected");
-
-  }
 }

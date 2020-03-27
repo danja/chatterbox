@@ -1,4 +1,34 @@
-**2020-03-26** *version chatterbox_1.0.12*
+**2020-03-27** *version chatterbox_1.0.12*
+
+Slightly impulsively added 3 push and 4 switches.
+
+Took a game of musical chairs to allocate, but all now working, got values going to serial.
+
+Provisionally, for the push switches:
+
+* stressed
+* de-stressed
+* nasal
+
+For toggles:
+
+* constant tone/sib
+* hoarse
+* shout
+* singing
+
+
+
+This leaves me with:
+
+32 GPOI 21 [I2C SDA]  ...(((DISPLAY?)))
+33 GPOI 3 [UART 0 RX] ...(((MIDI IN)))
+34 GPOI 1 [UART 0 TX] ...(((MIDI OUT)))
+35 GPOI 22 [I2C SCL] ...(((DISPLAY?)))
+
+"Pins 34, 35, 36, 37, 38 and 39 do not have internal pull-up or pull-down resistors, like the other I/O pins." - [Reddit](https://www.reddit.com/r/esp32/comments/7b8ud4/possible_to_skip_the_10k_resistor_button/)
+
+**2020-03-26** 
 
 This morning I did a bit of reading around phonemes, planning ahead. Found lots of tables of formant frequencies for vowels, a lot less similar material for consonants. I've been trying to compile the different material into an RDF representation (Turtle) so I can then run SPARQL against it, pull out the bits I need.
 

@@ -64,6 +64,7 @@
 * [Install ESP32 Filesystem Uploader in Arduino IDE](https://randomnerdtutorials.com/install-esp32-filesystem-uploader-arduino-ide/)
 * [Async Web Server for ESP8266 and ESP32](https://github.com/me-no-dev/ESPAsyncWebServer)
 * [Async TCP Library for ESP32](https://github.com/me-no-dev/AsyncTCP)
+* [ESP32 HTTP webserver: receiving textual data in websocket](https://techtutorialsx.com/2018/08/23/esp32-http-webserver-receiving-textual-data-in-websocket/)
 
 **DAC**
 [UDA1334ATS Info](https://lcav.gitbook.io/dsp-labs/passthrough/audio-io/dac)
