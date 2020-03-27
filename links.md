@@ -68,3 +68,79 @@
 
 **DAC**
 [UDA1334ATS Info](https://lcav.gitbook.io/dsp-labs/passthrough/audio-io/dac)
+
+/// unsorted
+
+http://www.phon.ox.ac.uk/jcoleman/consonant_acoustics.htm
+
+https://forum.arduino.cc/index.php?topic=38153.0
+
+https://www.quora.com/How-can-an-IoT-device-connect-to-a-WiFi-network-without-manually-entering-the-password-or-using-a-cable-to-another-device
+
+https://create.arduino.cc/projecthub/chnry/ocs-2-a-digital-semi-modular-synthesizer-733ba9
+
+https://www.soundonsound.com/techniques/synthesizing-wind-instruments?amp
+
+----
+
+
+
+Skip to content
+Using Gmail with screen readers
+to:me from:me 
+11 of many
+Links
+Inbox
+x
+
+Danny Ayers <danny.ayers@gmail.com>
+Attachments
+Sun, 8 Mar, 10:16
+to me
+
+Attachments area
+
+https://makezine.com/2017/04/11/how-to-set-up-your-own-lab/
+
+http://www.radiofreerobotron.net/blog/2016/07/06/how-to-zero-delay-state-variable-filter-part-3/
+
+https://www.musicdsp.org/en/latest/Filters/23-state-variable.html
+
+https://music.stackexchange.com/questions/74483/what-does-a-wave-with-all-even-harmonics-sound-like
+
+https://randomnerdtutorials.com/esp32-web-server-spiffs-spi-flash-file-system/
+
+https://techtutorialsx.com/2018/02/03/esp32-arduino-async-server-controlling-http-methods-allowed/amp/
+
+https://randomnerdtutorials.com/esp32-web-server-spiffs-spi-flash-file-system/
+
+https://randomnerdtutorials.com/esp32-web-server-spiffs-spi-flash-file-system/
+
+https://makezine.com/2017/04/11/how-to-set-up-your-own-lab/
+
+https://www.google.com/search?q=manatee&client=ms-android-doogee&prmd=ivn&sxsrf=ALeKk02ObPyWfESA_S81m0hdLke28x5_4Q:1582921135348&source=lnms&tbm=isch&sa=X&ved=2ahUKEwi58urfiPXnAhWTzcQBHV6BCboQ_AUoAXoECBQQAQ&biw=320&bih=512&dpr=1.5
+
+https://www.fischl.de/projects/
+
+https://newt.phys.unsw.edu.au/jw/graphics/Wolfe-et-al-Source-Filter.png
+
+https://newt.phys.unsw.edu.au/jw/voice.html
+
+https://newt.phys.unsw.edu.au/jw/voice.html
+
+https://en.wikibooks.org/wiki/Sound_Synthesis_Theory/Oscillators_and_Wavetables
+
+https://www.musicdsp.org/en/latest/Synthesis/244-direct-pink-noise-synthesis-with-auto-correlated-generator.html
+
+http://www.fon.hum.uva.nl/praat/
+
+https://github.com/espressif/esp-idf/tree/f91080637c054fa2b4107192719075d237ecc3ec/examples/peripherals/i2s
+
+https://swphonetics.com/praat/introduction/
+
+https://dsp.stackexchange.com/questions/5959/add-odd-even-harmonics-to-signal
+
+https://www.reddit.com/r/esp32/comments/f6kjqh/serial_speed_too_slow_add_a_100nf_capacitor/
+
+https://www.bbc.co.uk/news/av/world-50116478/thirty-mummies-in-wooden-coffins-found-in-egypt
+

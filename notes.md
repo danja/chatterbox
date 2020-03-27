@@ -1,23 +1,31 @@
 **2020-03-27** *version chatterbox_1.0.12*
 
+*A convenient way of configuring the system on the fly might be to supply an Inputs x Outputs connection matrix, akin to the patchboard on the EMS Synthi. One for later...*
+
+----
+
 Slightly impulsively added 3 push and 4 switches.
 
 Took a game of musical chairs to allocate, but all now working, got values going to serial.
 
 Provisionally, for the push switches:
 
-* stressed
-* de-stressed
-* nasal
+* stressed - boost volume
+* de-stressed - cut volume
+* nasal - parallel filter chain, notes below
 
 For toggles:
 
-* constant tone/sib
-* hoarse
-* shout
-* singing
+* constant tone/sib 
+* [Vocal fry](https://en.wikipedia.org/wiki/Vocal_fry_register) - pink? noise mod
+* shout - need research
+* singing - need research, but one thing is how pro singers develop a 3kHz peak... Maybe increase attack/decay time?
 
+It would be nice to have a combination that produces Death Metal voice.
 
+Other possibilities are male/female toggle, though the changes should already be covered by existing controls.
+
+The toggle switches could allow overloading of the functionality of the pots, but I want to go easy on this, could make things too complicated.
 
 This leaves me with:
 
