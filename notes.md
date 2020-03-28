@@ -1,4 +1,14 @@
-**2020-03-27** *version chatterbox_1.0.12*
+**2020-03-28** *version chatterbox_1.0.14*
+
+I've implemented stressed & de-stressed push buttons. I'm really not sure about these, the de-stressed especially doesn't seem very useful. But leave them for now.
+
+I've also done the constant tone/sib toggle. now called **Hold**, when off the push switches behave as before, push to play. When on, the push switches toggle value on every push. This is really good! I can see it being very useful. A keeper. 
+
+I also had a little play with modulating the voice signal (pitch then amplitude) with a pink noise generator. I couldn't get anything resembling a croaky voice, but have a few more ideas to try.
+
+Now I need to do a bit more research for the other added controls.   
+
+**2020-03-27** *version chatterbox_1.0.13*
 
 *A convenient way of configuring the system on the fly might be to supply an Inputs x Outputs connection matrix, akin to the patchboard on the EMS Synthi. One for later...*
 
@@ -17,9 +27,11 @@ Provisionally, for the push switches:
 For toggles:
 
 * constant tone/sib 
-* [Vocal fry](https://en.wikipedia.org/wiki/Vocal_fry_register) - pink? noise mod
+* croaky/[Vocal fry](https://en.wikipedia.org/wiki/Vocal_fry_register) - pink? noise mod
 * shout - need research
 * singing - need research, but one thing is how pro singers develop a 3kHz peak... Maybe increase attack/decay time?
+
+FRY : try x[n+1] = kx[n](1-x[n]) modulating larynx? tableStep?
 
 It would be nice to have a combination that produces Death Metal voice.
 

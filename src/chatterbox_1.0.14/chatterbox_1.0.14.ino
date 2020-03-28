@@ -49,6 +49,7 @@
 #define POT_LARYNX 4
 
 #define N_SWITCHES 12
+#define N_PUSH_SWITCHES 8
 
 #define SWITCH_VOICED 3
 #define SWITCH_ASPIRATED 4
@@ -60,10 +61,10 @@
 #define SWITCH_X6 6
 #define SWITCH_X7 7
 
-#define TOGGLE_T0 0
-#define TOGGLE_T1 1
-#define TOGGLE_T2 2
-#define TOGGLE_T3 3
+#define TOGGLE_HOLD 8
+#define TOGGLE_T1 9
+#define TOGGLE_T2 10
+#define TOGGLE_T3 11
 
 // Variable parameter ranges
 #define PITCH_MIN 20
@@ -84,8 +85,8 @@
 #define F1Q 10
 #define F2Q 15
 
-#define ATTACK_TIME 0.01f // switch envelope 
-#define DECAY_TIME 0.01f
+#define ATTACK_TIME 0.02f // switch envelope 
+#define DECAY_TIME 0.02f  // 2mS
 
 #define SF1F  2100 // Sibilance filter 1 centre frequency
 #define SF2F  3700
@@ -126,7 +127,7 @@ int bufferIndex = 0;
 
 // Used by Web Interface
 String potID[N_POTS];
-String switchID[N_SWITCHES];
+
 
 // for scaling ADC readings to required values
 float inputScale[N_POTS];
@@ -137,10 +138,14 @@ int potChannel[] = {36, 39, 32, 33, 34, 35};
 int potValue[N_POTS];
 int previousPotValue[N_POTS];
 
+String switchID[N_SWITCHES];
+
 // TODO move to defines
 char switchChannel[] = {19, 23, 12, 13, 14,    17, 18, 5,     16, 15, 2, 4}; // TODO move this to a define,
 // is N_SWITCHES
 // char nswitches =  (int)(sizeof(switchChannel) / sizeof(switchChannel[0]));
+
+bool switchHold[N_PUSH_SWITCHES];
 
 float switchGain[N_SWITCHES];
 float switchValue[] = {false, false, false, false, false, false, false, false, false, false, false, false};  // TODO move these to a loop
@@ -212,7 +217,7 @@ void setup()
   switchID[6] = "x6";
   switchID[7] = "x7";
 
-  switchID[8] = "T0";
+  switchID[8] = "hold";
   switchID[9] = "T1";
   switchID[10] = "T2";
   switchID[11] = "T3";
@@ -253,6 +258,10 @@ void initInputs() {
     potValue[i] = 0;
     previousPotValue[i] = 0;
     inputScale[i] = 1.0f;
+  }
+
+  for (char i = 0; i < N_PUSH_SWITCHES; i++) {
+    switchHold[i] = 0; // off
   }
 
   for (char i = 0; i < N_SWITCHES; i++) {
@@ -333,7 +342,10 @@ float f3q;
 
 float mainGain = 1.0f;
 
+
+/************************/
 /* *** INPUT THREAD *** */
+/************************/
 void ControlInput(void *pvParameter)
 {
   initInputs();
@@ -383,19 +395,38 @@ void ControlInput(void *pvParameter)
     f3.updateCoefficients(f3f, f3q, f3Type, samplerate);
     // updateCoefficients(double cutoff, double q = 0.5, FLT_TYPE type = LOW_, double sampleRate = 44100)
 
-    for (char i = 0; i < N_SWITCHES; i++) { // switch envelope generator
+    /*** SWITCH INPUT ***/
+
+    for (char i = 0; i < N_SWITCHES; i++) { // switch envelope generator TODO only needed for push switches
       switchValue[i] = digitalRead(switchChannel[i]);
-      if (switchValue[i] == 1) {
-        switchGain[i] += attackStep;
-        if (switchGain[i] > 1) switchGain[i] = 1;
-      } else {
-        switchGain[i] -= decayStep;
-        if (switchGain[i] < 1) switchGain[i] = 0;
+      if (switchValue[i] != previousSwitchValue[i]) {
+        previousSwitchValue[i] = switchValue[i];
+        togglePushSwitch(i);
+        pushSwitchChange(i);
       }
+
+      switchValue[i] = switchValue[i] || (switchHold[i] && switchValue[TOGGLE_HOLD]);
+
+      if (switchValue[TOGGLE_HOLD]) { // override envelope
+        if (switchValue[i]) {
+          switchGain[i] = 1;
+        } else {
+          switchGain[i] = 0;
+        }
+      } else { // apply envelope
+        if (switchValue[i]) {
+          switchGain[i] += attackStep;
+          if (switchGain[i] > 1) switchGain[i] = 1;
+        } else {
+          switchGain[i] -= decayStep;
+          if (switchGain[i] < 1) switchGain[i] = 0;
+        }
+      }
+
     }
 
     mainGain = 1.0f;
-    if (switchGain[SWITCH_X6] > 0.5f) mainGain = 0.5f;
+    if (switchGain[SWITCH_X6] > 0.5f) mainGain = 0.3f;
     if (switchGain[SWITCH_X7] > 0.5f) mainGain = 1.5f;
 
     pushToWebSocket();
@@ -413,17 +444,25 @@ void pushToWebSocket() {
       previousPotValue[i] = potValue[i];
     }
   }
+}
 
-  for (char i = 0; i < N_SWITCHES; i++) {
-    if (switchValue[i] != previousSwitchValue[i]) {
-      convertAndPush(switchID[i], switchChannel[i]);
-      if (switchValue[i]) {
-        convertAndPush(switchID[i], 1);
-      } else {
-        convertAndPush(switchID[i], 0);
-      }
-      previousSwitchValue[i] = switchValue[i];
+void togglePushSwitch(char i) {
+  if (i >= N_PUSH_SWITCHES) return;
+
+  if (switchValue[TOGGLE_HOLD]) {
+    if (switchValue[i]) {
+      switchHold[i] = !switchHold[i]; // toggle
     }
+    //switchValue[i] = switchHold[i];
+  }
+}
+
+void pushSwitchChange(char i) {
+  convertAndPush(switchID[i], switchChannel[i]);
+  if (switchValue[i] == 1) {
+    convertAndPush(switchID[i], 1);
+  } else {
+    convertAndPush(switchID[i], 0);
   }
 }
 
@@ -497,11 +536,11 @@ void OutputDAC(void *pvParameter)
     float noise = random(-32768, 32767) / 32768.0f;
     noise = noise / 4.0f;
 
-// Serial.println("-");
-// Serial.println(noise, DEC);
-// float pinky = pink(noise);
-// Serial.println(pinky, DEC);
-  //  voice = voice * pinky; /////////////////////////
+    // Serial.println("-");
+    // Serial.println(noise, DEC);
+    // float pinky = pink(noise);
+    // Serial.println(pinky, DEC);
+    //  voice = voice * pinky; /////////////////////////
 
     // *** System block connections ***
     voice = switchGain[SWITCH_VOICED] * voice;
