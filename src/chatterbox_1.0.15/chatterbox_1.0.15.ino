@@ -39,14 +39,26 @@
 #define INPUT_WEB 1
 
 /* CONTROLS */
-#define N_POTS 6
+#define N_POTS_ACTUAL 6
+#define N_POTS_VIRTUAL 7
 
 #define POT_F1F     0
 #define POT_F2F     1
-#define POT_F3F   2
-#define POT_F3Q   3
-#define POT_PITCH  5
-#define POT_LARYNX 4
+#define POT_F3F     2
+#define POT_F3Q     3
+#define POT_LARYNX  4
+#define POT_PITCH   5
+
+#define POT_LOGISTIC 6
+
+#define POT_ID_F1F      "f1f"
+#define POT_ID_F2F      "f2f"
+#define POT_ID_F3F      "f3f"
+#define POT_ID_F3Q      "f3q"
+#define POT_ID_LARYNX   "larynx"
+#define POT_ID_PITCH    "pitch"
+#define POT_ID_LOGISTIC "logistic"
+
 
 #define N_SWITCHES 12
 #define N_PUSH_SWITCHES 8
@@ -62,7 +74,7 @@
 #define SWITCH_X7 7
 
 #define TOGGLE_HOLD 8
-#define TOGGLE_T1 9
+#define TOGGLE_LOGISTIC 9
 #define TOGGLE_T2 10
 #define TOGGLE_T3 11
 
@@ -81,15 +93,15 @@
 
 #define F3F_LOW  50 // F3 is auxiliary filter, may or may not be a formant
 #define F3F_HIGH  7000
-#define F3Q_MIN  1
-#define F3Q_MAX  10
+#define F3Q_MIN  1.0f
+#define F3Q_MAX  10.0f
 
-#define LOGISTIC_MIN 2
-#define LOGISTIC_MAX 5
+#define LOGISTIC_MIN 3.0f
+#define LOGISTIC_MAX 4.0f
 
 // Fixed parameter values
-#define F1Q 10
-#define F2Q 15
+#define F1Q 10.0f
+#define F2Q 15.0f
 
 #define ATTACK_TIME 0.02f // switch envelope 
 #define DECAY_TIME 0.02f  // 2mS
@@ -98,9 +110,9 @@
 #define SF2F  3700
 #define SF3F  5600
 
-#define SF1Q  10
-#define SF2Q  12
-#define SF3Q  14
+#define SF1Q  10.0f
+#define SF2Q  12.0f
+#define SF3Q  14.0f
 
 /*** WEB COMMS ***/
 #define HTTP_PORT 80
@@ -131,18 +143,17 @@ float tableStep = 1;
 
 int bufferIndex = 0;
 
-// Used by Web Interface
-String potID[N_POTS];
-
+// short string identifier
+String potID[N_POTS_VIRTUAL];
 
 // for scaling ADC readings to required values
-float inputScale[N_POTS];
-int inputOffset[N_POTS];
+float inputScale[N_POTS_VIRTUAL];
+int inputOffset[N_POTS_VIRTUAL];
 
 // Inputs TODO move to defines
 int potChannel[] = {36, 39, 32, 33, 34, 35};
-int potValue[N_POTS];
-int previousPotValue[N_POTS];
+int potValue[N_POTS_VIRTUAL];
+int previousPotValue[N_POTS_VIRTUAL];
 
 String switchID[N_SWITCHES];
 
@@ -154,8 +165,8 @@ char switchChannel[] = {19, 23, 12, 13, 14,    17, 18, 5,     16, 15, 2, 4}; // 
 bool switchHold[N_PUSH_SWITCHES];
 
 float switchGain[N_SWITCHES];
-float switchValue[] = {false, false, false, false, false, false, false, false, false, false, false, false};  // TODO move these to a loop
-float previousSwitchValue[] = {false, false, false, false, false, false, false, false, false, false, false, false};
+float switchValue[N_SWITCHES];
+float previousSwitchValue[N_SWITCHES];
 
 float attackTime = ATTACK_TIME; // 10mS
 float attackStep = (float)ADC_TOP / (samplerate*attackTime);
@@ -206,12 +217,19 @@ void setup()
     NULL,
     1); // core
 
-  potID[0] = "f1f";
-  potID[1] = "f2f";
-  potID[2] = "f3f";
-  potID[3] = "f3q";
-  potID[4] = "larynx";
-  potID[5] = "pitch";
+  potID[0] = POT_ID_F1F;
+  potID[1] = POT_ID_F2F;
+  potID[2] = POT_ID_F3F;
+  potID[3] = POT_ID_F3Q;
+  potID[4] = POT_ID_LARYNX;
+  potID[5] = POT_ID_PITCH;
+
+  potID[5] = POT_ID_LOGISTIC;
+
+  for (int i = 0; i < N_SWITCHES; i++) {
+    switchValue[i] = false;
+    previousSwitchValue[i] = false;
+  }
 
   switchID[0] = "sf1";
   switchID[1] = "sf2";
@@ -224,7 +242,7 @@ void setup()
   switchID[7] = "x7";
 
   switchID[8] = "hold";
-  switchID[9] = "T1";
+  switchID[9] = "logistic";
   switchID[10] = "T2";
   switchID[11] = "T3";
 
@@ -259,8 +277,10 @@ void initInputs() {
   adc1_config_width(ADC_WIDTH_BIT_12);
   adc1_config_channel_atten(ADC1_CHANNEL_0, ADC_ATTEN_DB_11);
 
-  for (char i = 0; i < N_POTS; i++) {
+  for (char i = 0; i < N_POTS_ACTUAL; i++) {
     adcAttachPin(potChannel[i]);
+  }
+  for (char i = 0; i < N_POTS_VIRTUAL; i++) {
     potValue[i] = 0;
     previousPotValue[i] = 0;
     inputScale[i] = 1.0f;
@@ -290,6 +310,9 @@ void initInputs() {
   inputScale[POT_F3F] = (float)(F3F_HIGH - F3F_LOW) / (float)ADC_TOP;
   inputOffset[POT_F3Q] =  F3Q_MIN;
   inputScale[POT_F3Q] = (float)(F3Q_MAX - F3Q_MIN) / (float)ADC_TOP;
+
+  inputOffset[POT_LOGISTIC] =  LOGISTIC_MIN;
+  inputScale[POT_LOGISTIC] = (float)(LOGISTIC_MAX - LOGISTIC_MIN) / (float)ADC_TOP;
 }
 /* END INITIALISE INPUTS */
 
@@ -318,11 +341,21 @@ float pink(float white) {
   return softClip(b0 + b1 + b2 + white * 0.1848f);
 }
 
+// Logistic map chaotic signal
 float lx = 0.5f;
-float logisticK = 3.5;
+float logisticK = 3.5f;
+float x;
+int logisticLoops = 8;
+
 float logistic() {
-  float x = lx * logisticK * (1 - lx);
-  lx = x;
+  for (int i = 0; i < logisticLoops; i++) {
+    x = lx * logisticK * (1 - lx);
+    if (x > 1) x = 0.5;
+    lx = x;
+  }
+  //Serial.println();
+  //Serial.println(logisticK, DEC);
+  //Serial.println(x, DEC);
   return x;
 }
 
@@ -371,7 +404,7 @@ void ControlInput(void *pvParameter)
 
     // take mean of ADC readings, they are prone to noise
 
-    for (char pot = 0; pot < N_POTS; pot++) {
+    for (char pot = 0; pot < N_POTS_ACTUAL; pot++) {
       int sum = 0;
       for (int j = 0; j < ADC_SAMPLES; j++) {
         sum +=  analogRead(potChannel[pot]); // get value from pot / ADC
@@ -380,12 +413,18 @@ void ControlInput(void *pvParameter)
       potValue[pot] = sum / ADC_SAMPLES;
     }
 
+    potValue[POT_LOGISTIC] = potValue[POT_PITCH];
+
+    if (switchValue[TOGGLE_LOGISTIC]) {
+      potID[POT_PITCH] = POT_ID_LOGISTIC;
+    } else {
+      potID[POT_PITCH] = POT_ID_PITCH;
+    }
+    
     // pitch control
-   // if (switchValue[TOGGLE_T1]) {
-     // logisticK = ((float)inputOffset[POT_PITCH] + inputScale[POT_PITCH] *  (float)potValue[POT_PITCH]);
-    //} else {
-      pitch = ((float)inputOffset[POT_PITCH] + inputScale[POT_PITCH] *  (float)potValue[POT_PITCH]);
-    //}
+    pitch = ((float)inputOffset[POT_PITCH] + inputScale[POT_PITCH] *  (float)potValue[POT_PITCH]);
+
+    logisticK = ((float)inputOffset[POT_LOGISTIC] + inputScale[POT_LOGISTIC] *  (float)potValue[POT_LOGISTIC]);
 
     if (controlSource == INPUT_LOCAL) {
       tableStep = pitch * tablesize / samplerate; // tableStep aka delta
@@ -397,7 +436,6 @@ void ControlInput(void *pvParameter)
 
       if (controlSource == INPUT_LOCAL)
         larynx = inputOffset[POT_LARYNX] + potFraction * inputScale[POT_LARYNX];
-
       initWavetable();
     }
 
@@ -422,6 +460,7 @@ void ControlInput(void *pvParameter)
         togglePushSwitch(i); // for HOLD toggle
         pushSwitchChange(i);
       }
+////////////////////////////////HERE
 
       switchValue[i] = switchValue[i] || (switchHold[i] && switchValue[TOGGLE_HOLD]);
 
@@ -442,14 +481,6 @@ void ControlInput(void *pvParameter)
       }
     }
 
-    //if (switchValue[TOGGLE_T1]) {
-     // inputOffset[POT_PITCH] =  LOGISTIC_MIN;
-     // inputScale[POT_PITCH] = (float)(LOGISTIC_MAX - LOGISTIC_MIN) / (float)ADC_TOP;
-   // } else {
-      inputOffset[POT_PITCH] =  PITCH_MIN;
-      inputScale[POT_PITCH] = (float)(PITCH_MAX - PITCH_MIN) / (float)ADC_TOP;
-    //}
-
     mainGain = 1.0f;
     if (switchGain[SWITCH_X6] > 0.5f) mainGain = 0.3f;
     if (switchGain[SWITCH_X7] > 0.5f) mainGain = 1.7f;
@@ -462,7 +493,7 @@ void ControlInput(void *pvParameter)
 const int potResolution = 32; // TODO sort out noise!!!!
 
 void pushToWebSocket() {
-  for (int i = 0; i < N_POTS; i++) {
+  for (int i = 0; i < N_POTS_ACTUAL; i++) {
     if (abs(potValue[i] - previousPotValue[i]) >= potResolution) {
       convertAndPush(potID[i], potChannel[i]);
       convertAndPush(potID[i], potValue[i]);
@@ -483,7 +514,7 @@ void togglePushSwitch(char i) {
 
 void pushSwitchChange(char i) {
   convertAndPush(switchID[i], switchChannel[i]);
-  if (switchValue[i] == 1) {
+  if (switchValue[i]) {
     convertAndPush(switchID[i], 1);
   } else {
     convertAndPush(switchID[i], 0);
@@ -555,11 +586,15 @@ void OutputDAC(void *pvParameter)
     int lower = (int)floor(pointer);
     int upper = ((int)ceil(pointer)) % TABLESIZE;
 
-    float voice = wavetable[lower] * err + wavetable[upper] * (1 - err);
+    float voice;
 
-  //  if (switchValue[TOGGLE_T1]) {
-   //   voice = logistic();
-   // } 
+    if (switchValue[TOGGLE_LOGISTIC]) {
+      float l =  logistic();
+
+      voice = l;
+    } else {
+      voice = wavetable[lower] * err + wavetable[upper] * (1 - err);
+    }
 
     float noise = random(-32768, 32767) / 32768.0f;
     noise = noise / 4.0f;

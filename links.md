@@ -19,6 +19,8 @@
 * Speak & Spell
 
 **Speech**
+* [Voice Acoustics](https://newt.phys.unsw.edu.au/jw/speech.html)
+* [Voice Acoustics: an introduction](https://newt.phys.unsw.edu.au/jw/voice.html)
 * [Relative contribution of envelope and fine structure to the subcortical encoding of noise-degraded speech](https://asa.scitation.org/doi/10.1121/1.4965248)
 * [Temporal information in speech: acoustic, auditory and linguistic aspects](https://royalsocietypublishing.org/doi/pdf/10.1098/rstb.1992.0070)
 

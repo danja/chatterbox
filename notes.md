@@ -1,3 +1,13 @@
+**2020-03-29** *version chatterbox_1.0.15*
+
+Started playing with a chaotic noise generator ([Logistic map](https://en.wikipedia.org/wiki/Logistic_map)), flipping between wavetable voice and this using toggle switch 2 and overloading pitch pot to change constant in logistic equation.
+
+To allow this without making things too messy I've introduced the distinction between ACTUAL_POTs and VIRTUAL_POTSs. The virtual ones support all the same parameters as pot controls did before, assigning them to actual ones as required.
+
+But...my concentration's not been very good today. Plagued by silly bugs. Just noticed the switch logic isn't wired properly, isn't distinguishing between push and toggle switches properly.
+
+Hey ho, sort out tomorrow, hopefully have a clearer head.	
+
 **2020-03-28** *version chatterbox_1.0.14*
 
 I've implemented stressed & de-stressed push buttons. I'm really not sure about these, the de-stressed especially doesn't seem very useful. But leave them for now.
@@ -6,7 +16,11 @@ I've also done the constant tone/sib toggle. now called **Hold**, when off the p
 
 I also had a little play with modulating the voice signal (pitch then amplitude) with a pink noise generator. I couldn't get anything resembling a croaky voice, but have a few more ideas to try.
 
-Now I need to do a bit more research for the other added controls.   
+Now I need to do a bit more research for the other added controls.
+
+----
+
+I reckon I need the 3 sibilant buttons noises to enter the processing chain later, after F1 & F2. 
 
 **2020-03-27** *version chatterbox_1.0.13*
 
