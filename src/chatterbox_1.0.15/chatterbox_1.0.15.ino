@@ -78,6 +78,10 @@
 #define TOGGLE_T2 10
 #define TOGGLE_T3 11
 
+#define PUSH 0
+#define TOGGLE 1
+
+
 // Variable parameter ranges
 #define PITCH_MIN 20
 #define PITCH_MAX 500
@@ -134,14 +138,9 @@ TaskHandle_t AudioTask;
 AsyncWebServer server(HTTP_PORT);
 AsyncWebSocket ws("/ws");
 
-// save a bit of casting
-float samplerate = (float)SAMPLERATE;
-float tablesize = (float)TABLESIZE;
-
-float wavetable[TABLESIZE];
-float tableStep = 1;
-
-int bufferIndex = 0;
+/*********************/
+/*** INPUT RELATED ***/
+/*********************/
 
 // short string identifier
 String potID[N_POTS_VIRTUAL];
@@ -154,6 +153,10 @@ int inputOffset[N_POTS_VIRTUAL];
 int potChannel[] = {36, 39, 32, 33, 34, 35};
 int potValue[N_POTS_VIRTUAL];
 int previousPotValue[N_POTS_VIRTUAL];
+
+char switchType[] = {PUSH, PUSH, PUSH, PUSH, PUSH, PUSH, PUSH, PUSH,
+                     TOGGLE, TOGGLE, TOGGLE, TOGGLE
+                    };
 
 String switchID[N_SWITCHES];
 
@@ -168,11 +171,20 @@ float switchGain[N_SWITCHES];
 float switchValue[N_SWITCHES];
 float previousSwitchValue[N_SWITCHES];
 
+// save a bit of casting - better just to define as floats, will cast to int automatically when needed?
+float samplerate = (float)SAMPLERATE;
+float tablesize = (float)TABLESIZE;
+
 float attackTime = ATTACK_TIME; // 10mS
 float attackStep = (float)ADC_TOP / (samplerate*attackTime);
 
 float decayTime = DECAY_TIME; // 10mS
 float decayStep = (float)ADC_TOP / (samplerate*decayTime);
+
+float wavetable[TABLESIZE];
+float tableStep = 1;
+
+int bufferIndex = 0;
 
 void loop() { // do nothing
   // vTaskDelay(1);
@@ -345,7 +357,7 @@ float pink(float white) {
 float lx = 0.5f;
 float logisticK = 3.5f;
 float x;
-int logisticLoops = 8;
+int logisticLoops = 1;
 
 float logistic() {
   for (int i = 0; i < logisticLoops; i++) {
@@ -353,9 +365,10 @@ float logistic() {
     if (x > 1) x = 0.5;
     lx = x;
   }
-  //Serial.println();
-  //Serial.println(logisticK, DEC);
-  //Serial.println(x, DEC);
+  Serial.println();
+   Serial.println("logisticK");
+  Serial.println(logisticK, DEC);
+  Serial.println(x, DEC);
   return x;
 }
 
@@ -420,7 +433,7 @@ void ControlInput(void *pvParameter)
     } else {
       potID[POT_PITCH] = POT_ID_PITCH;
     }
-    
+
     // pitch control
     pitch = ((float)inputOffset[POT_PITCH] + inputScale[POT_PITCH] *  (float)potValue[POT_PITCH]);
 
@@ -451,7 +464,9 @@ void ControlInput(void *pvParameter)
     f3.updateCoefficients(f3f, f3q, f3Type, samplerate);
     // updateCoefficients(double cutoff, double q = 0.5, FLT_TYPE type = LOW_, double sampleRate = 44100)
 
+    /********************/
     /*** SWITCH INPUT ***/
+    /********************/
 
     for (char i = 0; i < N_SWITCHES; i++) { // switch envelope generator TODO only needed for push switches
       switchValue[i] = digitalRead(switchChannel[i]);
@@ -460,23 +475,24 @@ void ControlInput(void *pvParameter)
         togglePushSwitch(i); // for HOLD toggle
         pushSwitchChange(i);
       }
-////////////////////////////////HERE
 
-      switchValue[i] = switchValue[i] || (switchHold[i] && switchValue[TOGGLE_HOLD]);
+      if (switchType[i] == PUSH) {
+        switchValue[i] = switchValue[i] || (switchHold[i] && switchValue[TOGGLE_HOLD]);
 
-      if (switchValue[TOGGLE_HOLD]) { // override envelope
-        if (switchValue[i]) {
-          switchGain[i] = 1;
-        } else {
-          switchGain[i] = 0;
-        }
-      } else { // apply envelope
-        if (switchValue[i]) {
-          switchGain[i] += attackStep;
-          if (switchGain[i] > 1) switchGain[i] = 1;
-        } else {
-          switchGain[i] -= decayStep;
-          if (switchGain[i] < 1) switchGain[i] = 0;
+        if (switchValue[TOGGLE_HOLD]) { // override envelope
+          if (switchValue[i]) {
+            switchGain[i] = 1;
+          } else {
+            switchGain[i] = 0;
+          }
+        } else { // apply envelope
+          if (switchValue[i]) {
+            switchGain[i] += attackStep;
+            if (switchGain[i] > 1) switchGain[i] = 1;
+          } else {
+            switchGain[i] -= decayStep;
+            if (switchGain[i] < 1) switchGain[i] = 0;
+          }
         }
       }
     }

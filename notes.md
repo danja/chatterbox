@@ -1,3 +1,21 @@
+**2020-03-31** *version chatterbox_1.0.15*
+
+I reckon what I'll do today is put *something* in place for the remaining switches, so I can move back to the web interface.
+Added a load of links.
+
+* nasal push switch : I reckon I'll try simply popping different filter parameters in place for F1 & F2 - the joystick. The docs seem to suggest notch filters with similar slopes as the normal formant bandpasses
+* 
+
+
+
+
+**2020-03-30** *version chatterbox_1.0.15*
+
+Bit more reading, found some interesting stuff relating to the larynx waveform (see [Links](links.md) -> speech). Certainly looks worth playing with, maybe relevant to singing & shouting voices. *If* this makes a significant difference, then it might be worth making more wavetables...
+
+Yesterday's switch logic tangle was incredibly easy to sort out, simply added switchType[] - PUSH 0, TOGGLE 1
+ 
+
 **2020-03-29** *version chatterbox_1.0.15*
 
 Started playing with a chaotic noise generator ([Logistic map](https://en.wikipedia.org/wiki/Logistic_map)), flipping between wavetable voice and this using toggle switch 2 and overloading pitch pot to change constant in logistic equation.
