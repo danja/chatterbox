@@ -19,7 +19,7 @@
 * Speak & Spell
 
 ### Speech
-* [](speech-synthesis-and-recognition_book.pdf), [remote](https://epdf.pub/queue/speech-synthesis-and-recognition.html) [(book)
+* [Speech Synthesis and Recognition - local](https://github.com/danja/chatterbox/blob/master/reference/speech-synthesis-and-recognition_book.pdf), [remote copy](https://epdf.pub/queue/speech-synthesis-and-recognition.html) (book)
 
 ###  Speech Processing Lecture Slides (very wide in scope, but good summaries of each bit)
 From Texas A&M University, CSCE 689-604: Special Topics in Speech Processing, [cource material](http://courses.cs.tamu.edu/rgutier/csce689_s11/)
@@ -59,26 +59,39 @@ From Texas A&M University, CSCE 689-604: Special Topics in Speech Processing, [c
 * [Relative contribution of envelope and fine structure to the subcortical encoding of noise-degraded speech](https://asa.scitation.org/doi/10.1121/1.4965248)
 * [Temporal information in speech: acoustic, auditory and linguistic aspects](https://royalsocietypublishing.org/doi/pdf/10.1098/rstb.1992.0070)
 
+* [Spectral balance as an acoustic correlate of linguistic stress](https://www.researchgate.net/publication/14340446_Spectral_tilt_as_an_acoustic_correlate_of_linguistic_stress)
 * [Detection of shouted speech in noise: Human and machine](https://users.aalto.fi/~jpohjala/publications/JASMAN13342377_1.pdf)
 * [Sopranos: resonance tuning and vowel changes](https://newt.phys.unsw.edu.au/jw/soprane.html)
 * [FORENSIC ANALYSIS OF THE AUDIBILITY OF FEMALE SCREAMS ](http://www.audioforensics.com/PDFs/AES122_Scream.pdf)
 * [Modeling and Analyzing the Vocal TRact under Normal and Stressful Talking Conditions](https://arxiv.org/pdf/1707.00149.pdf)
 * [On chaotic nature of speech signals](https://www.researchgate.net/publication/23678739_On_chaotic_nature_of_speech_signals)
 
+## DSP
+**Online Books**
+* [Mathematics of the Discrete Fourier Transform (DFT)](https://ccrma.stanford.edu/~jos/mdft/)
+* [Introduction to Digital Filters](https://ccrma.stanford.edu/~jos/filters/) (uses MATLAB)
+* [Physical Audio Signal Processing](https://ccrma.stanford.edu/~jos/pasp/)
+* [Spectral Audio Signal Processing](https://ccrma.stanford.edu/~jos/sasp/)
+
 ### Wavetables etc.
 * [the_synth](https://github.com/dzlonline/the_synth)
 * [Alias-Free Digital Synthesis of Classic Analog Waveforms](https://ccrma.stanford.edu/~stilti/papers/blit.pdf)
 * [Table Lookup Oscillators Using Generic Integrated Wavetables](http://mtg.upf.edu/node/485)
 
+* [Pink Noise bits](https://dsp.stackexchange.com/questions/322/pink-1-f-pseudo-random-noise-generation/56820#56820)
+
 ### Filters
 * [Digital Filters For Music Synthesis](https://github.com/danja/chatterbox/blob/master/reference/karmafx_digitalfilters.pdf)
 * [musicdsp.org](https://www.musicdsp.org/)
 * [KVR Forum](https://www.kvraudio.com/forum/)
-* [Biquads](https://www.earlevel.com/main/2003/02/28/biquads/)
+* [Biquads](https://www.earlevel.com/main/2003/02/28/biquads/) (blog - a lot of other stuff)
 * [The digital state variable filter](https://www.earlevel.com/main/2003/03/02/the-digital-state-variable-filter/)
 * [Introduction to Digital Filters with Audio Applications](https://ccrma.stanford.edu/~jos/filters/)
 * [A Collection of Useful C++ Classes for Digital Signal Processing](https://github.com/vinniefalco/DSPFilters)
 * [DSP Tips & Tricks](https://web.archive.org/web/20070427190833/http://www.cspl.umd.edu/spm/tips-n-tricks/)
+
+* [Cytomic technical papers](https://cytomic.com/technical-papers) (includes the derivation of SvfLinearTrapOptimised2)
+* [Common-DSP](https://github.com/FredAntonCorvest/Common-DSP) (includes implementation of SvfLinearTrapOptimised2)
 
 ### Fixed-point maths
 * [Fixed Point Math Library for C](https://sourceforge.net/p/fixedptc/)

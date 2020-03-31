@@ -1,14 +1,14 @@
-/*
-    Chatterbox
-
-    a voice-like sound generator
-
-    see http://github.com/danja/chatterbox
-
-    unless otherwise stated: MIT license, attribution appreciated
-
-    Danny Ayers 2020 | danny.ayers@gmail.com | #danja | https://hyperdata.it
-*/
+/**********************************************************************************/
+/*    Chatterbox                                                                  */
+/*                                                                                */
+/*    a voice-like sound generator                                                */
+/*                                                                                */
+/*    see http://github.com/danja/chatterbox                                      */
+/*                                                                                */
+/*    unless otherwise stated: MIT license, attribution appreciated               */
+/*                                                                                */
+/*    Danny Ayers 2020 | danny.ayers@gmail.com | #danja | https://hyperdata.it    */
+/**********************************************************************************/
 
 
 #include <Arduino.h>
@@ -106,6 +106,12 @@
 // Fixed parameter values
 #define F1Q 10.0f
 #define F2Q 15.0f
+
+#define F1_XQ 20.0f
+#define F2_XQ 30.0f
+
+#define TILT_LOW_Q 5.0f
+#define TILT_HIGH_Q 5.0f
 
 #define ATTACK_TIME 0.02f // switch envelope 
 #define DECAY_TIME 0.02f  // 2mS
@@ -366,7 +372,7 @@ float logistic() {
     lx = x;
   }
   Serial.println();
-   Serial.println("logisticK");
+  Serial.println("logisticK");
   Serial.println(logisticK, DEC);
   Serial.println(x, DEC);
   return x;
@@ -379,8 +385,16 @@ SvfLinearTrapOptimised2 f1;
 SvfLinearTrapOptimised2 f2;
 SvfLinearTrapOptimised2 f3;
 
+SvfLinearTrapOptimised2 fTiltLow;
+SvfLinearTrapOptimised2 fTiltHigh;
+
+
 SvfLinearTrapOptimised2::FLT_TYPE f1Type = SvfLinearTrapOptimised2::BAND_PASS_FILTER;
 SvfLinearTrapOptimised2::FLT_TYPE f2Type = SvfLinearTrapOptimised2::BAND_PASS_FILTER;
+
+SvfLinearTrapOptimised2::FLT_TYPE f1_nasalType = SvfLinearTrapOptimised2::BELL_FILTER;
+SvfLinearTrapOptimised2::FLT_TYPE f2_nasalType = SvfLinearTrapOptimised2::BELL_FILTER;
+
 SvfLinearTrapOptimised2::FLT_TYPE f3Type = SvfLinearTrapOptimised2::LOW_PASS_FILTER;
 
 // fixed sibilant/fricative filters
@@ -392,6 +406,9 @@ SvfLinearTrapOptimised2::FLT_TYPE sf1Type = SvfLinearTrapOptimised2::HIGH_PASS_F
 SvfLinearTrapOptimised2::FLT_TYPE sf2Type = SvfLinearTrapOptimised2::HIGH_PASS_FILTER;
 SvfLinearTrapOptimised2::FLT_TYPE sf3Type = SvfLinearTrapOptimised2::HIGH_PASS_FILTER;
 
+SvfLinearTrapOptimised2::FLT_TYPE tiltLowType = SvfLinearTrapOptimised2::LOW_PASS_FILTER;
+SvfLinearTrapOptimised2::FLT_TYPE tiltHighType = SvfLinearTrapOptimised2::HIGH_PASS_FILTER;
+
 float pitch;
 // larynx is initialized at wavetable
 float f1f;
@@ -399,7 +416,7 @@ float f2f;
 float f3f;
 float f3q;
 
-float mainGain = 1.0f;
+float voicedGain = 1.0f;
 
 
 /************************/
@@ -459,8 +476,20 @@ void ControlInput(void *pvParameter)
       f3q = inputOffset[POT_F3Q] + (float)potValue[POT_F3Q] * inputScale[POT_F3Q];
     }
 
-    f1.updateCoefficients(f1f, F1Q, f1Type, samplerate); // TODO allow variable Q?
-    f2.updateCoefficients(f2f, F2Q, f2Type, samplerate);
+    /////////////////////////////////////
+    if (switchValue[SWITCH_X5] == 0) {
+      f1.updateCoefficients(f1f, F1Q, f1Type, samplerate); // TODO allow variable Q?
+      f2.updateCoefficients(f2f, F2Q, f2Type, samplerate);
+    } else {
+      f1.updateCoefficients(f1f, F1_XQ, f1_nasalType, samplerate); // TODO allow variable Q?
+      f2.updateCoefficients(f2f, F2_XQ, f2_nasalType, samplerate);
+    }
+
+    fTiltLow.updateCoefficients(f1f, TILT_LOW_Q, tiltLowType, samplerate);
+    fTiltHigh.updateCoefficients(f2f, TILT_HIGH_Q, tiltHighType, samplerate);
+
+    // TILT_LOW_Q
+
     f3.updateCoefficients(f3f, f3q, f3Type, samplerate);
     // updateCoefficients(double cutoff, double q = 0.5, FLT_TYPE type = LOW_, double sampleRate = 44100)
 
@@ -497,9 +526,9 @@ void ControlInput(void *pvParameter)
       }
     }
 
-    mainGain = 1.0f;
-    if (switchGain[SWITCH_X6] > 0.5f) mainGain = 0.3f;
-    if (switchGain[SWITCH_X7] > 0.5f) mainGain = 1.7f;
+    voicedGain = 1.0f;
+    if (switchGain[SWITCH_X6] > 0.5f) voicedGain = 0.3f;
+    if (switchGain[SWITCH_X7] > 0.5f) voicedGain = 1.7f;
 
     pushToWebSocket();
   }
@@ -625,7 +654,10 @@ void OutputDAC(void *pvParameter)
     voice = switchGain[SWITCH_VOICED] * voice;
     float aspiration = switchGain[SWITCH_ASPIRATED] * noise;
 
-    float f1f_in = (voice + aspiration) / 2.0f;
+    float raw = (voicedGain * voice + aspiration) / 2.0f;
+
+    //float fTiltLow_in = (voice + aspiration) / 2.0f;
+    //  float fTiltHigh_in = (voice + aspiration) / 2.0f;
 
     float s1 = sf1.tick(noise) * switchGain[SWITCH_SF1] / 8.0f;
     float s2 = sf2.tick(noise) * switchGain[SWITCH_SF2] / 4.0f;
@@ -633,14 +665,30 @@ void OutputDAC(void *pvParameter)
 
     float sibilants = softClip(s1 + s2 + s3);
 
-    float f3_in = softClip(f1.tick(f1f_in) + sibilants);
-    float f2f_in = softClip(f3.tick(f3_in));
+    float f3_in;
+    float f2f_in;
+    float mix;
 
-    float  valL = softClip(mainGain * f2.tick(f2f_in));
+    if (switchValue[TOGGLE_T2]) {
+      mix = (fTiltLow.tick(raw) + fTiltHigh.tick(raw)) / 2.0f;
+      f2f_in = softClip(f3.tick(mix) + sibilants);
+    } else {
+      f3_in = softClip(f1.tick(raw));
+      f2f_in = softClip(f3.tick(f3_in) + sibilants);
+    }
+
+
+
+    float  valL = softClip(f2.tick(f2f_in));
     float  valR = softClip(voice); // voice pink(noise)
 
+    if (switchValue[TOGGLE_T2]) {
+      valR = noise;
+    } else {
+      valR = noise - pink(noise);
+    }
 
-    dac.writeSample(valL, valR);
+    dac.writeSample(valL, valR); //
 
     // Pause thread after delivering 64 samples so that other threads can do stuff
     if (frameCount++ % 64 == 0) vTaskDelay(1); // was 64, 1

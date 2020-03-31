@@ -1,13 +1,31 @@
 **2020-03-31** *version chatterbox_1.0.15*
 
-I reckon what I'll do today is put *something* in place for the remaining switches, so I can move back to the web interface.
 Added a load of links.
 
+I reckon what I'll do today is put *something* in place for the remaining switches, so I can move back to the web interface.
+
 * nasal push switch : I reckon I'll try simply popping different filter parameters in place for F1 & F2 - the joystick. The docs seem to suggest notch filters with similar slopes as the normal formant bandpasses
-* 
 
+* stress push switch - implemented as simply volume boost, need to look at spectral tilt - 
 
+* constant tone/sib - done
 
+* croaky - logistic map, isn't any use yet
+
+* shout - need research
+
+* singing - need research, but one thing is how pro singers develop a 3kHz peak... Maybe increase attack/decay time?
+
+**MUST REMEMBER** there are 2 signal outputs. It would be feasible to hook up controls to a totally different set of filters etc, have the output piped this way, mix done analog externally 
+
+Had a glitch in uploading. Put a 10u cap between EN and ground, it worked once, but then didn't run. Now seems ok after removing cap...
+
+Left it in a slightly odd state, toggle 3 now asigns a LP and a HP to the joystick through a parallel chain.
+
+Is difficult to experiment with at the moment because of the time taken to upload changes.
+I must have a think about using web interface to upload patches.
+
+First, get web interface working for current configuration...
 
 **2020-03-30** *version chatterbox_1.0.15*
 

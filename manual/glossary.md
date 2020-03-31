@@ -19,6 +19,7 @@
 ### J
 ### K
 ### L
+* Lombard Effect
 ### M
 ### N
 ### O
@@ -26,6 +27,8 @@
 ### Q
 ### R
 ### S
+* Spectral Tilt - the overall slope of the power spectral density. Can be Spectral balance as an acoustic correlate of linguistic stress
+* Stress - a structural property of a word that specifies which syllable in the word is, *in some sense*, stronger than any of the others
 ### T
 ### U
 ### V
