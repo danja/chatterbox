@@ -1,3 +1,55 @@
+**2020-04-01** *version chatterbox_1.0.16*
+
+Later...
+
+Ooh - the de-stress, might be more useful as de-Q, drop the Q of all filters
+
+----
+**Nasal**
+
+From different sources :
+
+1. nasals are characterized by less high frequency energy
+than vowels; Little energy above approximately 3500 Hz. 
+2. F1 in characteristic nasal murmur at 250 Hz;  F1 (sometimes called N1 in nasals) is low in all nasals - typical figures 250 - 300 Hz.
+3. Formants much weaker in nasals than in vowel sounds.
+4. Nasals have several antiformants. Also, the vocal tract produces an antiformant between 800 and 2000 Hz - the region of F2 for most vowels.
+
+[m] has an antiformant between 750 Hz and 1250 Hz. N2 between 1000 Hz and 1300 Hz. F2 therefore generally rising to following vowels.
+[n] Fujimura gives N2 at 1000 Hz and antiformant at 1450 - 2200. On a spectrogram, second visible formant is often N4, at about 2000 Hz, giving similar transitions to alveolar stops.
+[ŋ] Main anti-resonance is that above 3000 Hz. theoretically, N2 is at 1100 Hz, N3 at 1900. In practice, N2 is rather weak. There is considerable speaker to speaker variation.
+
+from 1. : fixed LPF at 3500Hz
+from 2. : fixed F1 at 250Hz
+(from 3. : lower Q on F2
+from 4. : flip F1 to NOTCH (N1)
+
+Ok, implemented, not bad, is a bit more nasal-sounding, though notch F1 hardly makes any difference.
+
+Trying F1 notch with Q values from 1 to 20, still not really making any difference apart from a bit of distortion on part of range. I don't expect much effect from notch, but this is virtually nothing.
+Trying the biquad filter...
+
+• F1 tends to be low (250-300Hz) and F2 around 2500Hz. In between (where vowels have F2) there is little energy.
+
+- so maybe leave joystick X controlling a bandpass (with lower Q), have notch track midpoint F1-F2?
+
+Wait - reverted to SVF notch, changed freq range (lower) is now more audible. I do want to try tracking notch (or peak?) too...
+----
+5. Liquids
+
+a) Liquids are normally voiced (though they are sometimes devoiced or realised as voiceless fricatives e.g. following a voiceless obstruent) - hence clear formant structure, though with less energy than vowels.
+
+b) Laterals have antiformants, though usually less strong than in nasals. For example, in /l/ there is one around 2500 Hz, between the apparent F2 and F3.
+
+c) In both [ɹ] and [l], F1 and F2 are lower than in adjacent vowels: in [l], and laterals in general, transitions very sudden (cf. nasals); in [ɹ], less so.
+
+d) In [ɹ], F3 also falls from adjacent vowels; in [l] this is much less pronounced.
+
+e) Clear and dark /l/ differ in their formant structure; F2 is somewhat higher - about 1500 Hz - for a clear /l/ and lower for a dark /l/.
+
+f) Trills are characterised acoustically by a 'pattern of pulses of closures and openings' (Lindau, 1986). Their spectral structures vary considerably.
+
+
 **2020-03-31** *version chatterbox_1.0.15*
 
 Added a load of links.

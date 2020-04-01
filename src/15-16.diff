@@ -1,0 +1,152 @@
+16a17
+> 
+17a19,20
+> #include "Biquad.h";
+> 
+45c48
+< #define POT_F1F     0
+---
+> #define POT_P0     0
+54a58
+> #define POT_ID_NASAL    "nasal"
+72c76
+< #define SWITCH_X5 5
+---
+> #define SWITCH_NASAL 5
+94a99,101
+> #define NASAL_LOW  1000 // nasal filter 1 centre frequency lowest value
+> #define NASAL_HIGH  3000
+> 
+100c107
+< #define F3Q_MIN  1.0f
+---
+> #define F3Q_MIN  0.5f
+107,108c114,115
+< #define F1Q 10.0f
+< #define F2Q 15.0f
+---
+> #define F1Q 5.0f
+> #define F2Q 8.0f
+110,111c117,119
+< #define F1_XQ 20.0f
+< #define F2_XQ 30.0f
+---
+> #define F1_NASAL_GAIN -6.0f
+> #define F1_NASALQ 1.0f // notch
+> #define F2_NASALQ 8.0f // bandpass
+118a127
+> #define FILTER_GAIN -12 // applied to sib/nasal filters
+121a131,132
+> #define NASAL_LPF 3500
+> #define NASAL_FIXEDF 250
+125a137,139
+> #define NASAL_LPQ 0.7f
+> #define NASAL_FIXEDQ 10.0f
+> #define NASAL_TRACKQ 1.0f
+210a225
+> 
+323,324c338,339
+<   inputOffset[POT_F1F] = F1F_LOW;
+<   inputScale[POT_F1F] = (float)(F1F_HIGH - F1F_LOW) / (float)ADC_TOP;
+---
+>   inputOffset[POT_P0] = F1F_LOW;
+>   inputScale[POT_P0] = (float)(F1F_HIGH - F1F_LOW) / (float)ADC_TOP;
+387a403,407
+> // SvfLinearTrapOptimised2 nTrack;
+> 
+> //   Biquad(int type, float Fc, float Q, float peakGainDB);
+> //Biquad *n1 = new Biquad(HIGHSHELF, 1000.0f / samplerate, F1_NASALQ, F1_NASAL_GAIN);
+> 
+395,396c415,416
+< SvfLinearTrapOptimised2::FLT_TYPE f1_nasalType = SvfLinearTrapOptimised2::BELL_FILTER;
+< SvfLinearTrapOptimised2::FLT_TYPE f2_nasalType = SvfLinearTrapOptimised2::BELL_FILTER;
+---
+> SvfLinearTrapOptimised2::FLT_TYPE nasalF1Type = SvfLinearTrapOptimised2::NOTCH_FILTER;
+> //SvfLinearTrapOptimised2::FLT_TYPE nTrackType = SvfLinearTrapOptimised2::NOTCH_FILTER;
+403a424,425
+> SvfLinearTrapOptimised2 nasalLP;
+> SvfLinearTrapOptimised2 nasalFixed;
+408a431,433
+> SvfLinearTrapOptimised2::FLT_TYPE nasalLPType = SvfLinearTrapOptimised2::LOW_PASS_FILTER;
+> SvfLinearTrapOptimised2::FLT_TYPE nasalFixedType = SvfLinearTrapOptimised2::BAND_PASS_FILTER;
+> 
+414a440
+> //float nTrackf;
+467c493
+<       if (controlSource == INPUT_LOCAL)
+---
+>       if (controlSource == INPUT_LOCAL){
+468a495
+>       }
+473c500
+<       f1f = inputOffset[POT_F1F] + (float)potValue[POT_F1F] * inputScale[POT_F1F];
+---
+>       f1f = inputOffset[POT_P0] + (float)potValue[POT_P0] * inputScale[POT_P0];
+479,480c506,516
+<     /////////////////////////////////////
+<     if (switchValue[SWITCH_X5] == 0) {
+---
+>     if (switchValue[SWITCH_NASAL]) {
+>       potID[POT_P0] = POT_ID_NASAL;
+>       inputOffset[POT_P0] = NASAL_LOW;
+>       inputScale[POT_P0] = (float)(NASAL_HIGH - NASAL_LOW) / (float)ADC_TOP;
+>       f1.updateCoefficients(f1f, F1_NASALQ, nasalF1Type, samplerate); // TODO allow variable Q?
+>       f2.updateCoefficients(f2f, F2_NASALQ, f2Type, samplerate);
+>       //      nTrack.updateCoefficients((f1f+f2f)/2.0f, NASAL_TRACKQ, nTrackType, samplerate);
+>     } else {
+>       potID[POT_P0] = POT_ID_F1F;
+>       inputOffset[POT_P0] = F1F_LOW;
+>       inputScale[POT_P0] = (float)(F1F_HIGH - F1F_LOW) / (float)ADC_TOP;
+483,485d518
+<     } else {
+<       f1.updateCoefficients(f1f, F1_XQ, f1_nasalType, samplerate); // TODO allow variable Q?
+<       f2.updateCoefficients(f2f, F2_XQ, f2_nasalType, samplerate);
+598c631
+< 
+---
+> /*****************/
+599a633
+> /*****************/
+609,610c643,646
+<   float filterGaindB = -12;
+<   sf1.setGain(filterGaindB);
+---
+> 
+> 
+>   // float filterGaindB = -12;
+>   sf1.setGain(FILTER_GAIN);
+612c648
+<   sf2.setGain(filterGaindB);
+---
+>   sf2.setGain(FILTER_GAIN);
+614c650
+<   sf3.setGain(filterGaindB);
+---
+>   sf3.setGain(FILTER_GAIN);
+615a652,659
+>   sf3.setGain(FILTER_GAIN);
+>   sf3.updateCoefficients(SF3F, SF3Q, sf3Type, samplerate);
+> 
+>   nasalLP.setGain(FILTER_GAIN);
+>   nasalLP.updateCoefficients(NASAL_LPF, NASAL_LPQ, nasalLPType, samplerate);
+> 
+>   nasalFixed.setGain(FILTER_GAIN);
+>   nasalFixed.updateCoefficients(NASAL_FIXEDF, NASAL_FIXEDQ, nasalFixedType, samplerate);
+670d713
+<     float mix;
+672,677c715,718
+<     if (switchValue[TOGGLE_T2]) {
+<       mix = (fTiltLow.tick(raw) + fTiltHigh.tick(raw)) / 2.0f;
+<       f2f_in = softClip(f3.tick(mix) + sibilants);
+<     } else {
+<       f3_in = softClip(f1.tick(raw));
+<       f2f_in = softClip(f3.tick(f3_in) + sibilants);
+---
+>     if (switchValue[SWITCH_NASAL]) {
+>       raw = nasalLP.tick(raw);
+>       raw = softClip(nasalFixed.tick(raw));
+>       // raw = softClip(nTrack.tick(raw));
+679a721
+>     f3_in = softClip(f1.tick(raw));
+680a723
+>     f2f_in = softClip(f3.tick(f3_in) + sibilants);

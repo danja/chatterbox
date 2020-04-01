@@ -50,6 +50,7 @@ From Texas A&M University, CSCE 689-604: Special Topics in Speech Processing, [c
 * [Voice Acoustics: an introduction](https://newt.phys.unsw.edu.au/jw/voice.html)
 * [Phonetics](https://home.cc.umanitoba.ca/~krussll/phonetics/index.html)
 
+* [Acoustic structure of consonants](http://www.phon.ox.ac.uk/jcoleman/consonant_acoustics.htm)
 * [Gunnar Fant Publications](http://www.speech.kth.se/gunnarfant/publications.html)
 * [A Four-Parameter Model of Glottal Flow](https://www.researchgate.net/publication/243630331_A_Four-Parameter_Model_of_Glottal_Flow) (*LF-model*)
 * [The LF-model revisited. Transformations and frequency domain analysis](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.184.6321&rep=rep1&type=pdf)
