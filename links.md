@@ -59,6 +59,7 @@ From Texas A&M University, CSCE 689-604: Special Topics in Speech Processing, [c
 * [Are Measured Differences Between the Formants of Men, Women and Children Due to FO Differences?](https://core.ac.uk/download/pdf/85221943.pdf)
 * [Relative contribution of envelope and fine structure to the subcortical encoding of noise-degraded speech](https://asa.scitation.org/doi/10.1121/1.4965248)
 * [Temporal information in speech: acoustic, auditory and linguistic aspects](https://royalsocietypublishing.org/doi/pdf/10.1098/rstb.1992.0070)
+* [Dynamics: The Third Dimension of Speech](https://www.audiologyonline.com/articles/dynamics-third-dimension-speech-813)
 
 * [Spectral balance as an acoustic correlate of linguistic stress](https://www.researchgate.net/publication/14340446_Spectral_tilt_as_an_acoustic_correlate_of_linguistic_stress)
 * [Detection of shouted speech in noise: Human and machine](https://users.aalto.fi/~jpohjala/publications/JASMAN13342377_1.pdf)

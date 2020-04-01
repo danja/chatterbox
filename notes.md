@@ -1,8 +1,46 @@
 **2020-04-01** *version chatterbox_1.0.16*
 
-Later...
+Nasal gone glitchy!
 
-Ooh - the de-stress, might be more useful as de-Q, drop the Q of all filters
+TODO 
+* **check order of filters**
+* update block diagram
+
+**2020-04-01** *version chatterbox_1.0.16*
+
+I've switched white noise in SF1, SF2, SF3 for pink, white, blue
+
+de-stress is now also de-Q, drop the Q of all filters
+
+[The Singer's Formant and Speaker's Ring Resonance: A Long-Term Average Spectrum Analysis](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2671792/) : " trained tenor's voice has the conventional singer's formant at the region of 3 kHz and another energy peak at 8-9 kHz. "
+
+* singing : increased attack & decay; peaks added at 3kHz and 8kHz
+
+* shout : tilt (to boost low); amplitude; distortion?
+
+
+Read about:
+
+https://www.audiologyonline.com/articles/dynamics-third-dimension-speech-813
+
+* laterals - see nasals-laterals doc
+* liquids
+* rhotics
+
+----
+5. Liquids
+
+a) Liquids are normally voiced (though they are sometimes devoiced or realised as voiceless fricatives e.g. following a voiceless obstruent) - hence clear formant structure, though with less energy than vowels.
+
+b) Laterals have antiformants, though usually less strong than in nasals. For example, in /l/ there is one around 2500 Hz, between the apparent F2 and F3.
+
+c) In both [ɹ] and [l], F1 and F2 are lower than in adjacent vowels: in [l], and laterals in general, transitions very sudden (cf. nasals); in [ɹ], less so.
+
+d) In [ɹ], F3 also falls from adjacent vowels; in [l] this is much less pronounced.
+
+e) Clear and dark /l/ differ in their formant structure; F2 is somewhat higher - about 1500 Hz - for a clear /l/ and lower for a dark /l/.
+
+f) Trills are characterised acoustically by a 'pattern of pulses of closures and openings' (Lindau, 1986). Their spectral structures vary considerably.
 
 ----
 **Nasal**
@@ -34,20 +72,8 @@ Trying the biquad filter...
 - so maybe leave joystick X controlling a bandpass (with lower Q), have notch track midpoint F1-F2?
 
 Wait - reverted to SVF notch, changed freq range (lower) is now more audible. I do want to try tracking notch (or peak?) too...
-----
-5. Liquids
 
-a) Liquids are normally voiced (though they are sometimes devoiced or realised as voiceless fricatives e.g. following a voiceless obstruent) - hence clear formant structure, though with less energy than vowels.
-
-b) Laterals have antiformants, though usually less strong than in nasals. For example, in /l/ there is one around 2500 Hz, between the apparent F2 and F3.
-
-c) In both [ɹ] and [l], F1 and F2 are lower than in adjacent vowels: in [l], and laterals in general, transitions very sudden (cf. nasals); in [ɹ], less so.
-
-d) In [ɹ], F3 also falls from adjacent vowels; in [l] this is much less pronounced.
-
-e) Clear and dark /l/ differ in their formant structure; F2 is somewhat higher - about 1500 Hz - for a clear /l/ and lower for a dark /l/.
-
-f) Trills are characterised acoustically by a 'pattern of pulses of closures and openings' (Lindau, 1986). Their spectral structures vary considerably.
+Tracking didn't make a lot of difference.
 
 
 **2020-03-31** *version chatterbox_1.0.15*
