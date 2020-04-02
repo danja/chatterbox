@@ -2,6 +2,16 @@
 
 Nasal gone glitchy!
 
+Oh, I tidied up a bit of the switching logic, the glitchiness went away.
+
+Reordered the filter-application bit and added 3rd harmonic tracking filters to f1 & f2. Immediate bad distortion.
+
+Put lower values in setGain() in the filters - made no difference. Looking at the SVF source, it doesn't do anything except in the shelf filters!
+
+So I've put in defines of multipliers corresponding to gain for things (floats). Needs tweaking...
+
+For now a reasonably stable build.
+
 TODO 
 * **check order of filters**
 * update block diagram

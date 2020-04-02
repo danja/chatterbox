@@ -20,9 +20,11 @@ The human interface is probably the most appealing part of the original Chatterb
 *The rationale for having such a machine is well made in the magazine article. But I like the notion of treating it a source of speech-like sounds, not a speech synth per se. Given a microcontroller, it should be relatively straightforward to add features such as MIDI I/O interface to make it a modern musical instrument, Web interface for the IoT, whatever. Should be fun.*
 
 * [Source Code](https://github.com/danja/chatterbox/tree/master/src)
-* [Design Notes](https://github.com/danja/chatterbox/blob/master/manual/design.md) 
+
+## Documentation
+**Work-in-progress**
 * [Quasi-blog Notes](https://github.com/danja/chatterbox/blob/master/notes.md)
-* [ToDo List](https://github.com/danja/chatterbox/blob/master/todo.md)
+* [Manual](https://github.com/danja/chatterbox/blob/master/manual/index.md) 
 * [Links](https://github.com/danja/chatterbox/blob/master/links.md)
 * [Local References](https://github.com/danja/chatterbox/tree/master/reference)
 

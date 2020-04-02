@@ -1,37 +1,54 @@
-## Controls
+## Chatterbox Controls
 
-Joystick X P0 = f1f / nasal
-Joystick Y P1 = f2f
-Pot P2 = f3f
-Pot P3 = f3q 
-Pot P4 = larynx
-Pot P5 = pitch
+There are 6 analog controls, all feeding to ADCs. The physical controls/value readings in code are referred here to as 'actual'. Each is mapped to a 'virtual' control which links the actual control to it's functionality. Some controls are mapped to secondary functions, dependent on toggle switch setting.
 
-#define POT_LOGISTIC 6
+### Analog
+P0 (Joystick X) = f1f / nasal
+P1 (Joystick Y) = f2f
+P2 (Pot) = f3f
+P3 (Pot) = f3q 
+P4 (Pot) = larynx
+P5 (Pot) = pitch
 
-#define POT_ID_F1F      "f1f"
-#define POT_ID_NASAL    "nasal"
-#define POT_ID_F2F      "f2f"
-#define POT_ID_F3F      "f3f"
-#define POT_ID_F3Q      "f3q"
-#define POT_ID_LARYNX   "larynx"
-#define POT_ID_PITCH    "pitch"
-#define POT_ID_LOGISTIC "logistic"
+### Digital
+Each digital control has an associated ID string. The associated functionality is fixed. When multiple switches are in the 'on' position, the effect is additive.
 
-#define SWITCH_VOICED 3
-#define SWITCH_ASPIRATED 4
-#define SWITCH_SF1 0 // Sibilance Filter 1
-#define SWITCH_SF2 1
-#define SWITCH_SF3 2
+#### Push Switches
+SW0 Fricative/sibilance, low frequency
+SW1 Fricative/sibilance, medium frequency
+SW2 Fricative/sibilance, high frequency
+SW3 Voiced Signal
+SW4 Aspirated Signal
+SW5 Nasal Effect
+SW6 Stressed Effect
+SW7 De-Stressed Effect
 
-#define SWITCH_NASAL 5
-#define SWITCH_X6 6
-#define SWITCH_X7 7
+#### Toggle Switches
+**fixed functionality, all function on/off**
 
-#define TOGGLE_HOLD 8
-#define TOGGLE_LOGISTIC 9
-#define TOGGLE_T2 10
-#define TOGGLE_T3 11
+SW8 Hold
+SW9 Creak
+SW10 Sing
+SW11 Shout
+
+### Virtual Analog Controls
+Each virtual control has an associated ID string.
+
+**Defaults**
+P0 "f1f"
+P1 "f2f"
+P2 "f3f"
+P3 "f3q"
+P4 "larynx"
+P5 "pitch"
+
+**Alternate**
+P0 "nasal"
+("logistic")
+
+
+
+
 
 
 
