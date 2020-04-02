@@ -19,6 +19,7 @@
 * Speak & Spell
 
 ### Speech
+* [Source-Filter Model](https://github.com/danja/chatterbox/blob/master/references/source-filter.pdf)
 * [Speech Synthesis and Recognition - local](https://github.com/danja/chatterbox/blob/master/reference/speech-synthesis-and-recognition_book.pdf), [remote copy](https://epdf.pub/queue/speech-synthesis-and-recognition.html) (book)
 
 ###  Speech Processing Lecture Slides (very wide in scope, but good summaries of each bit)

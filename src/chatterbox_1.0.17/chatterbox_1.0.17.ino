@@ -62,7 +62,6 @@
 #define POT_ID_PITCH    "pitch"
 #define POT_ID_LOGISTIC "logistic"
 
-
 #define N_SWITCHES 12
 #define N_PUSH_SWITCHES 8
 

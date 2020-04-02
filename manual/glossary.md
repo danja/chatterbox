@@ -19,11 +19,13 @@
 ### J
 ### K
 ### L
+###### Larynx - the voice box, an organ in the top of the neck involved in breathing, producing sound and protecting the trachea against food aspiration. The larynx houses the vocal folds and is used to generate voiced sounds. W:[Larynx](https://en.wikipedia.org/wiki/Larynx)
 * Lombard Effect
 ### M
 ### N
 ### O
 ### P
+* ###### Pharynx - the part of the throat behind the mouth and nasal cavity, and above the esophagus and larynx (ie. both food & air go through it). W:[Pharynx](https://en.wikipedia.org/wiki/Pharynx)
 ### Q
 ### R
 ### S
@@ -31,7 +33,9 @@
 * Stress - a structural property of a word that specifies which syllable in the word is, *in some sense*, stronger than any of the others
 ### T
 ### U
+W:[Uvula](https://en.wikipedia.org/wiki/Palatine_uvula)
 ### V
+* Voiced
 ### W
 ### X
 ### Y

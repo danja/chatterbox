@@ -1,10 +1,12 @@
-**2020-04-01** *version chatterbox_1.0.16*
+**2020-04-02** *version chatterbox_1.0.16*
 
 Nasal gone glitchy!
 
 TODO 
 * **check order of filters**
 * update block diagram
+
+possible enhancement : add formants that related to F1 & F2 by tube resonance calculations - having a spectral tilt filter could control ratios (or via direct control)
 
 **2020-04-01** *version chatterbox_1.0.16*
 
