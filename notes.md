@@ -1,4 +1,43 @@
-**2020-04-02** *version chatterbox_1.0.16*
+**2020-04-03** *version chatterbox_1.0.18*
+
+Hmm, this messing with filter gains has led me to think some kind of level metering might be useful, and maybe some kind of automatic level control, and perhaps even compression beyond the softClip() thing.
+
+I think I'll step back from aiming for definitive Creak, Sing and Shout for now, instead adding support for a few more features, figure out how to apply these to the vocal styles later.
+
+This morning's reading, [Waveform recognition in Growl](https://cvtresearch.com/waveform-recognition-in-growl/), suggests to me that it may well be useful to go back to the original laryngeal waveform generation and allow more variation there, I reckon by expanding it to :
+
+* (current) larynx wavetable
+* sawtooth wavetable
+* sine wavetable
+* mix of the three
+
+Ok, implemented. I believe that's working correctly.
+
+Perhaps add sub-octave? - waveform and/or filters?
+
+The push switch logic isn't perfect and nasal has a looping sound to it. But mostly good :)
+
+If larynx wave isn't in use, maybe use P1 to vary sine/saw mix?
+
+I think I may need 2 separate web interface pages - one corresponding to actual controls, one for mixer & other 'hidden' parameters.
+
+Also, from [Acoustic Features and Auditory Impressions of Death Growl and Screaming Voice](https://www.researchgate.net/publication/262251558_Acoustic_Features_and_Auditory_Impressions_of_Death_Growl_and_Screaming_Voice) there's:
+
+* Jitter expresses fluctution of glottal pulse interval
+* Shimmer is a fluctuation of amplitude of glottal pulses
+* The harmonic-to-noise ratio (HNR) is the ratio of energies of harmonic and non-harmonic components of the signal
+
+I reckon this is a good prompt for me to look at a low-freq noise source to act as modulator - as I've already started for Creak, but still not got anything useful.
+
+Thirdly,
+
+* spectral tilt - overall freq balance / _ \
+
+- seems a must-have. The implementations I've seen for this seem a bit involved, notably stepwise approximation. I don't think this needs to be particularly sophisticated. 
+
+terms to take note of : "Vocal tract resonances R1 and R2, Open quotient, Fundamental frequency, voice intensity, larynx height, lip aperture and spreading"
+
+**2020-04-02** *version chatterbox_1.0.17*
 
 Nasal gone glitchy!
 
