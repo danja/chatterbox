@@ -13,9 +13,11 @@ This morning's reading, [Waveform recognition in Growl](https://cvtresearch.com/
 
 Ok, implemented. I believe that's working correctly.
 
-Perhaps add sub-octave? - waveform and/or filters?
+The push switch logic isn't perfect and nasal has a looping sound to it. But mostly good, so a version uptick :)
 
-The push switch logic isn't perfect and nasal has a looping sound to it. But mostly good :)
+*version chatterbox_1.0.18*
+
+Perhaps add sub-octave? - waveform and/or filters?
 
 If larynx wave isn't in use, maybe use P1 to vary sine/saw mix?
 
