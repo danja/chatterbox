@@ -1,5 +1,5 @@
 # Chatterbox
-*A manually controlled speech-like sound generator*
+*A (sometimes) manually controlled speech-like sound generator*
 
 Based on ESP32 with external UDA1334A DAC. Very much **active** work in progress, April 2020. It is basically working, but changing day-to-day. I'm updating these docs with every development.
 
