@@ -1,3 +1,32 @@
+**2020-04-09**
+
+Had a few days away from code but have been reading, also setting up the box this thing will ultimately live in.
+
+The todo is currently pretty much the same as previously, but with a little more knowledge. The first thing here is important, I should take a look soon. But the priority is getting placeholder code in place for Creak, then doing more on web interface.
+
+1. pitch change not smooth - this crept in at some point, it hops between tones. I suspect it's a silly mistake somewhere. Now I've got the additional wavetables it should be straightforward to trace, checking 'scope displays.
+2. creak/shout/growl noise modulation
+3. spectral tilt
+4. sub-octave for creak/shout/growl
+5. web interface
+6. MIDI
+
+A big issue with the noise modulation is that using white (or even pink) noise directly seems to feed too much HF through. But I've stumbled on another algorithm that looks like it has potential - [Perlin noise](https://en.wikipedia.org/wiki/Perlin_noise). It's usually used for CGI graphics, creating textures, but an audio version exists. There's a C++ implementation in the [Andes synth](https://github.com/artfwo/andes) that might be usable without too much effort.
+
+It also occured to me that I could make a different kind of 'LF' noise by starting with white (or pink) noise and interpolating between points, the [Smoothstep](https://en.wikipedia.org/wiki/Smoothstep) algorithm (not unlike the softClip() I have already implemented) hopefully being suitable to cut high harmonics.
+
+Hmm, I wonder if I should wrap all this noise gen stuff into a seperate C++ class...
+
+So...
+
+I've got the interpolated/smoothstep going.
+
+Currently, when it's amplitude modulating I'm calling it growl and enabling with Shout. Level controlled by the pot otherwise used for larynx.
+
+When it's larynx-modulating, I've got it hooked up to Creak.
+
+
+
 **2020-04-03** *version chatterbox_1.0.18*
 
 Hmm, this messing with filter gains has led me to think some kind of level metering might be useful, and maybe some kind of automatic level control, and perhaps even compression beyond the softClip() thing.

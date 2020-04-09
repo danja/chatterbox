@@ -53,7 +53,7 @@
 #define POT_P5 5
 
 // VIRTUAL Pots
-#define POT_LOGISTIC 6 // ????
+#define POT_GROWL 6 // ????
 
 #define POT_ID_F1F      "f1f"
 #define POT_ID_NASAL    "nasal"
@@ -62,7 +62,7 @@
 #define POT_ID_F3Q      "f3q"
 #define POT_ID_LARYNX   "larynx"
 #define POT_ID_PITCH    "pitch"
-#define POT_ID_LOGISTIC "logistic"
+#define POT_ID_GROWL "growl"
 
 #define N_SWITCHES 12
 #define N_PUSH_SWITCHES 8
@@ -116,8 +116,8 @@
 #define SING_LARYNX_RATIO 0.3f
 
 #define SHOUT_SINE_RATIO 0.0f
-#define SHOUT_SAWTOOTH_RATIO 0.9f
-#define SHOUT_LARYNX_RATIO 0.1f
+#define SHOUT_SAWTOOTH_RATIO 0.8f
+#define SHOUT_LARYNX_RATIO 0.2f
 
 // Variable parameter ranges
 #define PITCH_MIN 20
@@ -140,8 +140,8 @@
 #define F3Q_MIN  1.0f
 #define F3Q_MAX  10.0f
 
-#define LOGISTIC_MIN 3.0f
-#define LOGISTIC_MAX 4.0f
+#define GROWL_MIN 0.0f
+#define GROWL_MAX 2.0f
 
 // Fixed parameter values
 #define F1Q 5.0f
@@ -163,8 +163,8 @@
 
 #define ATTACK_TIME 0.02f // switch envelope 
 #define DECAY_TIME 0.02f  // 2mS
-#define ATTACK_TIME_SING 0.1f // switch envelope 
-#define DECAY_TIME_SING 0.1f  // 100mS
+#define ATTACK_TIME_SING 0.5f // switch envelope 
+#define DECAY_TIME_SING 0.5f  // 500mS
 
 #define SF1F  2100 // Sibilance filter 1 centre frequency
 #define SF2F  3700
@@ -313,7 +313,7 @@ void setup()
   potID[4] = POT_ID_LARYNX;
   potID[5] = POT_ID_PITCH;
 
-  potID[5] = POT_ID_LOGISTIC;
+  potID[5] = POT_ID_GROWL;
 
   for (int i = 0; i < N_SWITCHES; i++) {
     switchValue[i] = false;
@@ -412,11 +412,14 @@ void initInputs() {
   inputOffset[POT_P3] =  F3Q_MIN;
   inputScale[POT_P3] = (float)(F3Q_MAX - F3Q_MIN) / (float)ADC_TOP;
 
-  inputOffset[POT_LOGISTIC] =  LOGISTIC_MIN;
-  inputScale[POT_LOGISTIC] = (float)(LOGISTIC_MAX - LOGISTIC_MIN) / (float)ADC_TOP;
+  inputOffset[POT_GROWL] =  GROWL_MIN;
+  inputScale[POT_GROWL] = (float)(GROWL_MAX - GROWL_MIN) / (float)ADC_TOP;
 }
 /* END INITIALISE INPUTS */
 
+/**********************************************/
+/*** LITTLE GENERATION/PROCESSING FUNCTIONS ***/
+/**********************************************/
 /*
    tanh approximation
    see https://mathr.co.uk/blog/2017-09-06_approximating_hyperbolic_tangent.html
@@ -434,7 +437,7 @@ float b1 = 0.0f;
 float b2 = 0.0f;
 
 float pink(float white) {
-  //float white = (float)random(0, 32767) / 32768.0f;
+  //float white = (float)random(0, 32767) / 32768.0f; // TODO check white is +/- 1
 
   b0 = softClip(0.99765f * b0 + white * 0.0990460f);
   b1 = softClip(0.96300f * b1 + white * 0.2965164f);
@@ -462,6 +465,51 @@ float logistic() {
   */
   return x;
 }
+
+/* from https://en.wikipedia.org/wiki/Smoothstep */
+float smootherstep(float edge0, float edge1, float x) {
+  // Scale, and clamp x to 0..1 range
+  x = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+  // Evaluate polynomial
+  return x * x * x * (x * (x * 6 - 15) + 10);
+}
+
+float clamp(float x, float lowerlimit, float upperlimit) {
+  if (x < lowerlimit)
+    x = lowerlimit;
+  if (x > upperlimit)
+    x = upperlimit;
+  return x;
+}
+
+int stretch = 64;
+int i = 0;
+float startLevel = 0.5f;
+float endLevel = 0.5f;
+float stretchStep = 0.0f;
+float current = 0;
+
+float stretchedNoise() {
+  if (i < stretch) {
+    float diff = endLevel - startLevel;
+    current = current + stretchStep;
+
+    i++;
+    //smootherstep(-0.99f, 0.99f, raw);
+    //  return current;
+    return 2.0f * smootherstep(0.0f, 0.99f, current) - 1;
+  }
+  i = 0;
+  startLevel = endLevel;
+  current = startLevel;
+  endLevel = (float)random(0, 32767) / 32768.0f;
+  stretchStep = (endLevel - startLevel) / (float)stretch;
+  return 2.0f * smootherstep(0.0f, 0.99f, startLevel) - 1;
+  //  return startLevel;
+}
+/**************************************************/
+/*** END LITTLE GENERATION/PROCESSING FUNCTIONS ***/
+/**************************************************/
 
 // *** Initialise filters ***
 
@@ -524,6 +572,8 @@ float f2Plusf;
 float f3f;
 float f3q;
 
+float growl;
+
 float initialGain = 1.0f;
 
 
@@ -549,10 +599,10 @@ void ControlInput(void *pvParameter)
       potValue[pot] = sum / ADC_SAMPLES;
     }
 
-    potValue[POT_LOGISTIC] = potValue[POT_P5];
+    potValue[POT_GROWL] = potValue[POT_P4]; // same as larynx
 
     if (switchValue[TOGGLE_CREAK]) {
-      potID[POT_P5] = POT_ID_LOGISTIC;
+      potID[POT_P5] = POT_ID_GROWL;
     } else {
       potID[POT_P5] = POT_ID_PITCH;
     }
@@ -560,7 +610,8 @@ void ControlInput(void *pvParameter)
     // pitch control
     pitch = ((float)inputOffset[POT_P5] + inputScale[POT_P5] *  (float)potValue[POT_P5]);
 
-    logisticK = ((float)inputOffset[POT_LOGISTIC] + inputScale[POT_LOGISTIC] *  (float)potValue[POT_LOGISTIC]);
+    //logisticK = ((float)inputOffset[POT_GROWL] + inputScale[POT_GROWL] *  (float)potValue[POT_GROWL]);
+growl = ((float)inputOffset[POT_GROWL] + inputScale[POT_GROWL] *  (float)potValue[POT_GROWL]);;
 
     if (controlSource == INPUT_LOCAL) {
       tableStep = pitch * tablesize / samplerate; // tableStep aka delta
@@ -672,7 +723,7 @@ void ControlInput(void *pvParameter)
       sineRatio = DEFAULT_SINE_RATIO;
       sawtoothRatio = DEFAULT_SAWTOOTH_RATIO;
 
-    //  Serial.println("HANDLE TOGGLE");
+      //  Serial.println("HANDLE TOGGLE");
       if (switchValue[TOGGLE_CREAK]) {
         larynxRatio = CREAK_LARYNX_RATIO;
         sineRatio = CREAK_SINE_RATIO;
@@ -694,6 +745,8 @@ void ControlInput(void *pvParameter)
       } else {
         attackTime = ATTACK_TIME;
         decayTime = DECAY_TIME;
+        attackStep = (float)ADC_TOP / (samplerate * attackTime);
+        decayStep = (float)ADC_TOP / (samplerate * decayTime);
       }
 
       if (switchValue[TOGGLE_SHOUT]) {
@@ -804,7 +857,14 @@ void OutputDAC(void *pvParameter)
 
   while (1) {
     // *** Read wavetable voice ***
-    pointer = pointer + tableStep;
+
+    if (switchValue[TOGGLE_CREAK]) {
+      pointer = pointer + tableStep + stretchedNoise();
+        if (pointer < 0) pointer = 0;
+    } else {
+      pointer = pointer + tableStep;
+    }
+
 
     if (pointer >= tablesize) pointer = pointer - (float)tablesize;
 
@@ -817,8 +877,9 @@ void OutputDAC(void *pvParameter)
     int upper = ((int)ceil(pointer)) % TABLESIZE;
 
 
-    float sine = sineWavetable[lower] * err + sineWavetable[upper] * (1 - err);
-    float saw = sawtoothWavetable[lower] * err + sawtoothWavetable[upper] * (1 - err);
+
+    // float sine = sineWavetable[lower] * err + sineWavetable[upper] * (1 - err);
+    // float saw = sawtoothWavetable[lower] * err + sawtoothWavetable[upper] * (1 - err);
 
     /*
         if (switchValue[TOGGLE_CREAK]) {
@@ -850,6 +911,10 @@ void OutputDAC(void *pvParameter)
       current = softClip((current + sing1Val + sing2Val) / 3.0f);
     }
 
+ if (switchValue[TOGGLE_SHOUT]) {
+ 
+  current = softClip(current * (1.0f - growl * stretchedNoise())); // amplitude mod
+ }
     //float fTiltLow_in = (voice + aspiration) / 2.0f;
     //  float fTiltHigh_in = (voice + aspiration) / 2.0f;
 
@@ -874,13 +939,15 @@ void OutputDAC(void *pvParameter)
     current = F3_GAIN * f3.tick(current);
 
     float  valL = softClip(current);
-    float  valR = softClip(softClip(current)); // voice pink(noise)
+    float  valR = stretchedNoise();
+
+    //softClip(softClip(current)); // voice pink(noise)
 
     dac.writeSample(valL, valR);
     // dac.writeSample(sine, saw);
 
     // ****************** END WIRING ******************
-    
+
     // Pause thread after delivering 64 samples so that other threads can do stuff
     if (frameCount++ % 64 == 0) vTaskDelay(1); // was 64, 1
   }
