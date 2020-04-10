@@ -62,7 +62,7 @@
 #define POT_ID_F3Q      "f3q"
 #define POT_ID_LARYNX   "larynx"
 #define POT_ID_PITCH    "pitch"
-#define POT_ID_GROWL "growl"
+#define POT_ID_GROWL    "growl"
 
 #define N_SWITCHES 12
 #define N_PUSH_SWITCHES 8
@@ -161,10 +161,10 @@
 #define TILT_LOW_Q 5.0f
 #define TILT_HIGH_Q 5.0f
 
-#define ATTACK_TIME 0.02f // switch envelope 
-#define DECAY_TIME 0.02f  // 2mS
-#define ATTACK_TIME_SING 0.5f // switch envelope 
-#define DECAY_TIME_SING 0.5f  // 500mS
+#define ATTACK_TIME 0.04f // switch envelope 
+#define DECAY_TIME 0.04f  // 
+#define ATTACK_TIME_SING 0.2f // switch envelope 
+#define DECAY_TIME_SING 0.2f  // 
 
 #define SF1F  2100 // Sibilance filter 1 centre frequency
 #define SF2F  3700
@@ -247,10 +247,10 @@ float samplerate = (float)SAMPLERATE;
 float tablesize = (float)TABLESIZE;
 
 float attackTime = ATTACK_TIME; // 10mS
-float attackStep = (float)ADC_TOP / (samplerate*attackTime);
+float attackStep = 1.0f/(attackTime * samplerate);
 
 float decayTime = DECAY_TIME; // 10mS
-float decayStep = (float)ADC_TOP / (samplerate*decayTime);
+float decayStep = 1.0f/(decayTime * samplerate);
 
 float larynxWavetable[TABLESIZE];
 float sawtoothWavetable[TABLESIZE];
@@ -487,21 +487,21 @@ int i = 0;
 float startLevel = 0.5f;
 float endLevel = 0.5f;
 float stretchStep = 0.0f;
-float current = 0;
+float currentX = 0;
 
 float stretchedNoise() {
   if (i < stretch) {
     float diff = endLevel - startLevel;
-    current = current + stretchStep;
+    currentX = currentX + stretchStep;
 
     i++;
     //smootherstep(-0.99f, 0.99f, raw);
     //  return current;
-    return 2.0f * smootherstep(0.0f, 0.99f, current) - 1;
+    return 2.0f * smootherstep(0.0f, 0.99f, currentX) - 1;
   }
   i = 0;
   startLevel = endLevel;
-  current = startLevel;
+  currentX = startLevel;
   endLevel = (float)random(0, 32767) / 32768.0f;
   stretchStep = (endLevel - startLevel) / (float)stretch;
   return 2.0f * smootherstep(0.0f, 0.99f, startLevel) - 1;
@@ -602,16 +602,17 @@ void ControlInput(void *pvParameter)
     potValue[POT_GROWL] = potValue[POT_P4]; // same as larynx
 
     if (switchValue[TOGGLE_CREAK]) {
-      potID[POT_P5] = POT_ID_GROWL;
+      potID[POT_P4] = POT_ID_GROWL;
     } else {
-      potID[POT_P5] = POT_ID_PITCH;
+      potID[POT_P4] = POT_ID_PITCH;
     }
+
 
     // pitch control
     pitch = ((float)inputOffset[POT_P5] + inputScale[POT_P5] *  (float)potValue[POT_P5]);
 
     //logisticK = ((float)inputOffset[POT_GROWL] + inputScale[POT_GROWL] *  (float)potValue[POT_GROWL]);
-growl = ((float)inputOffset[POT_GROWL] + inputScale[POT_GROWL] *  (float)potValue[POT_GROWL]);;
+    growl = ((float)inputOffset[POT_GROWL] + inputScale[POT_GROWL] *  (float)potValue[POT_GROWL]);;
 
     if (controlSource == INPUT_LOCAL) {
       tableStep = pitch * tablesize / samplerate; // tableStep aka delta
@@ -685,14 +686,6 @@ growl = ((float)inputOffset[POT_GROWL] + inputScale[POT_GROWL] *  (float)potValu
           } else {
             switchGain[i] = 0;
           }
-        } else { // apply envelope
-          if (switchValue[i]) {
-            switchGain[i] += attackStep;
-            if (switchGain[i] > 1) switchGain[i] = 1;
-          } else {
-            switchGain[i] -= decayStep;
-            if (switchGain[i] < 1) switchGain[i] = 0;
-          }
         }
       }
     }
@@ -730,8 +723,8 @@ growl = ((float)inputOffset[POT_GROWL] + inputScale[POT_GROWL] *  (float)potValu
         sawtoothRatio = CREAK_SAWTOOTH_RATIO;
       }
 
-      float attackStep;
-      float decayStep;
+     // float attackStep;
+     // float decayStep;
 
       if (switchValue[TOGGLE_SING]) {
         larynxRatio = SING_LARYNX_RATIO;
@@ -740,13 +733,13 @@ growl = ((float)inputOffset[POT_GROWL] + inputScale[POT_GROWL] *  (float)potValu
 
         attackTime = ATTACK_TIME_SING;
         decayTime = DECAY_TIME_SING;
-        attackStep = (float)ADC_TOP / (samplerate * attackTime);
-        decayStep = (float)ADC_TOP / (samplerate * decayTime);
+        attackStep =  1.0f/(attackTime * samplerate); //  (float)ADC_TOP / (samplerate * attackTime); //  (float)ADC_TOP
+        decayStep =  1.0f/(decayTime * samplerate);
       } else {
         attackTime = ATTACK_TIME;
         decayTime = DECAY_TIME;
-        attackStep = (float)ADC_TOP / (samplerate * attackTime);
-        decayStep = (float)ADC_TOP / (samplerate * decayTime);
+        attackStep = 1.0f/(attackTime * samplerate);
+        decayStep =  1.0f/(decayTime * samplerate);
       }
 
       if (switchValue[TOGGLE_SHOUT]) {
@@ -859,14 +852,13 @@ void OutputDAC(void *pvParameter)
     // *** Read wavetable voice ***
 
     if (switchValue[TOGGLE_CREAK]) {
-      pointer = pointer + tableStep + stretchedNoise();
-        if (pointer < 0) pointer = 0;
+      pointer = pointer + tableStep * (1.0f-stretchedNoise()*growl);
+      if (pointer < 0) pointer = 0;
     } else {
       pointer = pointer + tableStep;
     }
 
-
-    if (pointer >= tablesize) pointer = pointer - (float)tablesize;
+    if (pointer >= tablesize) pointer = pointer - tablesize;
 
     float err = 0;
 
@@ -876,22 +868,13 @@ void OutputDAC(void *pvParameter)
     int lower = (int)floor(pointer);
     int upper = ((int)ceil(pointer)) % TABLESIZE;
 
-
-
     // float sine = sineWavetable[lower] * err + sineWavetable[upper] * (1 - err);
     // float saw = sawtoothWavetable[lower] * err + sawtoothWavetable[upper] * (1 - err);
 
-    /*
-        if (switchValue[TOGGLE_CREAK]) {
-          float l =  logistic();
-          voice = l;
-        } else {
-    */
     float larynxPart = larynxWavetable[lower] * err + larynxWavetable[upper] * (1 - err);
     float sinePart = sineWavetable[lower] * err + sineWavetable[upper] * (1 - err);
     float sawtoothPart = sawtoothWavetable[lower] * err + sawtoothWavetable[upper] * (1 - err);
     float voice = sineRatio * sinePart + sawtoothRatio * sawtoothPart + larynxRatio * larynxPart;
-
 
     float noise = random(-32768, 32767) / 32768.0f;
     // noise = noise / 2.0f;
@@ -899,6 +882,17 @@ void OutputDAC(void *pvParameter)
     // ************************************************
     // ****************** THE WIRING ******************
     // ************************************************
+
+    for (i = 0; i < N_PUSH_SWITCHES; i++) {
+      if (switchValue[i]) {
+        switchGain[i] += attackStep;
+        if (switchGain[i] > 1) switchGain[i] = 1;
+      } else {
+        switchGain[i] -= decayStep;
+        if (switchGain[i] < 0) switchGain[i] = 0;
+      }
+    }
+
     voice = switchGain[SWITCH_VOICED] * voice;
 
     float aspiration = switchGain[SWITCH_ASPIRATED] * noise;
@@ -911,10 +905,9 @@ void OutputDAC(void *pvParameter)
       current = softClip((current + sing1Val + sing2Val) / 3.0f);
     }
 
- if (switchValue[TOGGLE_SHOUT]) {
- 
-  current = softClip(current * (1.0f - growl * stretchedNoise())); // amplitude mod
- }
+    if (switchValue[TOGGLE_SHOUT]) {
+      current = softClip(current * (1.0f - growl * stretchedNoise())); // amplitude mod
+    }
     //float fTiltLow_in = (voice + aspiration) / 2.0f;
     //  float fTiltHigh_in = (voice + aspiration) / 2.0f;
 

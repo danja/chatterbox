@@ -1,3 +1,7 @@
+**2020-04-10**
+
+**UPLOAD WON'T WORK IF SING IS ENABLED**
+
 **2020-04-09**
 
 Had a few days away from code but have been reading, also setting up the box this thing will ultimately live in.
