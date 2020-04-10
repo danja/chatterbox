@@ -2,6 +2,10 @@
 
 **UPLOAD WON'T WORK IF SING IS ENABLED**
 
+Yay! Got pitch control from browser over WebSocket working!
+
+This will need a *lot* of work to sort out to get all the controls working, but it is a little breakthrough.
+
 
 **2020-04-09** *version chatterbox_1.0.19*
 
