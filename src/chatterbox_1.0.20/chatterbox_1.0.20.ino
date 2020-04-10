@@ -35,10 +35,10 @@
 
 #define TABLESIZE 1024
 
-#define ADC_SAMPLES 64 // pot reading takes mean over this number of values
+#define ADC_SAMPLES 32 // pot reading takes mean over this number of values
 
-#define INPUT_LOCAL 0
-#define INPUT_WEB 1
+// #define INPUT_LOCAL 0
+// #define INPUT_WEB 1
 
 /* CONTROLS */
 #define N_POTS_ACTUAL 6
@@ -369,7 +369,7 @@ void initFixedWavetables() {
   }
 }
 
-char controlSource = INPUT_LOCAL;
+// char controlSource = INPUT_LOCAL;
 
 /* INITIALISE INPUTS */
 void initInputs() {
@@ -590,15 +590,18 @@ void ControlInput(void *pvParameter)
 
     // take mean of ADC readings, they are prone to noise
 
+bool potChanged = false;
+
     for (char pot = 0; pot < N_POTS_ACTUAL; pot++) {
       int sum = 0;
       for (int j = 0; j < ADC_SAMPLES; j++) {
         sum +=  analogRead(potChannel[pot]); // get value from pot / ADC
-
       }
       potValue[pot] = sum / ADC_SAMPLES;
+      if(abs(previousPotValue[pot] - potValue[pot]) > 32) potChanged = true;
     }
 
+   
     potValue[POT_GROWL] = potValue[POT_P4]; // same as larynx
 
     if (switchValue[TOGGLE_CREAK]) {
@@ -607,37 +610,40 @@ void ControlInput(void *pvParameter)
       potID[POT_P4] = POT_ID_LARYNX;
     }
 
+ if(potChanged) {
 
     // pitch control
     pitch = ((float)inputOffset[POT_P5] + inputScale[POT_P5] *  (float)potValue[POT_P5]);
 
+ }
+
     //logisticK = ((float)inputOffset[POT_GROWL] + inputScale[POT_GROWL] *  (float)potValue[POT_GROWL]);
     growl = ((float)inputOffset[POT_GROWL] + inputScale[POT_GROWL] *  (float)potValue[POT_GROWL]);;
 
-    if (controlSource == INPUT_LOCAL) {
+    // if (controlSource == INPUT_LOCAL) {
       tableStep = pitch * tablesize / samplerate; // tableStep aka delta
-    }
+    // }
     //if (TOGGLE_SHOUT) {
 
     //} else {
-      // larynx control
-      if (abs(larynx - potValue[POT_P4]) > 8) {
+    // larynx control
+    if (abs(larynx - potValue[POT_P4]) > 8) {
 
-        float potFraction = (float)potValue[POT_P4] / (float)ADC_TOP;
+      float potFraction = (float)potValue[POT_P4] / (float)ADC_TOP;
 
-        if (controlSource == INPUT_LOCAL) {
-          larynx = inputOffset[POT_P4] + potFraction * inputScale[POT_P4];
-        }
-        initLarynxWavetable();
-      }
+    //  if (controlSource == INPUT_LOCAL) {
+        larynx = inputOffset[POT_P4] + potFraction * inputScale[POT_P4];
+      // }
+      initLarynxWavetable();
+    }
     //}
 
-    if (controlSource == INPUT_LOCAL) {
+   // if (controlSource == INPUT_LOCAL) {
       f1f = inputOffset[POT_P0] + (float)potValue[POT_P0] * inputScale[POT_P0];
       f2f = inputOffset[POT_P1] + (float)potValue[POT_P1] * inputScale[POT_P1];
       f3f = inputOffset[POT_P2] + (float)potValue[POT_P2] * inputScale[POT_P2];
       f3q = inputOffset[POT_P3] + (float)potValue[POT_P3] * inputScale[POT_P3];
-    }
+    // }
 
     f1Plusf = 3 * f1f;
     f2Plusf = 3 * f2f;
@@ -819,10 +825,62 @@ void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventT
 
     Serial.println("Data received: ");
 
+    // for (int i = 0; i < len; i++) {
+    //   Serial.print((char) data[i]);
+    // }
+    Serial.println();
+    char command[len + 1];
+    int split = 0;
     for (int i = 0; i < len; i++) {
       Serial.print((char) data[i]);
+      command[i] = (char) data[i];
+      if (command[i] == ':') split = i;
     }
+    command[len] = '\0';
+    /*
     Serial.println();
+    Serial.println("LEN");
+    Serial.println(len);
+    Serial.println(command);
+    Serial.println(split, DEC);
+    Serial.println();
+    int test1 = strcmp("pitch", command);
+    Serial.println("test");
+    Serial.println(test1, DEC);
+*/
+    char name[split + 1];
+    for (int i = 0; i < split; i++) {
+      name[i] = command[i];
+    }
+    name[split] = '\0';
+    
+    char value[len - split+1];
+    for (int i = 0; i < len-split-1; i++) {
+      value[i] = command[split+i+1];
+    }
+   value[len - split] = '\0';
+int pitchValue = atoi(value);
+    if (strcmp("pitch", name) == 0 && pitchValue != 0) {
+      pitch = pitchValue;
+     tableStep = pitch * tablesize / samplerate;
+    Serial.println("SETTING PITCH");
+
+    }
+
+        Serial.println("name");
+        Serial.print("\"");
+        Serial.print(name);
+        Serial.println("\"");
+
+        Serial.println("value");
+        Serial.print("\"");
+        Serial.println(value);
+        Serial.println("\"");
+        Serial.println("#value");
+        Serial.println(atoi(value), DEC);
+        Serial.println("strcmp()");
+        Serial.println(strcmp("pitch", name), DEC);
+   
   }
 }
 
@@ -982,6 +1040,11 @@ void startWebServer()
   server.on("/index.html", HTTP_GET, [](AsyncWebServerRequest * request) {
     // request->send(200, "text/plain", "Hello from Chatterbox!");
     request->send(SPIFFS, "/index.html", String(), false, pageProcessor);
+  });
+
+  server.on("/ws.html", HTTP_GET, [](AsyncWebServerRequest * request) {
+    // request->send(200, "text/plain", "Hello from Chatterbox!");
+    request->send(SPIFFS, "/ws.html", String(), false, pageProcessor);
   });
 
   server.on("/chatterbox.html", HTTP_GET, [](AsyncWebServerRequest * request) {

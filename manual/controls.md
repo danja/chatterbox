@@ -7,7 +7,7 @@ P0 (Joystick X) = f1f / nasal
 P1 (Joystick Y) = f2f
 P2 (Pot) = f3f
 P3 (Pot) = f3q 
-P4 (Pot) = larynx
+P4 (Pot) = larynx / growl (with Creak & Shout)
 P5 (Pot) = pitch
 
 ### Digital
@@ -44,13 +44,7 @@ P5 "pitch"
 
 **Alternate**
 P0 "nasal"
-("logistic")
-
-
-
-
-
-
+P4 "growl"
 
 ### Switches
 

@@ -85,12 +85,43 @@ $(function(){
 
 		var valueSelector = sliderSelector+"Value";
 		// have to pass selector as data because of scoping
+		// eg. #pitchValue
+
 			
 		$(sliderSelector).on("slide", {value: valueSelector}, function(event, ui) {
 			$(event.data.value).text(ui.value);
+			// strip back, eg. #pitchValue -> pitch
+			// string.substring(start, end)
+			var l = event.data.value.length;
+			var sliderName = event.data.value.substring(1, l-5); 
+			ws.send(sliderName+":"+ui.value);
 		});	
 	}
 
+///////////////////////////////////////////////////////////
+
+	var ws = new WebSocket("ws://192.168.0.142/ws");
+
+                ws.onopen = function() {
+                  
+                  // Web Socket is connected, send data using send()
+                  ws.send("Ping");
+                //  alert("Message is sent...");
+               };
+				
+               ws.onmessage = function (evt) { 
+                  var msg = evt.data;
+                //  alert("Pong received...");
+                $("#target").text(msg);
+               };
+				
+               ws.onclose = function() { 
+                  
+                  // websocket is closed.
+                  alert("Connection is closed..."); 
+               };
+               
+//////////////////////////////////////////////////////////
 	 $("#updateFromControls")
         .button()
         .click(function(){ 
@@ -143,6 +174,8 @@ updateFromControls();
 	</div>
 
 	<button id="updateFromControls">Update from Controls</button>
+
+	<div id="target">HERE</div>
 
 </body>
 </html>
