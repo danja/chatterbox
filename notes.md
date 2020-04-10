@@ -1,8 +1,9 @@
-**2020-04-10**
+**2020-04-10** *version chatterbox_1.0.20*
 
 **UPLOAD WON'T WORK IF SING IS ENABLED**
 
-**2020-04-09**
+
+**2020-04-09** *version chatterbox_1.0.19*
 
 Had a few days away from code but have been reading, also setting up the box this thing will ultimately live in.
 
