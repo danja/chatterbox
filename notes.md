@@ -6,7 +6,10 @@ First thing, get it working as-is.
 
 * fix warnings
 * add forward references
-* extract header files
+
+
+
+* (extract header files)
 
 **2020-04-11** *version chatterbox_1.1.0*
 
