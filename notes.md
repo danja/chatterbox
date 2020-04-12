@@ -1,3 +1,37 @@
+**2020-04-12** *version chatterbox_1.1.0*
+
+Refactoring time. 1116 lines of code!
+
+First thing, get it working as-is.
+
+* fix warnings
+* add forward references
+* extract header files
+
+**2020-04-11** *version chatterbox_1.1.0*
+
+So far I've been using the Arduino IDE. But that's meant I've got all the code (except the SV filter) in a single huge file.
+
+Looking at the external control from WebSocket, this will be overly difficult given the way things currently are, there are lots of interactions needed. Time to **refactor**.
+
+As a first step, I'm going to try moving to PlatformIO on VSCode.
+
+Spent hours, couldn't get it to work. Moved over to PlatformIO on Atom.
+
+This had plenty of problems with install, but I believe I've now got the IDE working, now to get the code working...
+
+~~Configuring PlatformIO on VSCode~~
+
+* imported chatterbox_1.0.21 into PlatformIO (Import from Arduino), it saved it as a project folder under /Documents. This I renamed chatterbox_1.1.0 and moved to ~/chatterbox/src/
+* renamed chatterbox_1.1.0.ino to chatterbox_1.1.0.cpp and imported it as existing project
+
+In C/C++ configurations -> Include path
+
+${workspaceFolder}/**
+~/arduino/**
+~/chatterbox/src/lib/**
+~/esp32/**
+
 **2020-04-10** *version chatterbox_1.0.20*
 
 **UPLOAD WON'T WORK IF SING IS ENABLED**
@@ -73,7 +107,7 @@ Thirdly,
 
 * spectral tilt - overall freq balance / _ \
 
-- seems a must-have. The implementations I've seen for this seem a bit involved, notably stepwise approximation. I don't think this needs to be particularly sophisticated. 
+- seems a must-have. The implementations I've seen for this seem a bit involved, notably stepwise approximation. I don't think this needs to be particularly sophisticated.
 
 terms to take note of : "Vocal tract resonances R1 and R2, Open quotient, Fundamental frequency, voice intensity, larynx height, lip aperture and spreading"
 
@@ -91,7 +125,7 @@ So I've put in defines of multipliers corresponding to gain for things (floats).
 
 For now a reasonably stable build.
 
-TODO 
+TODO
 * **check order of filters**
 * update block diagram
 
@@ -139,7 +173,7 @@ f) Trills are characterised acoustically by a 'pattern of pulses of closures and
 From different sources :
 
 1. nasals are characterized by less high frequency energy
-than vowels; Little energy above approximately 3500 Hz. 
+than vowels; Little energy above approximately 3500 Hz.
 2. F1 in characteristic nasal murmur at 250 Hz;  F1 (sometimes called N1 in nasals) is low in all nasals - typical figures 250 - 300 Hz.
 3. Formants much weaker in nasals than in vowel sounds.
 4. Nasals have several antiformants. Also, the vocal tract produces an antiformant between 800 and 2000 Hz - the region of F2 for most vowels.
@@ -175,7 +209,7 @@ I reckon what I'll do today is put *something* in place for the remaining switch
 
 * nasal push switch : I reckon I'll try simply popping different filter parameters in place for F1 & F2 - the joystick. The docs seem to suggest notch filters with similar slopes as the normal formant bandpasses
 
-* stress push switch - implemented as simply volume boost, need to look at spectral tilt - 
+* stress push switch - implemented as simply volume boost, need to look at spectral tilt -
 
 * constant tone/sib - done
 
@@ -185,7 +219,7 @@ I reckon what I'll do today is put *something* in place for the remaining switch
 
 * singing - need research, but one thing is how pro singers develop a 3kHz peak... Maybe increase attack/decay time?
 
-**MUST REMEMBER** there are 2 signal outputs. It would be feasible to hook up controls to a totally different set of filters etc, have the output piped this way, mix done analog externally 
+**MUST REMEMBER** there are 2 signal outputs. It would be feasible to hook up controls to a totally different set of filters etc, have the output piped this way, mix done analog externally
 
 Had a glitch in uploading. Put a 10u cap between EN and ground, it worked once, but then didn't run. Now seems ok after removing cap...
 
@@ -201,7 +235,7 @@ First, get web interface working for current configuration...
 Bit more reading, found some interesting stuff relating to the larynx waveform (see [Links](links.md) -> speech). Certainly looks worth playing with, maybe relevant to singing & shouting voices. *If* this makes a significant difference, then it might be worth making more wavetables...
 
 Yesterday's switch logic tangle was incredibly easy to sort out, simply added switchType[] - PUSH 0, TOGGLE 1
- 
+
 
 **2020-03-29** *version chatterbox_1.0.15*
 
@@ -211,13 +245,13 @@ To allow this without making things too messy I've introduced the distinction be
 
 But...my concentration's not been very good today. Plagued by silly bugs. Just noticed the switch logic isn't wired properly, isn't distinguishing between push and toggle switches properly.
 
-Hey ho, sort out tomorrow, hopefully have a clearer head.	
+Hey ho, sort out tomorrow, hopefully have a clearer head.
 
 **2020-03-28** *version chatterbox_1.0.14*
 
 I've implemented stressed & de-stressed push buttons. I'm really not sure about these, the de-stressed especially doesn't seem very useful. But leave them for now.
 
-I've also done the constant tone/sib toggle. now called **Hold**, when off the push switches behave as before, push to play. When on, the push switches toggle value on every push. This is really good! I can see it being very useful. A keeper. 
+I've also done the constant tone/sib toggle. now called **Hold**, when off the push switches behave as before, push to play. When on, the push switches toggle value on every push. This is really good! I can see it being very useful. A keeper.
 
 I also had a little play with modulating the voice signal (pitch then amplitude) with a pink noise generator. I couldn't get anything resembling a croaky voice, but have a few more ideas to try.
 
@@ -225,7 +259,7 @@ Now I need to do a bit more research for the other added controls.
 
 ----
 
-I reckon I need the 3 sibilant buttons noises to enter the processing chain later, after F1 & F2. 
+I reckon I need the 3 sibilant buttons noises to enter the processing chain later, after F1 & F2.
 
 **2020-03-27** *version chatterbox_1.0.13*
 
@@ -245,7 +279,7 @@ Provisionally, for the push switches:
 
 For toggles:
 
-* constant tone/sib 
+* constant tone/sib
 * croaky/[Vocal fry](https://en.wikipedia.org/wiki/Vocal_fry_register) - pink? noise mod
 * shout - need research
 * singing - need research, but one thing is how pro singers develop a 3kHz peak... Maybe increase attack/decay time?
@@ -267,7 +301,7 @@ This leaves me with:
 
 "Pins 34, 35, 36, 37, 38 and 39 do not have internal pull-up or pull-down resistors, like the other I/O pins." - [Reddit](https://www.reddit.com/r/esp32/comments/7b8ud4/possible_to_skip_the_10k_resistor_button/)
 
-**2020-03-26** 
+**2020-03-26**
 
 This morning I did a bit of reading around phonemes, planning ahead. Found lots of tables of formant frequencies for vowels, a lot less similar material for consonants. I've been trying to compile the different material into an RDF representation (Turtle) so I can then run SPARQL against it, pull out the bits I need.
 
@@ -330,7 +364,7 @@ One hardware change I'm tempted to make is the addition of another switch for na
  "Nasals have several antiformants. Little energy above approximately 3500 Hz. Also, the vocal tract produces an antiformant between 800 and 2000 Hz"
  [Consonant acoustics](http://www.phon.ox.ac.uk/jcoleman/consonant_acoustics.htm)
  So flip the bandpass filters of F1, F2 into bandstops?
- 
+
  See also [Nasal Acoustics Notes](https://www.phonetik.uni-muenchen.de/~hoole/kurse/akustikfort/nasalacousticsnotes.pdf).
 
 This is a point though - there are likely to be free digital GPIO pins left available, why not wire these to further switches?
@@ -368,7 +402,7 @@ This needs work!
 
 I messed up a doc-global search & replace (ignore case), had to go through line-by-line to properly fix. Took the opportunity to do a bit of tidying up, added some more comments.
 
-**2020-03-24** 
+**2020-03-24**
 
 Aside: thinking about handling manual control inputs, is has occurred to me that interrupts might have been appropriate, only for the obvious kind of implementation is a non-starter due to the noise the controls pick up. It may be that something event-driven might be a good idea for performance purposes, but right now that seems like unnecessary complexity - stick to polling.
 
@@ -401,7 +435,7 @@ Ok, so to some extent the choice of comms with the Chatterbox is quite arbitrary
 
 So...
 
-* I found a [tutorial using ESPAsyncWebServer for WebSockets](https://techtutorialsx.com/2018/08/14/esp32-async-http-web-server-websockets-introduction/), has code for a simple WebSockets server and some (Python) client code. 
+* I found a [tutorial using ESPAsyncWebServer for WebSockets](https://techtutorialsx.com/2018/08/14/esp32-async-http-web-server-websockets-introduction/), has code for a simple WebSockets server and some (Python) client code.
 * A [WebSocket server on node.js](https://github.com/websockets/ws) looks straightforward.  
 * The [nginx documentation for WebSockets proxying](https://www.nginx.com/blog/websocket-nginx/) looks pretty good (I anticipate using port 80 for everything, this may be useful).
 
@@ -432,13 +466,13 @@ Yay! Very crude, but Web interface now showing control values :
 
 So I've got [ESPAsyncWebServer](https://github.com/me-no-dev/ESPAsyncWebServer) working ok, reading static files from SPIFFS. This also includes a minimal templater, which is very convenient.
 
-So next I guess is to publish all the settings & control values to a Web page. 
+So next I guess is to publish all the settings & control values to a Web page.
 
-The standard way of configuring network settings in a system like this seems to be to use a captive portal. Example code is available, something to look at later. 
+The standard way of configuring network settings in a system like this seems to be to use a captive portal. Example code is available, something to look at later.
 
 **2020-03-11**
 
-Ok, I want to play around with parameters. But the edit-compile-upload cycle is very tedious. So I reckon it's time to look at the Web interface. 
+Ok, I want to play around with parameters. But the edit-compile-upload cycle is very tedious. So I reckon it's time to look at the Web interface.
 
 [ESPAsyncWebServer](https://github.com/me-no-dev/ESPAsyncWebServer) (with [AsyncTCP](https://github.com/me-no-dev/AsyncTCP)) looked promising. The *Hello World!* using it described [here](https://techtutorialsx.com/2017/12/01/esp32-arduino-asynchronous-http-webserver/) worked on first attempt!
 
@@ -454,15 +488,15 @@ Made a lot of progress in the past few days, despite myself. Getting impatient, 
 
 But basically all working!
 
-Performance appeared to become an issue, weird artifacts on wave generation, so I temporarily moved sample rate from 22050 down to 16000, which fixed the worst. The SVF I'm using uses doubles internally. Flipping them all to floats has allowed me to go back up to 22050, but it's a nice warning that I'm getting close to the limit. 
+Performance appeared to become an issue, weird artifacts on wave generation, so I temporarily moved sample rate from 22050 down to 16000, which fixed the worst. The SVF I'm using uses doubles internally. Flipping them all to floats has allowed me to go back up to 22050, but it's a nice warning that I'm getting close to the limit.
 
-There is an awful lot of tweaking to do, getting the timing & filter parameters optimised. 
+There is an awful lot of tweaking to do, getting the timing & filter parameters optimised.
 I may well need to work on simple transfer functions from the pot/ADC values to the filter parameters. I also need to do something to deal with the effects of noise on the controls. As I'm typing it's making occasional popping noises all on it's own.
 
 Given that the source signal is very simple, using a wavetable is rather overkill (and inefficient, the way I have it set up). Inline generation is a definite possibility. But I do quite like the versatility this could offer, as and when it has more music-oriented synth bit (ie. MIDI).
 
-If I've got enough processor performance space, I really want to try adding extra filters with their frequencies locked to multiples of those of formants F1 and F2. 
-Either way, having the auxiliary filter F3 with pot-variable freq & Q, as a low pass seems to offer some nice effects. 
+If I've got enough processor performance space, I really want to try adding extra filters with their frequencies locked to multiples of those of formants F1 and F2.
+Either way, having the auxiliary filter F3 with pot-variable freq & Q, as a low pass seems to offer some nice effects.
 
 So, tweaking for good sounds and optimisation is on the cards.
 
@@ -511,7 +545,7 @@ Added documents : [Design Notes](https://github.com/danja/chatterbox/blob/master
 
 I want to start looking at filter design. To creep towards this I've split out the two channels, so wavetableL[] is pumped to the left channel out of the DAC, wavetableR[] to the right.
 
-Later on I'll need to figure out some kind of general pipeline for 
+Later on I'll need to figure out some kind of general pipeline for
 
 **wavetable/source  -> filters -> DAC**
 
@@ -524,7 +558,7 @@ but for now I've simply got
 
 as a placeholder for a filter I've got **value = -value**.
 
-I've also tweak the square wave wavetable generator to give it a variable pulse width, controlled by pot 4. 
+I've also tweak the square wave wavetable generator to give it a variable pulse width, controlled by pot 4.
 So right now I can get an output like this:
 
 ![pulse-inverted.png](https://github.com/danja/chatterbox/blob/master/media/pulse-inverted.png "pulse-inverted.png")
@@ -587,12 +621,12 @@ Wondering about inputs.
 
 Have been reading [Klatt 1979] : "one might wish to vary as many as 20 of the 39 parameters to achieve optimum matches to an arbitrary English sentence".
 
-The original Chatterbox has : 
+The original Chatterbox has :
 
 * slider pot (pitch)
 * joystick (filters)  
 * 5 switches
-	* voicing 
+	* voicing
 	* whisper
 	* **S**alt
 	* **F**ish
@@ -604,7 +638,7 @@ On prototype hardware v1, for input I've (fairly arbitrarily) provided :
 * joystick
 * 5 push switches
 
-Now, something I'd skimmed over is the ESP32 I/O. First impressions is it's virtually unlimited, but looking closer, not all the chip pins are exposed on the dev boards, and then pretty much everything's multiplexed. 
+Now, something I'd skimmed over is the ESP32 I/O. First impressions is it's virtually unlimited, but looking closer, not all the chip pins are exposed on the dev boards, and then pretty much everything's multiplexed.
 Most annoyingly, ADC2 is out-of-bounds when WiFi is enabled. I want this thing to be HTTP-accessible (ideally both for programming the DSP config and for using the controls as a UI).
 *"Note that GPIO6-11 are usually used for SPI flash. GPIO34-39 can only be set as input mode and do not have software pullup or pulldown functions."*
 
@@ -638,7 +672,7 @@ GPIO 14
 
 ## Provisional Controls
 Pitch
-Joystick X : Formant 1 
+Joystick X : Formant 1
 Joystick Y : Formant 2
 Formant 3 freq
 Nasal (cut filter) freq
@@ -656,7 +690,7 @@ Implemented. Slight performance hit. Not entirely sure about improvements, but r
 
 Trying to get a clean wavetable-generated waveform, pitch controlled by a pot.
 
-I've got two threads running, one reading from ADC, one sending wavetable value to DAC. 
+I've got two threads running, one reading from ADC, one sending wavetable value to DAC.
 
 The max freq at present is 3.5kHz, relatively clean. But dropping pitch makes it full of strange artifacts.
 
@@ -664,12 +698,12 @@ This is at 1kHz :
 
 ![Unclean Waveform](https://github.com/danja/chatterbox/blob/master/media/scope_2020-02-26.png "Unclean Waveform")
 
-Two likely causes - 
+Two likely causes -
 
 1. the looping around the wavetable has timing issues.
 2. the ESP32 docs say the ADCs can be prone to noise
 
-I've got a bit ahead of myself. Reckon I should dummy-out the ADC reading to isolate the timing. 
+I've got a bit ahead of myself. Reckon I should dummy-out the ADC reading to isolate the timing.
 
 Later... that made no difference. Finally spotted a *hilarious* oversight. The sine wave I was putting into the wavetable was from sin(0) to sin(TABLESIZE), not sin(0) to sin(2*PI)!
 
@@ -686,9 +720,3 @@ The other waveforms are more glitchy, to varying degrees.
 This paper looks promising for tricks to reduce aliasing artifacts : [Table Lookup Oscillators Using Generic Integrated Wavetables](http://mtg.upf.edu/node/485)
 
 Also discovered [Faust](https://faust.grame.fr/), DSP/synth kit, has support for ESP32. Looks awesome, but as one of my motivations for doing this is to learn the details of signal processing on little devices, I'm going to continue from scratch. Is fun!
-
-
-
-
-
-
