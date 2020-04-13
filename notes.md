@@ -1,3 +1,20 @@
+**2020-04-13** *version chatterbox_1.1.0*
+
+So...the Atom-based PlatformIO IDE seemed ok, only platform-ide-terminal refused to install. After a couple of hours trying to sort it out, concluded the current version is broken. So went back to VSCode-based PlatformIO.
+
+This took me another couple of hours. It didn't like the imported project and I got weird include path issues. Also the Tasks didn't show up, [this](https://community.platformio.org/t/how-to-get-project-tasks-in-new-workspace/5996/5) sorted that part.
+
+I've got Chatterbox building and uploading on PlatformIO now. Have also separated out NoiseMaker and Shapers into separate classes (mostly to give me some simple C++ to start with).
+
+Now thinking about turning some other things into C++ objects. The overall system I reckon makes sense as a kind of flow pipeline, ie. graph, with nodes (Input and Output) and arcs (connectors).
+
+I'm starting with the switches, they seem least demanding.
+
+I want to get some unit tests in place. I don't need the ESP32-specific stuff yet, most of this I can build up native (desktop gcc). One little issue was the Arduino String class which is non-standard but I use it throughout. Including Arduino.h led to a bunch of other problems, but it seems just including WString.h seems to do the trick. [Notes on Arduino's String](https://hackingmajenkoblog.wordpress.com/2016/02/04/the-evils-of-arduino-strings/).
+
+
+
+
 **2020-04-12** *version chatterbox_1.1.0*
 
 Refactoring time. 1116 lines of code!
@@ -6,8 +23,6 @@ First thing, get it working as-is.
 
 * fix warnings
 * add forward references
-
-
 
 * (extract header files)
 

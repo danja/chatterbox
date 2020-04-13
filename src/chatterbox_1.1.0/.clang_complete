@@ -1,13 +1,14 @@
 -I/home/danny/chatterbox/src/chatterbox_1.1.0/include
 -I/home/danny/chatterbox/src/chatterbox_1.1.0/src
--I/home/danny/.platformio/packages/framework-arduinoespressif32/libraries/SPIFFS/src
--I/home/danny/.platformio/lib/ESP Async WebServer_ID306/src
--I/home/danny/.platformio/packages/framework-arduinoespressif32/libraries/FS/src
--I/home/danny/.platformio/lib/AsyncTCP_ID1826/src
 -I/home/danny/chatterbox/src/chatterbox_1.1.0/lib/NoiseMaker
 -I/home/danny/chatterbox/src/chatterbox_1.1.0/lib/Shapers
--I/home/danny/Arduino/libraries/esp32-dac
+-I/home/danny/.platformio/packages/framework-arduinoespressif32/libraries/SPIFFS/src
+-I/home/danny/chatterbox/src/chatterbox_1.1.0/lib/Graph/src
+-I/home/danny/.platformio/lib/ESP Async WebServer_ID306/src
+-I/home/danny/.platformio/packages/framework-arduinoespressif32/libraries/FS/src
 -I/home/danny/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src
+-I/home/danny/.platformio/lib/AsyncTCP_ID1826/src
+-I/home/danny/Arduino/libraries/esp32-dac
 -I/home/danny/.platformio/packages/framework-arduinoespressif32/tools/sdk/include/config
 -I/home/danny/.platformio/packages/framework-arduinoespressif32/tools/sdk/include/app_trace
 -I/home/danny/.platformio/packages/framework-arduinoespressif32/tools/sdk/include/app_update
