@@ -767,7 +767,8 @@ void ControlInput(void *pvParameter)
         decayStep = 1.0f / (decayTime * samplerate);
       }
 
-      if (switchValue[TOGGLE_SHOUT])
+      // if (switchValue[TOGGLE_SHOUT])
+      if (switches[TOGGLE_SHOUT].getValue())
       {
         larynxRatio = SHOUT_LARYNX_RATIO;
         sineRatio = SHOUT_SINE_RATIO;
@@ -1025,7 +1026,8 @@ void OutputDAC(void *pvParameter)
       current = shaper.softClip((current + sing1Val + sing2Val) / 3.0f);
     }
 
-    if (switchValue[TOGGLE_SHOUT])
+// if (switchValue[TOGGLE_SHOUT])
+    if (switches[TOGGLE_SHOUT].getValue())
     {
       current = shaper.softClip(current * (1.0f - growl * shoutNoise.stretchedNoise())); // amplitude mod
     }
