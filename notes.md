@@ -1,3 +1,23 @@
+**2020-04-14** *version chatterbox_1.1.0*
+
+Refactoring resuming.
+
+First thing, get it working as-is.
+
+* fix warnings
+* add forward references
+
+**SAVE REALLY OFTEN! - IDEALLY FUNCTIONAL**
+
+* rough out simple classes+headers Node, ControlNode, Switch
+* parallel all init : constructors etc.
+* parallel all value setters
+* gradually replace getters
+
+hold toggle now moved over to Switch class
+
+
+
 **2020-04-13** *version chatterbox_1.1.0*
 
 So...the Atom-based PlatformIO IDE seemed ok, only platform-ide-terminal refused to install. After a couple of hours trying to sort it out, concluded the current version is broken. So went back to VSCode-based PlatformIO.

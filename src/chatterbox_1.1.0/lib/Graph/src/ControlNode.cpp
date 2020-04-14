@@ -1,4 +1,4 @@
-#include <Arduino.h>
+#include <WString.h>
 #include <Node.h>
 #include <ControlNode.h>
 

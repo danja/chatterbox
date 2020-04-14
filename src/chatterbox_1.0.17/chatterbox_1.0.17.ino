@@ -77,9 +77,9 @@
 #define SWITCH_DESTRESS 6
 #define SWITCH_STRESS 7
 
-#define TOGGLE_HOLD 8
+#define SWITCH_HOLD 8
 #define TOGGLE_LOGISTIC 9
-#define TOGGLE_SING 10
+#define SWITCH_SING 10
 #define TOGGLE_T3 11
 
 #define PUSH 0
@@ -589,9 +589,9 @@ void ControlInput(void *pvParameter)
       }
 
       if (switchType[i] == PUSH) {
-        switchValue[i] = switchValue[i] || (switchHold[i] && switchValue[TOGGLE_HOLD]);
+        switchValue[i] = switchValue[i] || (switchHold[i] && switchValue[SWITCH_HOLD]);
 
-        if (switchValue[TOGGLE_HOLD]) { // override envelope
+        if (switchValue[SWITCH_HOLD]) { // override envelope
           if (switchValue[i]) {
             switchGain[i] = 1;
           } else {
@@ -633,7 +633,7 @@ void ControlInput(void *pvParameter)
       float attackStep;
       float decayStep;
 
-      if (switchValue[TOGGLE_SING]) {
+      if (switchValue[SWITCH_SING]) {
         attackTime = ATTACK_TIME_SING;
         decayTime = DECAY_TIME_SING;
         attackStep = (float)ADC_TOP / (samplerate * attackTime);
@@ -663,7 +663,7 @@ void pushToWebSocket() {
 void togglePushSwitch(char i) {
   if (i >= N_PUSH_SWITCHES) return;
 
-  if (switchValue[TOGGLE_HOLD]) {
+  if (switchValue[SWITCH_HOLD]) {
     if (switchValue[i]) {
       switchHold[i] = !switchHold[i]; // toggle
     }
@@ -769,7 +769,7 @@ void OutputDAC(void *pvParameter)
 
     float current = (initialGain * (voice + aspiration)) * SIGNAL_GAIN;
 
-    if (switchValue[TOGGLE_SING]) {
+    if (switchValue[SWITCH_SING]) {
       float sing1Val = SING1_GAIN * sing1.tick(current);
       float sing2Val  = SING2_GAIN * sing2.tick(current);
       current = softClip((current + sing1Val + sing2Val)/3.0f);

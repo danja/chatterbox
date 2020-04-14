@@ -77,9 +77,9 @@
 #define SWITCH_DESTRESS 6
 #define SWITCH_STRESS 7
 
-#define TOGGLE_HOLD 8
-#define TOGGLE_CREAK 9
-#define TOGGLE_SING 10
+#define SWITCH_HOLD 8
+#define SWITCH_CREAK 9
+#define SWITCH_SING 10
 #define TOGGLE_SHOUT 11
 
 #define PUSH 0
@@ -601,7 +601,7 @@ void ControlInput(void *pvParameter)
 
     potValue[POT_GROWL] = potValue[POT_P4]; // same as larynx
 
-    if (switchValue[TOGGLE_CREAK]) {
+    if (switchValue[SWITCH_CREAK]) {
       potID[POT_P4] = POT_ID_GROWL;
     } else {
       potID[POT_P4] = POT_ID_LARYNX;
@@ -682,9 +682,9 @@ void ControlInput(void *pvParameter)
       }
 
       if (switchType[i] == PUSH) {
-        switchValue[i] = switchValue[i] || (switchHold[i] && switchValue[TOGGLE_HOLD]);
+        switchValue[i] = switchValue[i] || (switchHold[i] && switchValue[SWITCH_HOLD]);
 
-        if (switchValue[TOGGLE_HOLD]) { // override envelope
+        if (switchValue[SWITCH_HOLD]) { // override envelope
           if (switchValue[i]) {
             switchGain[i] = 1;
           } else {
@@ -721,7 +721,7 @@ void ControlInput(void *pvParameter)
       sawtoothRatio = DEFAULT_SAWTOOTH_RATIO;
 
       //  Serial.println("HANDLE TOGGLE");
-      if (switchValue[TOGGLE_CREAK]) {
+      if (switchValue[SWITCH_CREAK]) {
         larynxRatio = CREAK_LARYNX_RATIO;
         sineRatio = CREAK_SINE_RATIO;
         sawtoothRatio = CREAK_SAWTOOTH_RATIO;
@@ -730,7 +730,7 @@ void ControlInput(void *pvParameter)
       // float attackStep;
       // float decayStep;
 
-      if (switchValue[TOGGLE_SING]) {
+      if (switchValue[SWITCH_SING]) {
         larynxRatio = SING_LARYNX_RATIO;
         sineRatio = SING_SINE_RATIO;
         sawtoothRatio = SING_SAWTOOTH_RATIO;
@@ -781,7 +781,7 @@ void pushToWebSocket() {
 void togglePushSwitch(char i) {
   if (i >= N_PUSH_SWITCHES) return;
 
-  if (switchValue[TOGGLE_HOLD]) {
+  if (switchValue[SWITCH_HOLD]) {
     if (switchValue[i]) {
       switchHold[i] = !switchHold[i]; // toggle
     }
@@ -855,7 +855,7 @@ void OutputDAC(void *pvParameter)
   while (1) {
     // *** Read wavetable voice ***
 
-    if (switchValue[TOGGLE_CREAK]) {
+    if (switchValue[SWITCH_CREAK]) {
       pointer = pointer + tableStep * (1.0f - stretchedNoise() * growl);
       if (pointer < 0) pointer = 0;
     } else {
@@ -903,7 +903,7 @@ void OutputDAC(void *pvParameter)
 
     float current = (initialGain * (voice + aspiration)) * SIGNAL_GAIN;
 
-    if (switchValue[TOGGLE_SING]) {
+    if (switchValue[SWITCH_SING]) {
       float sing1Val = SING1_GAIN * sing1.tick(current);
       float sing2Val  = SING2_GAIN * sing2.tick(current);
       current = softClip((current + sing1Val + sing2Val) / 3.0f);

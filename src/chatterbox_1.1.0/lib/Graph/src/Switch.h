@@ -1,22 +1,35 @@
 #pragma once
 
+#include <WString.h>
 #include <ControlNode.h>
 
-#define SWITCH_PUSH 0
-#define SWITCH_TOGGLE 1
+#define PUSH 0
+#define TOGGLE 1
 
 class Switch : public ControlNode {
   
   public:
     Switch();
-    void setChannel(int ch);
+    Switch(String id, int channel, int type);
+    // void setChannel(int channel);
     int getChannel();
-    void setRawValue(bool val);
-    void setPreviousRawValue(bool val); // TODO refactor
-    bool getRawValue();
-    bool getPreviousRawValue();
+    int getType();
+    void setValue(bool val); // change to isOn() ?
+    void setPreviousValue(bool val); // TODO refactor
+    bool getValue();
+    bool getPreviousValue();
+    float getGain();
+    void setGain(float gain);
+
+    // used for push switches, redundant for toggles
+    void setHold(bool hold); // TODO refactor/rename
+    bool getHold();
+
   private:
     int channel;
-    bool rawValue;
-    bool previousRawValue;
+    int type;
+    bool value;
+    bool previousValue;
+    float gain; // TODO refactor
+    bool hold;
 };

@@ -73,7 +73,7 @@
 #define SWITCH_X6 6
 #define SWITCH_X7 7
 
-#define TOGGLE_HOLD 8
+#define SWITCH_HOLD 8
 #define TOGGLE_LOGISTIC 9
 #define TOGGLE_T2 10
 #define TOGGLE_T3 11
@@ -506,9 +506,9 @@ void ControlInput(void *pvParameter)
       }
 
       if (switchType[i] == PUSH) {
-        switchValue[i] = switchValue[i] || (switchHold[i] && switchValue[TOGGLE_HOLD]);
+        switchValue[i] = switchValue[i] || (switchHold[i] && switchValue[SWITCH_HOLD]);
 
-        if (switchValue[TOGGLE_HOLD]) { // override envelope
+        if (switchValue[SWITCH_HOLD]) { // override envelope
           if (switchValue[i]) {
             switchGain[i] = 1;
           } else {
@@ -550,7 +550,7 @@ void pushToWebSocket() {
 void togglePushSwitch(char i) {
   if (i >= N_PUSH_SWITCHES) return;
 
-  if (switchValue[TOGGLE_HOLD]) {
+  if (switchValue[SWITCH_HOLD]) {
     if (switchValue[i]) {
       switchHold[i] = !switchHold[i]; // toggle
     }

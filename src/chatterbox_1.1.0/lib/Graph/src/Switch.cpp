@@ -1,10 +1,16 @@
+#include <WString.h>
 #include <Switch.h>
 
 Switch::Switch() {}
 
-void Switch::setChannel(int ch)
+Switch::Switch(String string, int ch, int t)
 {
+  Switch::setID(string);
   channel = ch;
+  type = t;
+  value = false;
+  previousValue = false;
+  hold = false;
 }
 
 int Switch::getChannel()
@@ -12,22 +18,47 @@ int Switch::getChannel()
   return channel;
 }
 
-void Switch::setRawValue(bool val)
+int Switch::getType()
 {
-  rawValue = val;
+  return type;
 }
 
-void Switch::setPreviousRawValue(bool val)
+void Switch::setValue(bool val)
+{
+  value = val;
+}
+
+void Switch::setPreviousValue(bool val)
 { // TODO refactor
-  previousRawValue = val;
+  previousValue = val;
 }
 
-bool Switch::getRawValue()
+bool Switch::getValue()
 {
-  return rawValue;
+  return value;
 }
 
-bool Switch::getPreviousRawValue()
+bool Switch::getPreviousValue()
 {
-  return previousRawValue;
+  return previousValue;
+}
+
+float Switch::getGain() // TODO refactor
+{
+  return gain;
+}
+
+void Switch::setGain(float g)
+{
+  gain = g;
+}
+
+void Switch::setHold(bool h) // TODO refactor/rename
+{
+  hold = h;
+}
+
+bool Switch::getHold()
+{
+  return hold;
 }

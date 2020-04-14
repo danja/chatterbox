@@ -69,14 +69,15 @@
 #define POT_ID_PITCH "pitch"
 #define POT_ID_GROWL "growl"
 
-#define N_SWITCHES 12
+#define N_SWITCHES 12 // NEEDED
 #define N_PUSH_SWITCHES 8
+
+#define SWITCH_SF1 0 // // NEEDED Sibilance Filter 1
+#define SWITCH_SF2 1
+#define SWITCH_SF3 2
 
 #define SWITCH_VOICED 3
 #define SWITCH_ASPIRATED 4
-#define SWITCH_SF1 0 // Sibilance Filter 1
-#define SWITCH_SF2 1
-#define SWITCH_SF3 2
 
 #define SWITCH_NASAL 5
 #define SWITCH_DESTRESS 6
@@ -87,7 +88,7 @@
 #define TOGGLE_SING 10
 #define TOGGLE_SHOUT 11
 
-#define PUSH 0
+#define PUSH 0 // move to const in Switch
 #define TOGGLE 1
 
 // Mixing
@@ -251,18 +252,17 @@ int potChannel[] = {36, 39, 32, 33, 34, 35};
 int potValue[N_POTS_VIRTUAL];
 int previousPotValue[N_POTS_VIRTUAL];
 
-char switchType[] = {PUSH, PUSH, PUSH, PUSH, PUSH, PUSH, PUSH, PUSH,
+char switchType[] = {PUSH, PUSH, PUSH, PUSH, PUSH, PUSH, PUSH, PUSH, // COVERED
                      TOGGLE, TOGGLE, TOGGLE, TOGGLE};
 
-String switchID[N_SWITCHES];
+String switchID[N_SWITCHES]; // COVERED
 
 Switch switches[N_SWITCHES];
 
-// TODO move to defines
+// TODO move to defines // COVERED
 char switchChannel[] = {19, 23, 12, 13, 14, 17, 18, 5, 16, 15, 2, 4}; // TODO move this to a define,
 // is N_SWITCHES
 // char nswitches =  (int)(sizeof(switchChannel) / sizeof(switchChannel[0]));
-
 
 bool switchHold[N_PUSH_SWITCHES];
 
@@ -304,22 +304,20 @@ void setup()
 
   Serial.println("\n*** Starting Chatterbox ***\n");
 
-
   dac.begin(SAMPLERATE, GPIO_DAC_DATAPORT, GPIO_DAC_BCLK, GPIO_DAC_WSEL, GPIO_DAC_DOUT);
 
-
-switches[0].setChannel(19);
-switches[1].setChannel(23);
-switches[2].setChannel(12);
-switches[3].setChannel(13);
-switches[4].setChannel(14);
-switches[5].setChannel(17);
-switches[6].setChannel(18);
-switches[7].setChannel(5);
-switches[8].setChannel(16);
-switches[9].setChannel(15);
-switches[10].setChannel(2);
-switches[11].setChannel(4);
+  switches[SWITCH_SF1] = Switch("sf1", 19, PUSH);
+  switches[SWITCH_SF2] = Switch("sf2", 23, PUSH);
+  switches[SWITCH_SF3] = Switch("sf3", 12, PUSH);
+  switches[SWITCH_VOICED] = Switch("voiced", 13, PUSH);
+  switches[SWITCH_ASPIRATED] = Switch("aspirated", 14, PUSH);
+  switches[SWITCH_NASAL] = Switch("nasal", 17, PUSH);
+  switches[SWITCH_DESTRESS] = Switch("destressed", 18, PUSH);
+  switches[SWITCH_STRESS] = Switch("stressed", 5, PUSH);
+  switches[TOGGLE_HOLD] = Switch("hold", 16, TOGGLE);
+  switches[TOGGLE_CREAK] = Switch("creak", 15, TOGGLE);
+  switches[TOGGLE_SING] = Switch("sing", 2, TOGGLE);
+  switches[TOGGLE_SHOUT] = Switch("shout", 4, TOGGLE);
 
   initLarynxWavetable();
   initFixedWavetables();
@@ -365,7 +363,7 @@ switches[11].setChannel(4);
 
   potID[6] = POT_ID_GROWL;
 
-  for (int i = 0; i < N_SWITCHES; i++)
+  for (int i = 0; i < N_SWITCHES; i++) // COVERED
   {
     switchValue[i] = false;
     previousSwitchValue[i] = false;
@@ -447,7 +445,7 @@ void initInputs()
     inputScale[i] = 1.0f;
   }
 
-  for (int i = 0; i < N_PUSH_SWITCHES; i++)
+  for (int i = 0; i < N_PUSH_SWITCHES; i++) // COVERED
   {
     switchHold[i] = 0; // off
   }
@@ -665,28 +663,40 @@ void ControlInput(void *pvParameter)
     for (int i = 0; i < N_SWITCHES; i++)
     { // switch envelope generator TODO only needed for push switches
       switchValue[i] = digitalRead(switchChannel[i]);
-      if (switchValue[i] != previousSwitchValue[i])
+      switches[i].setValue(digitalRead(switches[i].getChannel())); // TODO refactor - how?
+
+      //if (switchValue[i] != previousSwitchValue[i])
+      if (switches[i].getValue() != switches[i].getPreviousValue())
       {
         if (switchType[i] == TOGGLE)
           toggleChange = true;
+
         previousSwitchValue[i] = switchValue[i];
+        switches[i].setPreviousValue(switches[i].getValue());
+
         togglePushSwitch(i); // for HOLD toggle
         pushSwitchChange(i);
       }
 
       if (switchType[i] == PUSH)
       {
-        switchValue[i] = switchValue[i] || (switchHold[i] && switchValue[TOGGLE_HOLD]);
+        //   switchValue[i] = switchValue[i] || (switchHold[i] && switchValue[TOGGLE_HOLD]);
+        switches[i].setValue(
+            switches[i].getValue() || (switches[i].getHold() && switches[TOGGLE_HOLD].getValue()));
+        //     if (switchValue[TOGGLE_HOLD])
+        if (switches[TOGGLE_HOLD].getValue())
 
-        if (switchValue[TOGGLE_HOLD])
         { // override envelope
-          if (switchValue[i])
+          //    if (switchValue[i])
+          if (switches[i].getValue())
           {
             switchGain[i] = 1;
+            switches[i].setGain(1);
           }
           else
           {
             switchGain[i] = 0;
+            switches[i].setGain(0);
           }
         }
       }
@@ -796,11 +806,14 @@ void togglePushSwitch(int i)
   if (i >= N_PUSH_SWITCHES)
     return;
 
-  if (switchValue[TOGGLE_HOLD])
+  // if (switchValue[TOGGLE_HOLD])
+  if (switches[TOGGLE_HOLD].getValue())
   {
-    if (switchValue[i])
+   // if (switchValue[i])
+   if(switches[i].getValue())
     {
       switchHold[i] = !switchHold[i]; // toggle
+      switches[i].setHold(!switches[i].getHold());
     }
   }
 }
