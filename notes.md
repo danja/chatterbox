@@ -16,6 +16,8 @@ First thing, get it working as-is.
 
 hold toggle now moved over to Switch class
 
+commenting out #define TOGGLE_CREAK 
+
 
 
 **2020-04-13** *version chatterbox_1.1.0*

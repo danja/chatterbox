@@ -578,7 +578,8 @@ void ControlInput(void *pvParameter)
 
     potValue[POT_GROWL] = potValue[POT_P4]; // same as larynx
 
-    if (switchValue[TOGGLE_CREAK])
+   // if (switchValue[TOGGLE_CREAK])
+    if (switches[TOGGLE_CREAK].getValue())
     {
       potID[POT_P4] = POT_ID_GROWL;
     }
@@ -736,7 +737,8 @@ void ControlInput(void *pvParameter)
       sawtoothRatio = DEFAULT_SAWTOOTH_RATIO;
 
       //  Serial.println("HANDLE TOGGLE");
-      if (switchValue[TOGGLE_CREAK])
+      if (switches[TOGGLE_CREAK].getValue())
+      // if (switchValue[TOGGLE_CREAK])
       {
         larynxRatio = CREAK_LARYNX_RATIO;
         sineRatio = CREAK_SINE_RATIO;
@@ -745,8 +747,8 @@ void ControlInput(void *pvParameter)
 
       // float attackStep;
       // float decayStep;
-
-      if (switchValue[TOGGLE_SING])
+// if (switchValue[TOGGLE_SING])
+      if (switches[TOGGLE_SING].getValue())
       {
         larynxRatio = SING_LARYNX_RATIO;
         sineRatio = SING_SINE_RATIO;
@@ -955,7 +957,8 @@ void OutputDAC(void *pvParameter)
   {
     // *** Read wavetable voice ***
 
-    if (switchValue[TOGGLE_CREAK])
+    // if (switchValue[TOGGLE_CREAK])
+    if (switches[TOGGLE_CREAK].getValue())
     {
       pointer = pointer + tableStep * (1.0f - creakNoise.stretchedNoise() * growl);
       if (pointer < 0)
@@ -1014,7 +1017,8 @@ void OutputDAC(void *pvParameter)
 
     float current = (initialGain * (voice + aspiration)) * SIGNAL_GAIN;
 
-    if (switchValue[TOGGLE_SING])
+//if (switchValue[TOGGLE_SING])
+    if (switches[TOGGLE_SING].getValue())
     {
       float sing1Val = SING1_GAIN * sing1.tick(current);
       float sing2Val = SING2_GAIN * sing2.tick(current);
