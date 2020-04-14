@@ -101,6 +101,7 @@
 #define SF1_GAIN 0.4f
 #define SF2_GAIN 0.8f
 #define SF3_GAIN 1.0f
+#define VOICED_GAIN_DEFAULT 1.0f
 #define VOICED_GAIN_DESTRESSED 0.7f
 #define VOICED_GAIN_STRESSED 1.5f
 #define NASAL_LP_GAIN 0.5f
@@ -252,23 +253,23 @@ int potChannel[] = {36, 39, 32, 33, 34, 35};
 int potValue[N_POTS_VIRTUAL];
 int previousPotValue[N_POTS_VIRTUAL];
 
-char switchType[] = {PUSH, PUSH, PUSH, PUSH, PUSH, PUSH, PUSH, PUSH, // COVERED
-                     TOGGLE, TOGGLE, TOGGLE, TOGGLE};
+// char switchType[] = {PUSH, PUSH, PUSH, PUSH, PUSH, PUSH, PUSH, PUSH, // COVERED
+   //                  TOGGLE, TOGGLE, TOGGLE, TOGGLE};
 
-String switchID[N_SWITCHES]; // COVERED
+// String switchID[N_SWITCHES]; // COVERED
 
 Switch switches[N_SWITCHES];
 
 // TODO move to defines // COVERED
-char switchChannel[] = {19, 23, 12, 13, 14, 17, 18, 5, 16, 15, 2, 4}; // TODO move this to a define,
+// char switchChannel[] = {19, 23, 12, 13, 14, 17, 18, 5, 16, 15, 2, 4}; // TODO move this to a define,
 // is N_SWITCHES
 // char nswitches =  (int)(sizeof(switchChannel) / sizeof(switchChannel[0]));
 
-bool switchHold[N_PUSH_SWITCHES];
+// bool switchHold[N_PUSH_SWITCHES];
 
-float switchGain[N_SWITCHES];
-float switchValue[N_SWITCHES];
-float previousSwitchValue[N_SWITCHES];
+// float switchGain[N_SWITCHES];
+// float switchValue[N_SWITCHES];
+// float previousSwitchValue[N_SWITCHES];
 
 float larynxRatio = DEFAULT_LARYNX_RATIO;
 float sineRatio = DEFAULT_SINE_RATIO;
@@ -363,12 +364,14 @@ void setup()
 
   potID[6] = POT_ID_GROWL;
 
+/*
   for (int i = 0; i < N_SWITCHES; i++) // COVERED
   {
     switchValue[i] = false;
     previousSwitchValue[i] = false;
   }
-
+*/
+/*
   switchID[0] = "sf1";
   switchID[1] = "sf2";
   switchID[2] = "sf3";
@@ -383,7 +386,7 @@ void setup()
   switchID[9] = "creak";
   switchID[10] = "sing";
   switchID[11] = "shout";
-
+*/
   startWebServer();
 }
 /*** END SETUP() ***/
@@ -445,16 +448,20 @@ void initInputs()
     inputScale[i] = 1.0f;
   }
 
+/*
   for (int i = 0; i < N_PUSH_SWITCHES; i++) // COVERED
   {
     switchHold[i] = 0; // off
   }
+*/
 
   for (int i = 0; i < N_SWITCHES; i++)
   {
-    switchGain[i] = 0;
-    pinMode(switchChannel[i], INPUT);
-    pinMode(switchChannel[i], INPUT_PULLDOWN);
+    // switchGain[i] = 0;
+    // pinMode(switchChannel[i], INPUT);
+    // pinMode(switchChannel[i], INPUT_PULLDOWN);
+    pinMode(switches[i].getChannel(), INPUT);
+    pinMode(switches[i].getChannel(), INPUT_PULLDOWN);
   }
 
   // calculate values for offset/scaling from pots to parameters
@@ -546,7 +553,7 @@ float f3q;
 
 float growl;
 
-float initialGain = 1.0f;
+float emphasisGain = 1.0f;
 
 /************************/
 /* *** INPUT THREAD *** */
@@ -628,7 +635,8 @@ void ControlInput(void *pvParameter)
     f1Plusf = 3 * f1f;
     f2Plusf = 3 * f2f;
 
-    if (switchValue[SWITCH_NASAL])
+if (switches[SWITCH_NASAL].getValue())
+    //if (switchValue[SWITCH_NASAL])
     {
       potID[POT_P0] = POT_ID_NASAL;
       inputOffset[POT_P0] = NASAL_LOW;
@@ -663,23 +671,26 @@ void ControlInput(void *pvParameter)
 
     for (int i = 0; i < N_SWITCHES; i++)
     { // switch envelope generator TODO only needed for push switches
-      switchValue[i] = digitalRead(switchChannel[i]);
+      // switchValue[i] = digitalRead(switchChannel[i]);
       switches[i].setValue(digitalRead(switches[i].getChannel())); // TODO refactor - how?
 
       //if (switchValue[i] != previousSwitchValue[i])
       if (switches[i].getValue() != switches[i].getPreviousValue())
       {
-        if (switchType[i] == TOGGLE)
+       // if (switchType[i] == TOGGLE)
+       if (switches[i].getType() == TOGGLE)
           toggleChange = true;
 
-        previousSwitchValue[i] = switchValue[i];
-        switches[i].setPreviousValue(switches[i].getValue());
+       // previousSwitchValue[i] = switchValue[i];
+       switches[i].setPreviousValue(switches[i].getValue());
+      
 
         togglePushSwitch(i); // for HOLD toggle
         pushSwitchChange(i);
       }
 
-      if (switchType[i] == PUSH)
+// if (switchType[i] == PUSH)
+      if (switches[i].getType() == PUSH)
       {
         //   switchValue[i] = switchValue[i] || (switchHold[i] && switchValue[TOGGLE_HOLD]);
         switches[i].setValue(
@@ -691,21 +702,22 @@ void ControlInput(void *pvParameter)
           //    if (switchValue[i])
           if (switches[i].getValue())
           {
-            switchGain[i] = 1;
+            // switchGain[i] = 1;
             switches[i].setGain(1);
           }
           else
           {
-            switchGain[i] = 0;
+            // switchGain[i] = 0;
             switches[i].setGain(0);
           }
         }
       }
     }
 
-    if (switchGain[SWITCH_DESTRESS] > 0.5f)
+if (switches[SWITCH_DESTRESS].getGain())
+    //if (switchGain[SWITCH_DESTRESS] > 0.5f)
     {
-      initialGain = VOICED_GAIN_DESTRESSED;
+      emphasisGain = VOICED_GAIN_DESTRESSED;
       f1.updateCoefficients(f1f, F1_LOWQ, f1Type, samplerate); // TODO allow variable Q?
       f2.updateCoefficients(f2f, F2_LOWQ, f2Type, samplerate);
       f1Plus.updateCoefficients(f1Plusf, F1PLUS_LOWQ, f1PlusType, samplerate); // TODO allow variable Q?
@@ -713,19 +725,20 @@ void ControlInput(void *pvParameter)
     }
     else
     {
+      emphasisGain = VOICED_GAIN_DEFAULT;
       f1.updateCoefficients(f1f, F1Q, f1Type, samplerate); // TODO allow variable Q?
       f2.updateCoefficients(f2f, F2Q, f2Type, samplerate);
       f1Plus.updateCoefficients(f1Plusf, F1PLUSQ, f1PlusType, samplerate); // TODO allow variable Q?
       f2Plus.updateCoefficients(f2Plusf, F2PLUSQ, f2PlusType, samplerate);
     }
-    if (switchGain[SWITCH_STRESS] > 0.5f)
+    //  if (switchGain[SWITCH_STRESS] > 0.5f)
+    if (switches[SWITCH_STRESS].getValue())
     {
-      initialGain = VOICED_GAIN_STRESSED;
+      emphasisGain = VOICED_GAIN_STRESSED;
     }
     else
     { // TODO tidy logic
-      //     f1.updateCoefficients(f1f, F1Q, f1Type, samplerate); // TODO allow variable Q?
-      //     f2.updateCoefficients(f2f, F2Q, f2Type, samplerate);
+      emphasisGain = VOICED_GAIN_DEFAULT;
     }
 
     // Toggle switches
@@ -806,7 +819,7 @@ void pushToWebSocket()
 
 void togglePushSwitch(int i)
 {
-  if (i >= N_PUSH_SWITCHES)
+  if (switches[i].getType() != PUSH)
     return;
 
   // if (switchValue[TOGGLE_HOLD])
@@ -815,7 +828,7 @@ void togglePushSwitch(int i)
    // if (switchValue[i])
    if(switches[i].getValue())
     {
-      switchHold[i] = !switchHold[i]; // toggle
+    //  switchHold[i] = !switchHold[i]; // toggle
       switches[i].setHold(!switches[i].getHold());
     }
   }
@@ -823,14 +836,18 @@ void togglePushSwitch(int i)
 
 void pushSwitchChange(int i)
 {
-  convertAndPush(switchID[i], switchChannel[i]);
-  if (switchValue[i])
+ // convertAndPush(switchID[i], switchChannel[i]);
+ convertAndPush(switches[i].getID(), switches[i].getChannel());
+  if (switches[i].getValue())
+  //  if (switchValue[i])
   {
-    convertAndPush(switchID[i], 1);
+    // convertAndPush(switchID[i], 1);
+    convertAndPush(switches[i].getID(), 1);
   }
   else
   {
-    convertAndPush(switchID[i], 0);
+    // convertAndPush(switchID[i], 0);
+    convertAndPush(switches[i].getID(), 0);
   }
 }
 
@@ -998,25 +1015,34 @@ void OutputDAC(void *pvParameter)
 
     for (int i = 0; i < N_PUSH_SWITCHES; i++)
     {
-      if (switchValue[i])
+      // if (switchValue[i])
+      if (switches[i].getValue())
       {
+        /*
         switchGain[i] += attackStep;
         if (switchGain[i] > 1)
           switchGain[i] = 1;
+          */
+         switches[i].setGain(switches[i].getGain()+attackStep); // TODO refactor
       }
       else
       {
+        switches[i].setGain(switches[i].getGain()-decayStep); // TODO refactor
+        /*
         switchGain[i] -= decayStep;
         if (switchGain[i] < 0)
           switchGain[i] = 0;
+          */
       }
     }
 
-    voice = switchGain[SWITCH_VOICED] * voice;
+    // voice = switchGain[SWITCH_VOICED] * voice;
+    voice = switches[SWITCH_VOICED].getGain() * voice;
 
-    float aspiration = switchGain[SWITCH_ASPIRATED] * noise;
+    // float aspiration = switchGain[SWITCH_ASPIRATED] * noise;
+float aspiration = switches[SWITCH_ASPIRATED].getGain() * noise;
 
-    float current = (initialGain * (voice + aspiration)) * SIGNAL_GAIN;
+    float current = (emphasisGain * (voice + aspiration)) * SIGNAL_GAIN;
 
 //if (switchValue[TOGGLE_SING])
     if (switches[TOGGLE_SING].getValue())
@@ -1034,9 +1060,12 @@ void OutputDAC(void *pvParameter)
     //float fTiltLow_in = (voice + aspiration) / 2.0f;
     //  float fTiltHigh_in = (voice + aspiration) / 2.0f;
 
-    float s1 = sf1.tick(sf1Noise.pink(noise)) * SF1_GAIN * switchGain[SWITCH_SF1];
-    float s2 = sf2.tick(noise) * SF2_GAIN * switchGain[SWITCH_SF2];
-    float s3 = sf3.tick(noise - sf3Noise.pink(noise)) * SF3_GAIN * switchGain[SWITCH_SF3];
+    // float s1 = sf1.tick(sf1Noise.pink(noise)) * SF1_GAIN * switchGain[SWITCH_SF1];
+    float s1 = sf1.tick(sf1Noise.pink(noise)) * SF1_GAIN * switches[SWITCH_SF1].getGain();
+    // float s2 = sf2.tick(noise) * SF2_GAIN * switchGain[SWITCH_SF2];
+    float s2 = sf2.tick(noise) * SF2_GAIN * switches[SWITCH_SF2].getGain();
+    // float s3 = sf3.tick(noise - sf3Noise.pink(noise)) * SF3_GAIN * switchGain[SWITCH_SF3];
+float s3 = sf3.tick(noise - sf3Noise.pink(noise)) * SF3_GAIN * switches[SWITCH_SF3].getGain();
 
     float sibilants = shaper.softClip((s1 + s2 + s3) / 3.0f);
 
@@ -1046,7 +1075,8 @@ void OutputDAC(void *pvParameter)
     current = shaper.softClip(F1_GAIN * f1.tick(current) + F1PLUS_GAIN * f1Plus.tick(current));
     current = shaper.softClip(F2_GAIN * f2.tick(current)); // + F2PLUS_GAIN * f2Plus.tick(current)
 
-    if (switchValue[SWITCH_NASAL])
+    // if (switchValue[SWITCH_NASAL])
+    if (switches[SWITCH_NASAL].getValue())
     {
       current = NASAL_LP_GAIN * nasalLP.tick(current) + NASAL_FIXEDBP_GAIN * nasalFixedBP.tick(current) + NASAL_FIXEDNOTCH_GAIN * nasalFixedNotch.tick(current);
       current = shaper.softClip(current / 3.0f);
@@ -1161,9 +1191,11 @@ String pageProcessor(const String &var)
 
   for (int i = 0; i < N_SWITCHES; i++)
   {
-    if (var.compareTo(switchID[i]) == 0)
+    //if (var.compareTo(switchID[i]) == 0)
+    if (var.compareTo(switches[i].getID()) == 0)
     {
-      if (switchValue[i])
+      // if (switchValue[i])
+      if (switches[i].getValue())
       {
         return "on";
       }

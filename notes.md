@@ -16,7 +16,9 @@ First thing, get it working as-is.
 
 hold toggle now moved over to Switch class
 
-commenting out #define TOGGLE_CREAK 
+tweaks TODO:
+* make Shout attack/decay shorter
+* add voice on to nasal switch
 
 
 

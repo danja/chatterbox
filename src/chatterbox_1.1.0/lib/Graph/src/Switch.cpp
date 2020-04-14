@@ -11,6 +11,7 @@ Switch::Switch(String string, int ch, int t)
   value = false;
   previousValue = false;
   hold = false;
+  gain = 0.0f;
 }
 
 int Switch::getChannel()
@@ -50,6 +51,8 @@ float Switch::getGain() // TODO refactor
 
 void Switch::setGain(float g)
 {
+  if(g > 1) g = 1;
+  if(g < 0) g = 0;
   gain = g;
 }
 
