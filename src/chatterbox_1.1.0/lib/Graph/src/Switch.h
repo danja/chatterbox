@@ -10,6 +10,7 @@ class Switch : public ControlNode {
   
   public:
     Switch();
+    // Switch(String id);
     Switch(String id, int channel, int type);
     // void setChannel(int channel);
     int channel();

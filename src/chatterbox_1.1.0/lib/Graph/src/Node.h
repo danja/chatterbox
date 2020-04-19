@@ -5,10 +5,10 @@
 class Node {
 
   public:
-        Node();
+      Node();
       Node(String id);
-      void setID(String id);
-      String getID();
+      void id(String id);
+      String id();
   private:
-      String id;
+      String id_;
 };

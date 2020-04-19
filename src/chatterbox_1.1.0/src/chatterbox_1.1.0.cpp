@@ -253,23 +253,8 @@ int potChannel[] = {36, 39, 32, 33, 34, 35};
 int potValue[N_POTS_VIRTUAL];
 int previousPotValue[N_POTS_VIRTUAL];
 
-// char switchType[] = {PUSH, PUSH, PUSH, PUSH, PUSH, PUSH, PUSH, PUSH, // COVERED
-   //                  TOGGLE, TOGGLE, TOGGLE, TOGGLE};
-
-// String switchID[N_SWITCHES]; // COVERED
 
 Switch switches[N_SWITCHES];
-
-// TODO move to defines // COVERED
-// char switchChannel[] = {19, 23, 12, 13, 14, 17, 18, 5, 16, 15, 2, 4}; // TODO move this to a define,
-// is N_SWITCHES
-// char nswitches =  (int)(sizeof(switchChannel) / sizeof(switchChannel[0]));
-
-// bool switchHold[N_PUSH_SWITCHES];
-
-// float switchGain[N_SWITCHES];
-// float switchValue[N_SWITCHES];
-// float previousSwitchValue[N_SWITCHES];
 
 float larynxRatio = DEFAULT_LARYNX_RATIO;
 float sineRatio = DEFAULT_SINE_RATIO;
@@ -771,14 +756,14 @@ void togglePushSwitch(int i)
 
 void pushSwitchChange(int i)
 {
- convertAndPush(switches[i].getID(), switches[i].channel());
+ convertAndPush(switches[i].id(), switches[i].channel());
   if (switches[i].on())
   {
-    convertAndPush(switches[i].getID(), 1);
+    convertAndPush(switches[i].id(), 1);
   }
   else
   {
-    convertAndPush(switches[i].getID(), 0);
+    convertAndPush(switches[i].id(), 0);
   }
 }
 
@@ -1116,7 +1101,7 @@ String pageProcessor(const String &var)
 
   for (int i = 0; i < N_SWITCHES; i++)
   {
-    if (var.compareTo(switches[i].getID()) == 0)
+    if (var.compareTo(switches[i].id()) == 0)
     {
       if (switches[i].on())
       {

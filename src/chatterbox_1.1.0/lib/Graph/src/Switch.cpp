@@ -5,10 +5,9 @@ Switch::Switch() {}
 
 Switch::Switch(String id, int channel, int type)
 {
-  Switch::setID(id);
+  Switch::id(id);
   channel_ = channel;
   type_ = type;
-  //on_ = false;
   previous_ = false;
   hold_ = false;
   gain_ = 0.0f;

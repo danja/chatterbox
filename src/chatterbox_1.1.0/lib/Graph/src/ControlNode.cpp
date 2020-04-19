@@ -2,12 +2,12 @@
 #include <Node.h>
 #include <ControlNode.h>
 
-ControlNode::ControlNode(){}
+// ControlNode::ControlNode(){}
 
-  void ControlNode::setRawValue(int i) {
-    rawValue = i;
+  void ControlNode::raw(int raw) {
+    raw_ = raw;
 }
 
-  int ControlNode::getRawValue() {
-    return rawValue;
+  int ControlNode::raw() {
+    return raw_;
 }

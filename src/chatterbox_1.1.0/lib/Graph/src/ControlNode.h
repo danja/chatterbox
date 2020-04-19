@@ -4,10 +4,10 @@
 
 class ControlNode: public Node {
   public:
-    ControlNode();
-    void setRawValue(int rawValue);
-    int getRawValue();
+    // ControlNode();
+    void raw(int raw);
+    int raw();
 
   private:
-    int rawValue;
+    int raw_;
 };

@@ -3,16 +3,16 @@
 
 Node::Node(){}
 
-Node::Node(String string){
-id = string;
+Node::Node(String id){
+id_ = id;
 }
 
-  void Node::setID(String string) {
-    id = string;
+  void Node::id(String id) {
+    id_ = id;
 }
 
-  String Node::getID() {
-    return id;
+  String Node::id() {
+    return id_;
 }
 
 
