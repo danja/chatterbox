@@ -15,9 +15,7 @@ Not long ago I rediscovered an electronics magazine article I first saw whilst s
 
 The (mighty elegant) implementation then was with a handful of op amps & CMOS logic ICs, now I'd like to try something similar based around microcontroller(s). Also ties in nicely with other projects I have on the go.
 
-The human interface is probably the most appealing part of the original Chatterbox. So joystick, bunch of switches, a few pots. Use an inexpensive microcontroller to do the work.
-
-*The rationale for having such a machine is well made in the magazine article. But I like the notion of treating it a source of speech-like sounds, not a speech synth per se. Given a microcontroller, it should be relatively straightforward to add features such as MIDI I/O interface to make it a modern musical instrument, Web interface for the IoT, whatever. Should be fun.*
+The human interface is a very appealing part of the original Chatterbox. So joystick, bunch of switches, a few pots. Use an inexpensive microcontroller to do the work. But given such a setup, it should be straightforward to add other interfaces, notably Web (via WebSockets) and MIDI.
 
 * [Source Code](https://github.com/danja/chatterbox/tree/master/src)
 
@@ -32,7 +30,13 @@ The human interface is probably the most appealing part of the original Chatterb
 
 The core hardware & software is currently working, but changing on a daily basis. Check [Quasi-blog Notes](https://github.com/danja/chatterbox/blob/master/notes.md).
 
-**2020-04-03** *version chatterbox_1.0.18* many hours of work later. Added basic WebSocket comms, started a browser-based UI. Added a bunch more switches to the hardware, now 4 toggle, 8 push, maxing out the ESP32 I/O except for a UART I'm reserving for MIDI and I2C which may go to a display, memory card, other physical I/O, who knows..?
+**2020-04-15** *version chatterbox_1.1.0*
+
+I'd got part way through implementing the Web interface and the code was getting way too messy to work with. So I'm currently refactoring everything into more manageable C++ classes. To help with this I've moved from the Android IDE to [PlatformIO](https://platformio.org/) (on VSCode). *I should have done this weeks ago!*
+
+Also, although this stuff is all here on GitHub, I haven't really thought in terms of releases yet. So far the code versioning has been ad hoc, really just for backup purposes. But this PlatformIO environment is *so much better*, once I've done the refactoring and cleaned up minor bugs I can easily shift to doing proper releases (with [Semantic Versioning](https://semver.org/)).
+
+**2020-04-03** *version chatterbox_1.0.18* many hours of work later. Added basic WebSocket comms, started a browser-based UI. Added a bunch more switches to the hardware, now 4 toggle, 8 push, maxing out the ESP32 I/O except for a UART I'm reserving for MIDI and also there's a free I2C I/O which may go to a display, memory card, other physical I/O, who knows..?
 
 **2020-03-17** *version chatterbox_1.0.10* work on 
 
@@ -49,7 +53,7 @@ First attempts at a filter, cutoff freq on pot 3. Something very wrong - it's in
 
 **2020-02-29** : I now have the main controls hooked into the code : joystick, 4x potentiometers, 5x push-button switches. Of these only 2 pots and 1 switch are actually doing anything. 
 
-2020-02-26 : First prototype case with controls put together ([Front panel v1.0](https://github.com/danja/chatterbox/blob/master/media/front-panel_v1.png "Front panel v1.0")). Digging into software.
+**2020-02-26** : First prototype case with controls put together ([Front panel v1.0](https://github.com/danja/chatterbox/blob/master/media/front-panel_v1.png "Front panel v1.0")). Digging into software.
 
 ![Chatterbox prototype hardware v 1.0](https://github.com/danja/chatterbox/blob/master/media/chatterbox_1.0.jpg "prototype hardware v 1.0")
 
