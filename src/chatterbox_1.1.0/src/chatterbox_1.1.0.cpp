@@ -364,29 +364,6 @@ void setup()
 
   potID[6] = POT_ID_GROWL;
 
-/*
-  for (int i = 0; i < N_SWITCHES; i++) // COVERED
-  {
-    switchValue[i] = false;
-    previousSwitchValue[i] = false;
-  }
-*/
-/*
-  switchID[0] = "sf1";
-  switchID[1] = "sf2";
-  switchID[2] = "sf3";
-  switchID[3] = "voiced";
-  switchID[4] = "aspirated";
-
-  switchID[5] = "nasal";
-  switchID[6] = "destressed";
-  switchID[7] = "stressed";
-
-  switchID[8] = "hold";
-  switchID[9] = "creak";
-  switchID[10] = "sing";
-  switchID[11] = "shout";
-*/
   startWebServer();
 }
 /*** END SETUP() ***/
@@ -427,8 +404,6 @@ void initFixedWavetables()
   }
 }
 
-// char controlSource = INPUT_LOCAL;
-
 /* INITIALISE INPUTS */
 void initInputs()
 {
@@ -448,20 +423,10 @@ void initInputs()
     inputScale[i] = 1.0f;
   }
 
-/*
-  for (int i = 0; i < N_PUSH_SWITCHES; i++) // COVERED
-  {
-    switchHold[i] = 0; // off
-  }
-*/
-
   for (int i = 0; i < N_SWITCHES; i++)
   {
-    // switchGain[i] = 0;
-    // pinMode(switchChannel[i], INPUT);
-    // pinMode(switchChannel[i], INPUT_PULLDOWN);
-    pinMode(switches[i].getChannel(), INPUT);
-    pinMode(switches[i].getChannel(), INPUT_PULLDOWN);
+    pinMode(switches[i].channel(), INPUT);
+    pinMode(switches[i].channel(), INPUT_PULLDOWN);
   }
 
   // calculate values for offset/scaling from pots to parameters
@@ -586,7 +551,7 @@ void ControlInput(void *pvParameter)
     potValue[POT_GROWL] = potValue[POT_P4]; // same as larynx
 
    // if (switchValue[TOGGLE_CREAK])
-    if (switches[TOGGLE_CREAK].getValue())
+    if (switches[TOGGLE_CREAK].on())
     {
       potID[POT_P4] = POT_ID_GROWL;
     }
@@ -606,37 +571,27 @@ void ControlInput(void *pvParameter)
     growl = ((float)inputOffset[POT_GROWL] + inputScale[POT_GROWL] * (float)potValue[POT_GROWL]);
     ;
 
-    // if (controlSource == INPUT_LOCAL) {
     tableStep = pitch * tablesize / samplerate; // tableStep aka delta
-    // }
-    //if (TOGGLE_SHOUT) {
 
-    //} else {
-    // larynx control
     if (abs(larynx - potValue[POT_P4]) > 8)
     {
 
       float potFraction = (float)potValue[POT_P4] / (float)ADC_TOP;
 
-      //  if (controlSource == INPUT_LOCAL) {
       larynx = inputOffset[POT_P4] + potFraction * inputScale[POT_P4];
-      // }
+
       initLarynxWavetable();
     }
-    //}
-
-    // if (controlSource == INPUT_LOCAL) {
+    
     f1f = inputOffset[POT_P0] + (float)potValue[POT_P0] * inputScale[POT_P0];
     f2f = inputOffset[POT_P1] + (float)potValue[POT_P1] * inputScale[POT_P1];
     f3f = inputOffset[POT_P2] + (float)potValue[POT_P2] * inputScale[POT_P2];
     f3q = inputOffset[POT_P3] + (float)potValue[POT_P3] * inputScale[POT_P3];
-    // }
 
     f1Plusf = 3 * f1f;
     f2Plusf = 3 * f2f;
 
-if (switches[SWITCH_NASAL].getValue())
-    //if (switchValue[SWITCH_NASAL])
+if (switches[SWITCH_NASAL].on())
     {
       potID[POT_P0] = POT_ID_NASAL;
       inputOffset[POT_P0] = NASAL_LOW;
@@ -671,51 +626,40 @@ if (switches[SWITCH_NASAL].getValue())
 
     for (int i = 0; i < N_SWITCHES; i++)
     { // switch envelope generator TODO only needed for push switches
-      // switchValue[i] = digitalRead(switchChannel[i]);
-      switches[i].setValue(digitalRead(switches[i].getChannel())); // TODO refactor - how?
+      switches[i].on(digitalRead(switches[i].channel())); // TODO refactor - how?
 
-      //if (switchValue[i] != previousSwitchValue[i])
-      if (switches[i].getValue() != switches[i].getPreviousValue())
+      if (switches[i].on() != switches[i].previous())
       {
-       // if (switchType[i] == TOGGLE)
-       if (switches[i].getType() == TOGGLE)
+       if (switches[i].type() == TOGGLE)
           toggleChange = true;
 
-       // previousSwitchValue[i] = switchValue[i];
-       switches[i].setPreviousValue(switches[i].getValue());
+       switches[i].previous(switches[i].on());
       
-
         togglePushSwitch(i); // for HOLD toggle
         pushSwitchChange(i);
       }
 
-// if (switchType[i] == PUSH)
-      if (switches[i].getType() == PUSH)
+      if (switches[i].type() == PUSH)
       {
-        //   switchValue[i] = switchValue[i] || (switchHold[i] && switchValue[TOGGLE_HOLD]);
-        switches[i].setValue(
-            switches[i].getValue() || (switches[i].getHold() && switches[TOGGLE_HOLD].getValue()));
-        //     if (switchValue[TOGGLE_HOLD])
-        if (switches[TOGGLE_HOLD].getValue())
+        switches[i].on(
+            switches[i].on() || (switches[i].hold() && switches[TOGGLE_HOLD].on()));
+
+        if (switches[TOGGLE_HOLD].on())
 
         { // override envelope
-          //    if (switchValue[i])
-          if (switches[i].getValue())
+          if (switches[i].on())
           {
-            // switchGain[i] = 1;
-            switches[i].setGain(1);
+            switches[i].gain(1);
           }
           else
           {
-            // switchGain[i] = 0;
-            switches[i].setGain(0);
+            switches[i].gain(0);
           }
         }
       }
     }
 
-if (switches[SWITCH_DESTRESS].getGain())
-    //if (switchGain[SWITCH_DESTRESS] > 0.5f)
+if (switches[SWITCH_DESTRESS].gain())
     {
       emphasisGain = VOICED_GAIN_DESTRESSED;
       f1.updateCoefficients(f1f, F1_LOWQ, f1Type, samplerate); // TODO allow variable Q?
@@ -731,8 +675,7 @@ if (switches[SWITCH_DESTRESS].getGain())
       f1Plus.updateCoefficients(f1Plusf, F1PLUSQ, f1PlusType, samplerate); // TODO allow variable Q?
       f2Plus.updateCoefficients(f2Plusf, F2PLUSQ, f2PlusType, samplerate);
     }
-    //  if (switchGain[SWITCH_STRESS] > 0.5f)
-    if (switches[SWITCH_STRESS].getValue())
+    if (switches[SWITCH_STRESS].on())
     {
       emphasisGain = VOICED_GAIN_STRESSED;
     }
@@ -750,18 +693,14 @@ if (switches[SWITCH_DESTRESS].getGain())
       sawtoothRatio = DEFAULT_SAWTOOTH_RATIO;
 
       //  Serial.println("HANDLE TOGGLE");
-      if (switches[TOGGLE_CREAK].getValue())
-      // if (switchValue[TOGGLE_CREAK])
+      if (switches[TOGGLE_CREAK].on())
       {
         larynxRatio = CREAK_LARYNX_RATIO;
         sineRatio = CREAK_SINE_RATIO;
         sawtoothRatio = CREAK_SAWTOOTH_RATIO;
       }
 
-      // float attackStep;
-      // float decayStep;
-// if (switchValue[TOGGLE_SING])
-      if (switches[TOGGLE_SING].getValue())
+      if (switches[TOGGLE_SING].on())
       {
         larynxRatio = SING_LARYNX_RATIO;
         sineRatio = SING_SINE_RATIO;
@@ -780,8 +719,7 @@ if (switches[SWITCH_DESTRESS].getGain())
         decayStep = 1.0f / (decayTime * samplerate);
       }
 
-      // if (switchValue[TOGGLE_SHOUT])
-      if (switches[TOGGLE_SHOUT].getValue())
+      if (switches[TOGGLE_SHOUT].on())
       {
         larynxRatio = SHOUT_LARYNX_RATIO;
         sineRatio = SHOUT_SINE_RATIO;
@@ -819,34 +757,27 @@ void pushToWebSocket()
 
 void togglePushSwitch(int i)
 {
-  if (switches[i].getType() != PUSH)
+  if (switches[i].type() != PUSH)
     return;
 
-  // if (switchValue[TOGGLE_HOLD])
-  if (switches[TOGGLE_HOLD].getValue())
+  if (switches[TOGGLE_HOLD].on())
   {
-   // if (switchValue[i])
-   if(switches[i].getValue())
+   if(switches[i].on())
     {
-    //  switchHold[i] = !switchHold[i]; // toggle
-      switches[i].setHold(!switches[i].getHold());
+      switches[i].hold(!switches[i].hold()); // toggle, rename to flip method?
     }
   }
 }
 
 void pushSwitchChange(int i)
 {
- // convertAndPush(switchID[i], switchChannel[i]);
- convertAndPush(switches[i].getID(), switches[i].getChannel());
-  if (switches[i].getValue())
-  //  if (switchValue[i])
+ convertAndPush(switches[i].getID(), switches[i].channel());
+  if (switches[i].on())
   {
-    // convertAndPush(switchID[i], 1);
     convertAndPush(switches[i].getID(), 1);
   }
   else
   {
-    // convertAndPush(switchID[i], 0);
     convertAndPush(switches[i].getID(), 0);
   }
 }
@@ -976,7 +907,7 @@ void OutputDAC(void *pvParameter)
     // *** Read wavetable voice ***
 
     // if (switchValue[TOGGLE_CREAK])
-    if (switches[TOGGLE_CREAK].getValue())
+    if (switches[TOGGLE_CREAK].on())
     {
       pointer = pointer + tableStep * (1.0f - creakNoise.stretchedNoise() * growl);
       if (pointer < 0)
@@ -1016,18 +947,18 @@ void OutputDAC(void *pvParameter)
     for (int i = 0; i < N_PUSH_SWITCHES; i++)
     {
       // if (switchValue[i])
-      if (switches[i].getValue())
+      if (switches[i].on())
       {
         /*
         switchGain[i] += attackStep;
         if (switchGain[i] > 1)
           switchGain[i] = 1;
           */
-         switches[i].setGain(switches[i].getGain()+attackStep); // TODO refactor
+         switches[i].gain(switches[i].gain()+attackStep); // TODO refactor
       }
       else
       {
-        switches[i].setGain(switches[i].getGain()-decayStep); // TODO refactor
+        switches[i].gain(switches[i].gain()-decayStep); // TODO refactor
         /*
         switchGain[i] -= decayStep;
         if (switchGain[i] < 0)
@@ -1036,36 +967,31 @@ void OutputDAC(void *pvParameter)
       }
     }
 
-    // voice = switchGain[SWITCH_VOICED] * voice;
-    voice = switches[SWITCH_VOICED].getGain() * voice;
+    voice = switches[SWITCH_VOICED].gain() * voice;
 
-    // float aspiration = switchGain[SWITCH_ASPIRATED] * noise;
-float aspiration = switches[SWITCH_ASPIRATED].getGain() * noise;
+float aspiration = switches[SWITCH_ASPIRATED].gain() * noise;
 
     float current = (emphasisGain * (voice + aspiration)) * SIGNAL_GAIN;
 
-//if (switchValue[TOGGLE_SING])
-    if (switches[TOGGLE_SING].getValue())
+    if (switches[TOGGLE_SING].on())
     {
       float sing1Val = SING1_GAIN * sing1.tick(current);
       float sing2Val = SING2_GAIN * sing2.tick(current);
       current = shaper.softClip((current + sing1Val + sing2Val) / 3.0f);
     }
 
-// if (switchValue[TOGGLE_SHOUT])
-    if (switches[TOGGLE_SHOUT].getValue())
+    if (switches[TOGGLE_SHOUT].on())
     {
       current = shaper.softClip(current * (1.0f - growl * shoutNoise.stretchedNoise())); // amplitude mod
     }
     //float fTiltLow_in = (voice + aspiration) / 2.0f;
     //  float fTiltHigh_in = (voice + aspiration) / 2.0f;
 
-    // float s1 = sf1.tick(sf1Noise.pink(noise)) * SF1_GAIN * switchGain[SWITCH_SF1];
-    float s1 = sf1.tick(sf1Noise.pink(noise)) * SF1_GAIN * switches[SWITCH_SF1].getGain();
-    // float s2 = sf2.tick(noise) * SF2_GAIN * switchGain[SWITCH_SF2];
-    float s2 = sf2.tick(noise) * SF2_GAIN * switches[SWITCH_SF2].getGain();
-    // float s3 = sf3.tick(noise - sf3Noise.pink(noise)) * SF3_GAIN * switchGain[SWITCH_SF3];
-float s3 = sf3.tick(noise - sf3Noise.pink(noise)) * SF3_GAIN * switches[SWITCH_SF3].getGain();
+    float s1 = sf1.tick(sf1Noise.pink(noise)) * SF1_GAIN * switches[SWITCH_SF1].gain();
+
+    float s2 = sf2.tick(noise) * SF2_GAIN * switches[SWITCH_SF2].gain();
+ 
+float s3 = sf3.tick(noise - sf3Noise.pink(noise)) * SF3_GAIN * switches[SWITCH_SF3].gain();
 
     float sibilants = shaper.softClip((s1 + s2 + s3) / 3.0f);
 
@@ -1075,8 +1001,7 @@ float s3 = sf3.tick(noise - sf3Noise.pink(noise)) * SF3_GAIN * switches[SWITCH_S
     current = shaper.softClip(F1_GAIN * f1.tick(current) + F1PLUS_GAIN * f1Plus.tick(current));
     current = shaper.softClip(F2_GAIN * f2.tick(current)); // + F2PLUS_GAIN * f2Plus.tick(current)
 
-    // if (switchValue[SWITCH_NASAL])
-    if (switches[SWITCH_NASAL].getValue())
+    if (switches[SWITCH_NASAL].on())
     {
       current = NASAL_LP_GAIN * nasalLP.tick(current) + NASAL_FIXEDBP_GAIN * nasalFixedBP.tick(current) + NASAL_FIXEDNOTCH_GAIN * nasalFixedNotch.tick(current);
       current = shaper.softClip(current / 3.0f);
@@ -1191,11 +1116,9 @@ String pageProcessor(const String &var)
 
   for (int i = 0; i < N_SWITCHES; i++)
   {
-    //if (var.compareTo(switchID[i]) == 0)
     if (var.compareTo(switches[i].getID()) == 0)
     {
-      // if (switchValue[i])
-      if (switches[i].getValue())
+      if (switches[i].on())
       {
         return "on";
       }

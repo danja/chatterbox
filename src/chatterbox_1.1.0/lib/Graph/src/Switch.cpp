@@ -3,65 +3,67 @@
 
 Switch::Switch() {}
 
-Switch::Switch(String string, int ch, int t)
+Switch::Switch(String id, int channel, int type)
 {
-  Switch::setID(string);
-  channel = ch;
-  type = t;
-  value = false;
-  previousValue = false;
-  hold = false;
-  gain = 0.0f;
+  Switch::setID(id);
+  channel_ = channel;
+  type_ = type;
+  //on_ = false;
+  previous_ = false;
+  hold_ = false;
+  gain_ = 0.0f;
 }
 
-int Switch::getChannel()
+int Switch::channel()
 {
-  return channel;
+  return channel_;
 }
 
-int Switch::getType()
+int Switch::type()
 {
-  return type;
+  return type_;
 }
 
-void Switch::setValue(bool val)
+void Switch::on(bool on)
 {
-  value = val;
+  on_ = on;
 }
 
-void Switch::setPreviousValue(bool val)
+void Switch::previous(bool previous)
 { // TODO refactor
-  previousValue = val;
+  previous_ = previous;
 }
 
-bool Switch::getValue()
+bool Switch::on()
 {
-  return value;
+  return on_;
 }
 
-bool Switch::getPreviousValue()
+bool Switch::previous()
 {
-  return previousValue;
+  return previous_;
 }
 
-float Switch::getGain() // TODO refactor
+float Switch::gain() // TODO refactor
 {
-  return gain;
+  return gain_;
 }
 
-void Switch::setGain(float g)
+void Switch::gain(float gain)
 {
-  if(g > 1) g = 1;
-  if(g < 0) g = 0;
-  gain = g;
+  if(gain > 1) gain = 1;
+  if(gain < 0) gain = 0;
+  gain_ = gain;
 }
 
-void Switch::setHold(bool h) // TODO refactor/rename
+bool Switch::hold()
 {
-  hold = h;
+  return hold_;
 }
 
-bool Switch::getHold()
+void Switch::hold(bool hold) // TODO refactor/rename
 {
-  return hold;
+  hold_ = hold;
 }
+
+

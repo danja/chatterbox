@@ -12,24 +12,24 @@ class Switch : public ControlNode {
     Switch();
     Switch(String id, int channel, int type);
     // void setChannel(int channel);
-    int getChannel();
-    int getType();
-    void setValue(bool val); // change to isOn() ?
-    void setPreviousValue(bool val); // TODO refactor
-    bool getValue();
-    bool getPreviousValue();
-    float getGain();
-    void setGain(float gain);
+    int channel();
+    int type();
+    void on(bool on); // change to isOn() ?
+    void previous(bool on); // TODO refactor
+    bool on();
+    bool previous();
+    float gain();
+    void gain(float gain);
 
     // used for push switches, redundant for toggles
-    void setHold(bool hold); // TODO refactor/rename
-    bool getHold();
-
+    bool hold();
+    void hold(bool hold); 
+    
   private:
-    int channel;
-    int type;
-    bool value;
-    bool previousValue;
-    float gain; // TODO refactor
-    bool hold;
+    int channel_;
+    int type_;
+    bool on_ = false;
+    bool previous_;
+    float gain_; // TODO refactor
+    bool hold_;
 };
