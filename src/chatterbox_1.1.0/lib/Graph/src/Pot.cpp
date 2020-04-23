@@ -14,8 +14,14 @@ int Pot::channel()
   return channel_;
 }
 
+int Pot::raw()
+{
+  return raw_ ;
+}
+
 void Pot::raw(int raw)
 {
+  raw_ = raw;
   rawFloat_ = (float)raw;
 }
 

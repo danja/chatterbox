@@ -11,6 +11,7 @@ class Pot : public ControlNode {
 
     int channel();
     void raw(int raw); 
+    int raw();
     void previous(int previous);
     int previous();
     float value();
@@ -20,6 +21,7 @@ class Pot : public ControlNode {
     
   private:
     int channel_;
+    int raw_;
     float rawFloat_ = 0.0f;
     int previous_ = 0;
     float value_ = 0.0f;

@@ -239,20 +239,18 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
 /*** INPUT RELATED ***/
 /*********************/
 
-
-String potID[N_POTS_VIRTUAL];
+// String potID[N_POTS_VIRTUAL];
 
 Pot pots[N_POTS_VIRTUAL];
 
 // for scaling ADC readings to required values
-float inputScale[N_POTS_VIRTUAL];
-int inputOffset[N_POTS_VIRTUAL];
+//float inputScale[N_POTS_VIRTUAL];
+// int inputOffset[N_POTS_VIRTUAL];
 
 // Inputs TODO move to defines
-int potChannel[] = {36, 39, 32, 33, 34, 35};
-int potValue[N_POTS_VIRTUAL];
-int previousPotValue[N_POTS_VIRTUAL];
-
+// int potChannel[] = {36, 39, 32, 33, 34, 35};
+// int potValue[N_POTS_VIRTUAL];
+// int previousPotValue[N_POTS_VIRTUAL];
 
 Switch switches[N_SWITCHES];
 
@@ -286,6 +284,8 @@ void loop(){
 /* *** START SETUP() *** */
 void setup()
 {
+  delay(2000);
+
   Serial.begin(SERIAL_RATE);
 
   Serial.println("\n*** Starting Chatterbox ***\n");
@@ -340,6 +340,7 @@ void setup()
       NULL,
       1); // core
 
+  /*
   potID[0] = POT_ID_F1F;
   potID[1] = POT_ID_F2F;
   potID[2] = POT_ID_F3F;
@@ -348,8 +349,8 @@ void setup()
   potID[5] = POT_ID_PITCH;
 
   potID[6] = POT_ID_GROWL;
-
-/*
+*/
+  /*
 // {36, 39, 32, 33, 34, 35};
 #define POT_ID_F1F "f1f"
 #define POT_ID_NASAL "nasal"
@@ -362,17 +363,11 @@ void setup()
 
 // switches[TOGGLE_SHOUT] = Switch("shout", 4, TOGGLE);
 */
-// Default
-pots[POT_P0] = Pot("f1f", 36);
-pots[POT_P1] = Pot("f2f", 39);
-pots[POT_P2] = Pot("f3f", 32);
-pots[POT_P3] = Pot("f3q", 33);
-pots[POT_P4] = Pot("larynx", 34);
-pots[POT_P5] = Pot("pitch", 35);
+  // Default
 
-// Alternative
-// pots[POT_ID_NASAL] = Pot("nasal", 36);
-// pots[POT_ID_GROWL] = Pot("growl", 36);
+  // Alternative
+  // pots[POT_ID_NASAL] = Pot("nasal", 36);
+  // pots[POT_ID_GROWL] = Pot("growl", 36);
 
   startWebServer();
 }
@@ -419,17 +414,31 @@ void initInputs()
   adc1_config_width(ADC_WIDTH_BIT_12);
   adc1_config_channel_atten(ADC1_CHANNEL_0, ADC_ATTEN_DB_11);
 
+  pots[POT_P0] = Pot("f1f", 36);
+  pots[POT_P1] = Pot("f2f", 39);
+  pots[POT_P2] = Pot("f3f", 32);
+  pots[POT_P3] = Pot("f3q", 33);
+  pots[POT_P4] = Pot("larynx", 34);
+  pots[POT_P5] = Pot("pitch", 35);
+
+  Serial.println("Attaching pins");
+
   for (int i = 0; i < N_POTS_ACTUAL; i++)
   {
-    adcAttachPin(potChannel[i]);
+    // adcAttachPin(potChannel[i]);
     adcAttachPin(pots[i].channel());
+    Serial.println(pots[i].id());
+    Serial.println(pots[i].channel(), DEC);
   }
+
+  /*
   for (int i = 0; i < N_POTS_VIRTUAL; i++)
   {
     potValue[i] = 0;
     previousPotValue[i] = 0;
     inputScale[i] = 1.0f;
   }
+  */
 
   for (int i = 0; i < N_SWITCHES; i++)
   {
@@ -440,33 +449,33 @@ void initInputs()
   // calculate values for offset/scaling from pots to parameters
   // void range(int inputRange, float min, float max);
 
-  inputOffset[POT_P0] = F1F_LOW;
-  inputScale[POT_P0] = (float)(F1F_HIGH - F1F_LOW) / (float)ADC_TOP;
+  // inputOffset[POT_P0] = F1F_LOW;
+  // inputScale[POT_P0] = (float)(F1F_HIGH - F1F_LOW) / (float)ADC_TOP;
   pots[POT_P0].range(ADC_TOP, F1F_LOW, F1F_HIGH);
 
-  inputOffset[POT_P1] = F2F_LOW;
-  inputScale[POT_P1] = (float)(F2F_HIGH - F2F_LOW) / (float)ADC_TOP;
+  // inputOffset[POT_P1] = F2F_LOW;
+  // inputScale[POT_P1] = (float)(F2F_HIGH - F2F_LOW) / (float)ADC_TOP;
   pots[POT_P1].range(ADC_TOP, F2F_LOW, F2F_HIGH);
 
-  inputOffset[POT_P2] = F3F_LOW;
-  inputScale[POT_P2] = (float)(F3F_HIGH - F3F_LOW) / (float)ADC_TOP;
+  // inputOffset[POT_P2] = F3F_LOW;
+  // inputScale[POT_P2] = (float)(F3F_HIGH - F3F_LOW) / (float)ADC_TOP;
   pots[POT_P2].range(ADC_TOP, F3F_LOW, F3F_HIGH);
 
-  inputOffset[POT_P3] = F3Q_MIN;
-  inputScale[POT_P3] = (float)(F3Q_MAX - F3Q_MIN) / (float)ADC_TOP;
+  //  inputOffset[POT_P3] = F3Q_MIN;
+  //  inputScale[POT_P3] = (float)(F3Q_MAX - F3Q_MIN) / (float)ADC_TOP;
   pots[POT_P3].range(ADC_TOP, F3Q_MIN, F3Q_MAX);
 
-  inputScale[POT_P4] = tablesize * (float)(LARYNX_MAX - LARYNX_MIN) / 100.0f;
-  inputOffset[POT_P4] = tablesize * (float)LARYNX_MIN / 100.0f;
-  pots[POT_P4].range(ADC_TOP, tablesize * LARYNX_MIN/100.0f, tablesize * LARYNX_MAX/100.0f);
+  //  inputScale[POT_P4] = tablesize * (float)(LARYNX_MAX - LARYNX_MIN) / 100.0f;
+  //  inputOffset[POT_P4] = tablesize * (float)LARYNX_MIN / 100.0f;
+  pots[POT_P4].range(ADC_TOP, tablesize * LARYNX_MIN / 100.0f, tablesize * LARYNX_MAX / 100.0f);
 
-  inputOffset[POT_P5] = PITCH_MIN;
-  inputScale[POT_P5] = (float)(PITCH_MAX - PITCH_MIN) / (float)ADC_TOP;
+  //  inputOffset[POT_P5] = PITCH_MIN;
+  //  inputScale[POT_P5] = (float)(PITCH_MAX - PITCH_MIN) / (float)ADC_TOP;
   pots[POT_P5].range(ADC_TOP, PITCH_MIN, PITCH_MAX);
 
-  inputOffset[POT_GROWL] = GROWL_MIN;
-  inputScale[POT_GROWL] = (float)(GROWL_MAX - GROWL_MIN) / (float)ADC_TOP;
-  pots[POT_P0].range(ADC_TOP, GROWL_MAX, GROWL_MIN);
+  //  inputOffset[POT_GROWL] = GROWL_MIN;
+  //  inputScale[POT_GROWL] = (float)(GROWL_MAX - GROWL_MIN) / (float)ADC_TOP;
+  pots[POT_GROWL].range(ADC_TOP, GROWL_MAX, GROWL_MIN);
 }
 /* END INITIALISE INPUTS */
 
@@ -528,6 +537,8 @@ SvfLinearTrapOptimised2::FLT_TYPE sing2Type = SvfLinearTrapOptimised2::BAND_PASS
 SvfLinearTrapOptimised2::FLT_TYPE tiltLowType = SvfLinearTrapOptimised2::LOW_PASS_FILTER;
 SvfLinearTrapOptimised2::FLT_TYPE tiltHighType = SvfLinearTrapOptimised2::HIGH_PASS_FILTER;
 
+int dt = 0;
+
 float pitch;
 // larynx is initialized at wavetable
 float f1f;
@@ -562,70 +573,99 @@ void ControlInput(void *pvParameter)
       int sum = 0;
       for (int j = 0; j < ADC_SAMPLES; j++)
       {
-        sum += analogRead(potChannel[pot]); // get value from pot / ADC
+        // sum += analogRead(potChannel[pot]); // get value from pot / ADC
+        sum += analogRead(pots[pot].channel()); // get value from pot / ADC
       }
-      potValue[pot] = sum / ADC_SAMPLES;
-      if (abs(previousPotValue[pot] - potValue[pot]) > 32)
+      // potValue[pot] = sum / ADC_SAMPLES;
+      pots[pot].raw(sum / ADC_SAMPLES);
+
+      // if (abs(previousPotValue[pot] - potValue[pot]) > 32)
+      if (abs(pots[pot].previous() - pots[pot].raw()) > 32) // TODO refactor raw()
         potChanged = true;
+      pots[pot].previous(pots[pot].raw()); ///////////// ADDED /////////////////////////
     }
 
-    potValue[POT_GROWL] = potValue[POT_P4]; // same as larynx
+    // potValue[POT_GROWL] = potValue[POT_P4]; // same as larynx
+    pots[POT_GROWL].raw(pots[POT_P4].raw()); // TODO refactor
 
-   // if (switchValue[TOGGLE_CREAK])
+    // if (switchValue[TOGGLE_CREAK])
     if (switches[TOGGLE_CREAK].on())
     {
-      potID[POT_P4] = POT_ID_GROWL;
+      // potID[POT_P4] = POT_ID_GROWL;
+      pots[POT_P4].id(POT_ID_GROWL);
     }
     else
     {
-      potID[POT_P4] = POT_ID_LARYNX;
+      // potID[POT_P4] = POT_ID_LARYNX;
+      pots[POT_P4].id(POT_ID_LARYNX);
     }
 
     if (potChanged)
     {
 
       // pitch control
-      
-      pitch = ((float)inputOffset[POT_P5] + inputScale[POT_P5] * (float)potValue[POT_P5]);
+
+      // pitch = ((float)inputOffset[POT_P5] + inputScale[POT_P5] * (float)potValue[POT_P5]);
+      pitch = pots[POT_P5].value();
     }
 
     //logisticK = ((float)inputOffset[POT_GROWL] + inputScale[POT_GROWL] *  (float)potValue[POT_GROWL]);
-    growl = ((float)inputOffset[POT_GROWL] + inputScale[POT_GROWL] * (float)potValue[POT_GROWL]);
-    ;
+    // growl = ((float)inputOffset[POT_GROWL] + inputScale[POT_GROWL] * (float)potValue[POT_GROWL]);
+
+    growl = pots[POT_GROWL].value();
 
     tableStep = pitch * tablesize / samplerate; // tableStep aka delta
 
-    if (abs(larynx - potValue[POT_P4]) > 8)
+    // if (abs(larynx - potValue[POT_P4]) > 8)
+    if (abs(larynx - pots[POT_P4].value()) > 8)
     {
 
-      float potFraction = (float)potValue[POT_P4] / (float)ADC_TOP;
+      //      float potFraction = (float)potValue[POT_P4] / (float)ADC_TOP;
 
-      larynx = inputOffset[POT_P4] + potFraction * inputScale[POT_P4];
+      //    larynx = inputOffset[POT_P4] + potFraction * inputScale[POT_P4];
+
+      larynx = pots[POT_P4].value();
 
       initLarynxWavetable();
     }
-    
+
+    /*
     f1f = inputOffset[POT_P0] + (float)potValue[POT_P0] * inputScale[POT_P0];
     f2f = inputOffset[POT_P1] + (float)potValue[POT_P1] * inputScale[POT_P1];
     f3f = inputOffset[POT_P2] + (float)potValue[POT_P2] * inputScale[POT_P2];
     f3q = inputOffset[POT_P3] + (float)potValue[POT_P3] * inputScale[POT_P3];
+*/
+    f1f = pots[POT_P0].value();
+    f2f = pots[POT_P1].value();
+    f3f = pots[POT_P2].value();
+    f3q = pots[POT_P3].value();
 
     f1Plusf = 3 * f1f;
     f2Plusf = 3 * f2f;
 
-if (switches[SWITCH_NASAL].on())
+    if (switches[SWITCH_NASAL].on())
     {
-      potID[POT_P0] = POT_ID_NASAL;
-      inputOffset[POT_P0] = NASAL_LOW;
-      inputScale[POT_P0] = (float)(NASAL_HIGH - NASAL_LOW) / (float)ADC_TOP;
+      //  potID[POT_P0] = POT_ID_NASAL;
+
+      pots[POT_P0].id(POT_ID_NASAL);
+
+      // inputOffset[POT_P0] = NASAL_LOW;
+      // inputScale[POT_P0] = (float)(NASAL_HIGH - NASAL_LOW) / (float)ADC_TOP;
+
+      pots[POT_P0].range(ADC_TOP, NASAL_LOW, NASAL_HIGH);
+
       f1.updateCoefficients(f1f, F1_NASALQ, nasalF1Type, samplerate);
       f2.updateCoefficients(f2f, F2_NASALQ, f2Type, samplerate);
     }
     else
     {
-      potID[POT_P0] = POT_ID_F1F;
-      inputOffset[POT_P0] = F1F_LOW;
-      inputScale[POT_P0] = (float)(F1F_HIGH - F1F_LOW) / (float)ADC_TOP;
+      // potID[POT_P0] = POT_ID_F1F;
+      pots[POT_P0].id(POT_ID_F1F);
+
+      // inputOffset[POT_P0] = F1F_LOW;
+      // inputScale[POT_P0] = (float)(F1F_HIGH - F1F_LOW) / (float)ADC_TOP;
+      pots[POT_P0].range(ADC_TOP, F1F_LOW, F1F_HIGH);
+
       f1.updateCoefficients(f1f, F1Q, f1Type, samplerate); // TODO allow variable Q?
       f2.updateCoefficients(f2f, F2Q, f2Type, samplerate);
     }
@@ -647,16 +687,16 @@ if (switches[SWITCH_NASAL].on())
     bool toggleChange = false;
 
     for (int i = 0; i < N_SWITCHES; i++)
-    { // switch envelope generator TODO only needed for push switches
+    {                                                     // switch envelope generator TODO only needed for push switches
       switches[i].on(digitalRead(switches[i].channel())); // TODO refactor - how?
 
       if (switches[i].on() != switches[i].previous())
       {
-       if (switches[i].type() == TOGGLE)
+        if (switches[i].type() == TOGGLE)
           toggleChange = true;
 
-       switches[i].previous(switches[i].on());
-      
+        switches[i].previous(switches[i].on());
+
         togglePushSwitch(i); // for HOLD toggle
         pushSwitchChange(i);
       }
@@ -681,7 +721,7 @@ if (switches[SWITCH_NASAL].on())
       }
     }
 
-if (switches[SWITCH_DESTRESS].gain())
+    if (switches[SWITCH_DESTRESS].gain())
     {
       emphasisGain = VOICED_GAIN_DESTRESSED;
       f1.updateCoefficients(f1f, F1_LOWQ, f1Type, samplerate); // TODO allow variable Q?
@@ -768,11 +808,16 @@ void pushToWebSocket()
 {
   for (int i = 0; i < N_POTS_ACTUAL; i++)
   {
-    if (abs(potValue[i] - previousPotValue[i]) >= potResolution)
+    // if (abs(potValue[i] - previousPotValue[i]) >= potResolution)
+    if (abs(pots[i].raw() - pots[i].previous()) >= potResolution)
     {
+      /*
       convertAndPush(potID[i], potChannel[i]);
       convertAndPush(potID[i], potValue[i]);
       previousPotValue[i] = potValue[i];
+      */
+      convertAndPush(pots[i].id(), pots[i].channel());
+      convertAndPush(pots[i].id(), pots[i].value());
     }
   }
 }
@@ -784,7 +829,7 @@ void togglePushSwitch(int i)
 
   if (switches[TOGGLE_HOLD].on())
   {
-   if(switches[i].on())
+    if (switches[i].on())
     {
       switches[i].hold(!switches[i].hold()); // toggle, rename to flip method?
     }
@@ -793,7 +838,7 @@ void togglePushSwitch(int i)
 
 void pushSwitchChange(int i)
 {
- convertAndPush(switches[i].id(), switches[i].channel());
+  convertAndPush(switches[i].id(), switches[i].channel());
   if (switches[i].on())
   {
     convertAndPush(switches[i].id(), 1);
@@ -809,7 +854,7 @@ void convertAndPush(String id, int value)
   char snum[5];
   itoa(value, snum, 10);
   String message = id + ":" + snum;
-  Serial.println(message);
+  // Serial.println(message);
   ws.textAll(message);
   //   ws.textAll((char*)text);
 }
@@ -962,6 +1007,8 @@ void OutputDAC(void *pvParameter)
     float noise = random(-32768, 32767) / 32768.0f;
     // noise = noise / 2.0f;
 
+    
+
     // ************************************************
     // ****************** THE WIRING ******************
     // ************************************************
@@ -976,11 +1023,11 @@ void OutputDAC(void *pvParameter)
         if (switchGain[i] > 1)
           switchGain[i] = 1;
           */
-         switches[i].gain(switches[i].gain()+attackStep); // TODO refactor
+        switches[i].gain(switches[i].gain() + attackStep); // TODO refactor
       }
       else
       {
-        switches[i].gain(switches[i].gain()-decayStep); // TODO refactor
+        switches[i].gain(switches[i].gain() - decayStep); // TODO refactor
         /*
         switchGain[i] -= decayStep;
         if (switchGain[i] < 0)
@@ -991,7 +1038,7 @@ void OutputDAC(void *pvParameter)
 
     voice = switches[SWITCH_VOICED].gain() * voice;
 
-float aspiration = switches[SWITCH_ASPIRATED].gain() * noise;
+    float aspiration = switches[SWITCH_ASPIRATED].gain() * noise;
 
     float current = (emphasisGain * (voice + aspiration)) * SIGNAL_GAIN;
 
@@ -1012,30 +1059,35 @@ float aspiration = switches[SWITCH_ASPIRATED].gain() * noise;
     float s1 = sf1.tick(sf1Noise.pink(noise)) * SF1_GAIN * switches[SWITCH_SF1].gain();
 
     float s2 = sf2.tick(noise) * SF2_GAIN * switches[SWITCH_SF2].gain();
- 
-float s3 = sf3.tick(noise - sf3Noise.pink(noise)) * SF3_GAIN * switches[SWITCH_SF3].gain();
+
+    float s3 = sf3.tick(noise - sf3Noise.pink(noise)) * SF3_GAIN * switches[SWITCH_SF3].gain();
 
     float sibilants = shaper.softClip((s1 + s2 + s3) / 3.0f);
 
-    current = current + sibilants;
+float mix1 = current + sibilants; 
 
     // pharynx/mouth is serial
-    current = shaper.softClip(F1_GAIN * f1.tick(current) + F1PLUS_GAIN * f1Plus.tick(current));
-    current = shaper.softClip(F2_GAIN * f2.tick(current)); // + F2PLUS_GAIN * f2Plus.tick(current)
+    float mix2  = shaper.softClip(F1_GAIN * f1.tick(mix1) + F1PLUS_GAIN * f1Plus.tick(mix1));
+    float mix3 = shaper.softClip(F2_GAIN * f2.tick(mix2)); // + F2PLUS_GAIN * f2Plus.tick(current)
+
+float mix4 = mix3;
 
     if (switches[SWITCH_NASAL].on())
     {
-      current = NASAL_LP_GAIN * nasalLP.tick(current) + NASAL_FIXEDBP_GAIN * nasalFixedBP.tick(current) + NASAL_FIXEDNOTCH_GAIN * nasalFixedNotch.tick(current);
-      current = shaper.softClip(current / 3.0f);
+      mix4 = NASAL_LP_GAIN * nasalLP.tick(mix3) 
+      + NASAL_FIXEDBP_GAIN * nasalFixedBP.tick(mix3) 
+      + NASAL_FIXEDNOTCH_GAIN * nasalFixedNotch.tick(mix3);
+
+      mix4 = shaper.softClip(mix4 / 3.0f);
     }
-    current = F3_GAIN * f3.tick(current);
+    float mix5 = F3_GAIN * f3.tick(mix4);
 
     float valL = shaper.softClip(current);
     float valR = creakNoise.stretchedNoise();
 
     //shaper.softClip(shaper.softClip(current)); // voice pink(noise)
 
-    dac.writeSample(valL, valR);
+    dac.writeSample(mix4, mix5);
     // dac.writeSample(sine, saw);
 
     // ****************** END WIRING ******************
