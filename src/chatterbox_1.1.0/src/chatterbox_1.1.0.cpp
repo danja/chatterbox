@@ -25,6 +25,7 @@
 #include <Node.h>
 #include <ControlNode.h>
 #include <Switch.h>
+#include <Pot.h>
 
 #define SERIAL_RATE 115200
 
@@ -232,17 +233,16 @@ void setup();
 
 void initInputs();
 
-//float clamp(float x, float lowerlimit, float upperlimit);
-//float smootherstep(float edge0, float edge1, float x);
-
 void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len);
 
 /*********************/
 /*** INPUT RELATED ***/
 /*********************/
 
-// short string identifier
+
 String potID[N_POTS_VIRTUAL];
+
+Pot pots[N_POTS_VIRTUAL];
 
 // for scaling ADC readings to required values
 float inputScale[N_POTS_VIRTUAL];
@@ -349,6 +349,31 @@ void setup()
 
   potID[6] = POT_ID_GROWL;
 
+/*
+// {36, 39, 32, 33, 34, 35};
+#define POT_ID_F1F "f1f"
+#define POT_ID_NASAL "nasal"
+#define POT_ID_F2F "f2f"
+#define POT_ID_F3F "f3f"
+#define POT_ID_F3Q "f3q"
+#define POT_ID_LARYNX "larynx"
+#define POT_ID_PITCH "pitch"
+#define POT_ID_GROWL "growl"
+
+// switches[TOGGLE_SHOUT] = Switch("shout", 4, TOGGLE);
+*/
+// Default
+pots[POT_P0] = Pot("f1f", 36);
+pots[POT_P1] = Pot("f2f", 39);
+pots[POT_P2] = Pot("f3f", 32);
+pots[POT_P3] = Pot("f3q", 33);
+pots[POT_P4] = Pot("larynx", 34);
+pots[POT_P5] = Pot("pitch", 35);
+
+// Alternative
+// pots[POT_ID_NASAL] = Pot("nasal", 36);
+// pots[POT_ID_GROWL] = Pot("growl", 36);
+
   startWebServer();
 }
 /*** END SETUP() ***/
@@ -367,7 +392,6 @@ void initLarynxWavetable()
   { // down slope
     larynxWavetable[i] = 1.0f - 2.0f * (float)i / (float)larynx;
   }
-
   for (unsigned int i = larynx; i < TABLESIZE; i++)
   { // flat section __
     larynxWavetable[i] = -0.99;
@@ -378,7 +402,6 @@ void initLarynxWavetable()
 /* INITIALISE STANDARD WAVETABLES */
 void initFixedWavetables()
 {
-
   float sawScale = 2.0f / (float)TABLESIZE;
   float sinScale = 2.0f * PI / (float)TABLESIZE;
 
@@ -392,7 +415,6 @@ void initFixedWavetables()
 /* INITIALISE INPUTS */
 void initInputs()
 {
-
   // init ADC inputs (pots)
   adc1_config_width(ADC_WIDTH_BIT_12);
   adc1_config_channel_atten(ADC1_CHANNEL_0, ADC_ATTEN_DB_11);
@@ -400,6 +422,7 @@ void initInputs()
   for (int i = 0; i < N_POTS_ACTUAL; i++)
   {
     adcAttachPin(potChannel[i]);
+    adcAttachPin(pots[i].channel());
   }
   for (int i = 0; i < N_POTS_VIRTUAL; i++)
   {
@@ -415,22 +438,35 @@ void initInputs()
   }
 
   // calculate values for offset/scaling from pots to parameters
-  inputOffset[POT_P5] = PITCH_MIN;
-  inputScale[POT_P5] = (float)(PITCH_MAX - PITCH_MIN) / (float)ADC_TOP;
-  inputScale[POT_P4] = tablesize * (float)(LARYNX_MAX - LARYNX_MIN) / 100.0f;
-  inputOffset[POT_P4] = tablesize * (float)LARYNX_MIN / 100.0f;
+  // void range(int inputRange, float min, float max);
 
   inputOffset[POT_P0] = F1F_LOW;
   inputScale[POT_P0] = (float)(F1F_HIGH - F1F_LOW) / (float)ADC_TOP;
+  pots[POT_P0].range(ADC_TOP, F1F_LOW, F1F_HIGH);
+
   inputOffset[POT_P1] = F2F_LOW;
   inputScale[POT_P1] = (float)(F2F_HIGH - F2F_LOW) / (float)ADC_TOP;
+  pots[POT_P1].range(ADC_TOP, F2F_LOW, F2F_HIGH);
+
   inputOffset[POT_P2] = F3F_LOW;
   inputScale[POT_P2] = (float)(F3F_HIGH - F3F_LOW) / (float)ADC_TOP;
+  pots[POT_P2].range(ADC_TOP, F3F_LOW, F3F_HIGH);
+
   inputOffset[POT_P3] = F3Q_MIN;
   inputScale[POT_P3] = (float)(F3Q_MAX - F3Q_MIN) / (float)ADC_TOP;
+  pots[POT_P3].range(ADC_TOP, F3Q_MIN, F3Q_MAX);
+
+  inputScale[POT_P4] = tablesize * (float)(LARYNX_MAX - LARYNX_MIN) / 100.0f;
+  inputOffset[POT_P4] = tablesize * (float)LARYNX_MIN / 100.0f;
+  pots[POT_P4].range(ADC_TOP, tablesize * LARYNX_MIN/100.0f, tablesize * LARYNX_MAX/100.0f);
+
+  inputOffset[POT_P5] = PITCH_MIN;
+  inputScale[POT_P5] = (float)(PITCH_MAX - PITCH_MIN) / (float)ADC_TOP;
+  pots[POT_P5].range(ADC_TOP, PITCH_MIN, PITCH_MAX);
 
   inputOffset[POT_GROWL] = GROWL_MIN;
   inputScale[POT_GROWL] = (float)(GROWL_MAX - GROWL_MIN) / (float)ADC_TOP;
+  pots[POT_P0].range(ADC_TOP, GROWL_MAX, GROWL_MIN);
 }
 /* END INITIALISE INPUTS */
 
@@ -549,6 +585,7 @@ void ControlInput(void *pvParameter)
     {
 
       // pitch control
+      
       pitch = ((float)inputOffset[POT_P5] + inputScale[POT_P5] * (float)potValue[POT_P5]);
     }
 
