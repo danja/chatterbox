@@ -1,3 +1,17 @@
+**2020-04-23** *version chatterbox_1.1.0*
+
+Refactored switches and pots to objects. Code beginning to look a lot cleaner.
+
+I stumbled across [synthv1](https://synthv1.sourceforge.io/) while playing in music room. Old school mono synth in DSP, standalone/LV2 plugin, with an interesting formant filter -
+
+// [synthv1_formant](https://github.com/rncbc/synthv1/blob/master/src/synthv1_formant.h) - formant parallel filter after Dennis H. Klatt's
+//                   Software for a cascade/parallel formant synthesizer
+//                   1979 MIT; 1980 Acoustical Society of America.
+
+I believe it's implemented as 5x 2-pole filters. The result looks very like a comb.
+
+Which leads me to wonder if a comb filter could be used here. They're trivial to implement, the main questions being how to do the overall shape and set up for the appropriate set of harmonics (odd? I need to re-read notes).
+
 **2020-04-14** *version chatterbox_1.1.0*
 
 Refactoring resuming.
