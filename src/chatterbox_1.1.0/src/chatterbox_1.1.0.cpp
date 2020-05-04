@@ -16,9 +16,9 @@
 
 #include "SvfLinearTrapOptimised2.hpp"
 
-#include "WiFi.h"
-#include "ESPAsyncWebServer.h"
-#include "SPIFFS.h"
+// #include "WiFi.h"
+// #include "ESPAsyncWebServer.h"
+// #include "SPIFFS.h"
 
 #include <NoiseMaker.h>
 #include <Shapers.h>
@@ -26,6 +26,9 @@
 #include <ControlNode.h>
 #include <Switch.h>
 #include <Pot.h>
+#include <Parameters.h>
+
+#include <WebConnector.h>
 
 #define SERIAL_RATE 115200
 
@@ -46,10 +49,9 @@
 // #define INPUT_LOCAL 0
 // #define INPUT_WEB 1
 
-/* CONTROLS */
-#define N_POTS_ACTUAL 6
-#define N_POTS_VIRTUAL 7
 
+
+/*
 // ACTUAL Pots
 #define POT_P0 0
 #define POT_P1 1
@@ -60,6 +62,7 @@
 
 // VIRTUAL Pots
 #define POT_GROWL 6 // ????
+*/
 
 #define POT_ID_F1F "f1f"
 #define POT_ID_NASAL "nasal"
@@ -70,9 +73,7 @@
 #define POT_ID_PITCH "pitch"
 #define POT_ID_GROWL "growl"
 
-#define N_SWITCHES 12 // NEEDED
-#define N_PUSH_SWITCHES 8
-
+/*
 #define SWITCH_SF1 0 // // NEEDED Sibilance Filter 1
 #define SWITCH_SF2 1
 #define SWITCH_SF3 2
@@ -88,6 +89,7 @@
 #define TOGGLE_CREAK 9
 #define TOGGLE_SING 10
 #define TOGGLE_SHOUT 11
+*/
 
 #define PUSH 0 // move to const in Switch
 #define TOGGLE 1
@@ -193,10 +195,13 @@
 #define SING1Q 5.0f
 #define SING2Q 5.0f
 
+
 /*** WEB COMMS ***/
-#define HTTP_PORT 80
 
 /**** Local Network specific - TODO must pull out ****/
+/*
+#define HTTP_PORT 80
+
 const char *ssid = "TP-LINK_AC17DC"; // HIDE ME!
 const char *password = "33088297";   // HIDE ME!
 
@@ -205,13 +210,15 @@ IPAddress gateway(192, 168, 0, 1);
 IPAddress subnet(255, 255, 255, 0);
 IPAddress primaryDNS(8, 8, 8, 8);   //optional
 IPAddress secondaryDNS(8, 8, 4, 4); //optional
+*/
 /***********************************************/
 
 /* KEY COMPONENTS */
 I2sDAC dac;
 TaskHandle_t AudioTask;
-AsyncWebServer server(HTTP_PORT);
-AsyncWebSocket ws("/ws");
+// AsyncWebServer server(http_port);
+// AsyncWebSocket ws("/ws");
+WebConnector web_connector = WebConnector();
 
 //////////////////////////////////////////////
 //// FORWARD DECLARATIONS ////////////////////
@@ -219,7 +226,7 @@ void initLarynxWavetable();
 void initFixedWavetables();
 void OutputDAC(void *pvParameter);
 void ControlInput(void *pvParameter);
-void startWebServer();
+// void startWebServer();
 
 void togglePushSwitch(int i);
 void pushSwitchChange(int i);
@@ -227,19 +234,19 @@ void pushSwitchChange(int i);
 void pushToWebSocket();
 void convertAndPush(String id, int value);
 
-String pageProcessor(const String &var);
+// String pageProcessor(const String &var);
 
 void setup();
 
 void initInputs();
 
-void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len);
+// void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len);
 
 /*********************/
 /*** INPUT RELATED ***/
 /*********************/
 
-Pot pots[N_POTS_VIRTUAL];
+Pot pots[N_POTS_VIRTUAL]; // TODO refactor to use std:array
 Switch switches[N_SWITCHES];
 
 float larynxRatio = DEFAULT_LARYNX_RATIO;
@@ -328,7 +335,7 @@ void setup()
       NULL,
       1); // core
 
-  startWebServer();
+  web_connector.startWebServer();
 }
 /*** END SETUP() ***/
 
@@ -694,8 +701,8 @@ void pushToWebSocket()
   {
     if (abs(pots[i].raw() - pots[i].previous()) >= potResolution)
     {
-      convertAndPush(pots[i].id(), pots[i].channel());
-      convertAndPush(pots[i].id(), pots[i].value());
+     web_connector.convertAndPush(pots[i].id(), pots[i].channel());
+      web_connector.convertAndPush(pots[i].id(), pots[i].value());
     }
   }
 }
@@ -716,105 +723,19 @@ void togglePushSwitch(int i)
 
 void pushSwitchChange(int i)
 {
-  convertAndPush(switches[i].id(), switches[i].channel());
+  web_connector.convertAndPush(switches[i].id(), switches[i].channel());
   if (switches[i].on())
   {
-    convertAndPush(switches[i].id(), 1);
+    web_connector.convertAndPush(switches[i].id(), 1);
   }
   else
   {
-    convertAndPush(switches[i].id(), 0);
+    web_connector.convertAndPush(switches[i].id(), 0);
   }
 }
 
-void convertAndPush(String id, int value)
-{
-  char snum[5];
-  itoa(value, snum, 10);
-  String message = id + ":" + snum;
-  // Serial.println(message);
-  ws.textAll(message);
-  //   ws.textAll((char*)text);
-}
 
-void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len)
-{
 
-  if (type == WS_EVT_CONNECT)
-  {
-    Serial.println("Websocket client connection received");
-    client->text("Hello from ESP32 Server");
-  }
-  else if (type == WS_EVT_DISCONNECT)
-  {
-    Serial.println("WS Client disconnected");
-  }
-  else if (type == WS_EVT_DATA)
-  {
-
-    Serial.println("Data received: ");
-
-    // for (int i = 0; i < len; i++) {
-    //   Serial.print((char) data[i]);
-    // }
-    Serial.println();
-    char command[len + 1];
-    int split = 0;
-    for (int i = 0; i < len; i++)
-    {
-      Serial.print((char)data[i]);
-      command[i] = (char)data[i];
-      if (command[i] == ':')
-        split = i;
-    }
-    command[len] = '\0';
-    /*
-        Serial.println();
-        Serial.println("LEN");
-        Serial.println(len);
-        Serial.println(command);
-        Serial.println(split, DEC);
-        Serial.println();
-        int test1 = strcmp("pitch", command);
-        Serial.println("test");
-        Serial.println(test1, DEC);
-        */
-    char name[split + 1];
-    for (int i = 0; i < split; i++)
-    {
-      name[i] = command[i];
-    }
-    name[split] = '\0';
-
-    char value[len - split + 1];
-    for (int i = 0; i < len - split - 1; i++)
-    {
-      value[i] = command[split + i + 1];
-    }
-    value[len - split] = '\0';
-    int pitchValue = atoi(value);
-    if (strcmp("pitch", name) == 0 && pitchValue != 0)
-    {
-      pitch = pitchValue;
-      tableStep = pitch * tablesize / samplerate;
-      Serial.println("SETTING PITCH");
-    }
-
-    Serial.println("name");
-    Serial.print("\"");
-    Serial.print(name);
-    Serial.println("\"");
-
-    Serial.println("value");
-    Serial.print("\"");
-    Serial.println(value);
-    Serial.println("\"");
-    Serial.println("#value");
-    Serial.println(atoi(value), DEC);
-    Serial.println("strcmp()");
-    Serial.println(strcmp("pitch", name), DEC);
-  }
-}
 
 /*****************/
 /* OUTPUT THREAD */
@@ -952,121 +873,3 @@ void OutputDAC(void *pvParameter)
 }
 // END OUTPUT THREAD
 
-/* WEB SERVER THREAD */
-
-void startWebServer()
-{
-  if (!SPIFFS.begin(true))
-  {
-    Serial.println("An Error has occurred while mounting SPIFFS");
-    return;
-  }
-
-  // Configures static IP address
-  if (!WiFi.config(localIP, gateway, subnet, primaryDNS, secondaryDNS))
-  {
-    Serial.println("STA Failed to configure");
-  }
-
-  WiFi.begin(ssid, password);
-
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    delay(1000);
-    Serial.println("Connecting to WiFi..");
-  }
-  Serial.print("Connected to : ");
-  Serial.println(WiFi.localIP());
-
-  ws.onEvent(onWsEvent);
-  server.addHandler(&ws);
-
-  server.begin();
-
-  server.on("/index.html", HTTP_GET, [](AsyncWebServerRequest *request) {
-    // request->send(200, "text/plain", "Hello from Chatterbox!");
-    request->send(SPIFFS, "/index.html", String(), false, pageProcessor);
-  });
-
-  server.on("/ws.html", HTTP_GET, [](AsyncWebServerRequest *request) {
-    // request->send(200, "text/plain", "Hello from Chatterbox!");
-    request->send(SPIFFS, "/ws.html", String(), false, pageProcessor);
-  });
-
-  server.on("/chatterbox.html", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send(SPIFFS, "/chatterbox.html", String(), false, pageProcessor);
-  });
-  server.on("/chatterbox.css", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send(SPIFFS, "/chatterbox.css", String(), false, pageProcessor);
-  });
-
-  server.on("/favicon.ico", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send(SPIFFS, "/favicon.ico", String(), false, pageProcessor);
-  });
-}
-/* END WEB SERVER */
-
-String pageProcessor(const String &var)
-{
-  char snum[5];
-
-  if (var == "pitch")
-  {
-    itoa((int)pitch, snum, 10);
-    return snum;
-  }
-  if (var == "larynx")
-  {
-    itoa(larynx, snum, 10);
-    return snum;
-  }
-  if (var == "f1f")
-  {
-    itoa(f1f, snum, 10);
-    return snum;
-  }
-  if (var == "f2f")
-  {
-    itoa(f2f, snum, 10);
-    return snum;
-  }
-  if (var == "f3f")
-  {
-    itoa(f3f, snum, 10);
-    return snum;
-  }
-  if (var == "f3q")
-  {
-    itoa(f3q, snum, 10);
-    return snum;
-  }
-
-  for (int i = 0; i < N_SWITCHES; i++)
-  {
-    if (var.compareTo(switches[i].id()) == 0)
-    {
-      if (switches[i].on())
-      {
-        return "on";
-      }
-      else
-      {
-        return "off";
-      }
-    }
-  }
-
-  /*
-      if (var == "Q") return "QWERT";
-      if (var == "RR") return F("RRRRR");
-      int x = 1024;
-      char snum[5];
-      itoa(x, snum, 10);
-      if (var == "X") return snum;
-      float f = 1.123456789;
-      char c[50]; //size of the number
-      sprintf(c, "%g", f);
-      if (var == "Y") return c;
-      */
-  return String();
-}

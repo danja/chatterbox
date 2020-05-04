@@ -1,3 +1,11 @@
+**2020-05-02**  *version chatterbox_1.1.0*
+
+Still refactoring. Trying to pull out the Web control bits, but need to allow access to values such as pitch, f1f etc. As a stepping stone, pulling out all those values into a Parameters object with getters & setters. Is ugly (and should probably be static) but will hopefully allow me to find a better solution...
+
+Also discovered that there may be a workaround for the no-ADC2 when WiFi is enabled issue. But I think I've now used all the available pins elsewhere...
+https://github.com/espressif/arduino-esp32/issues/102#issuecomment-593650746
+
+
 **2020-04-23** *version chatterbox_1.1.0*
 
 Refactored switches and pots to objects. Code beginning to look a lot cleaner.

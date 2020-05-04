@@ -3,6 +3,21 @@
 #include <WString.h>
 #include <ControlNode.h>
 
+/* CONTROLS */
+#define N_POTS_ACTUAL 6
+#define N_POTS_VIRTUAL 7
+
+// ACTUAL Pots
+#define POT_P0 0
+#define POT_P1 1
+#define POT_P2 2
+#define POT_P3 3
+#define POT_P4 4
+#define POT_P5 5
+
+// VIRTUAL Pots
+#define POT_GROWL 6 // ????
+
 class Pot : public ControlNode {
   
   public:

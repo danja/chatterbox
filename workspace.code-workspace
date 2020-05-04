@@ -8,7 +8,11 @@
 			"path": "src/chatterbox_1.1.0"
 		}
 	],
-	"settings": {},
+	"settings": {
+		"files.associations": {
+			"functional": "cpp"
+		}
+	},
 	"tasks": {
 		"version": "2.0.0",
 		"tasks": [
