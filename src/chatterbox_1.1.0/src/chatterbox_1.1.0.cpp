@@ -30,7 +30,10 @@
 
 #include <WebConnector.h>
 
-#define SERIAL_RATE 115200
+#include <dispatcher.hpp> 
+#include <SerialMonitor.h> 
+
+// #define SERIAL_RATE 115200
 
 #define SAMPLERATE 22050
 
@@ -195,6 +198,7 @@
 #define SING1Q 5.0f
 #define SING2Q 5.0f
 
+// enum EventEnum {CONTROL_CHANGE, EVENT2};
 
 /*** WEB COMMS ***/
 
@@ -279,11 +283,18 @@ void loop(){
 /* *** START SETUP() *** */
 void setup()
 {
-  delay(2000); // let it connect
+ // delay(2000); // let it connect
 
-  Serial.begin(SERIAL_RATE);
+ // Serial.begin(SERIAL_RATE);
 
-  Serial.println("\n*** Starting Chatterbox ***\n");
+  // Serial.println("\n*** Starting Chatterbox ***\n");
+
+SerialMonitor serialMonitor;
+
+ Dispatcher<EventType, String, float> dispatcher;
+serialMonitor.registerCB(dispatcher);
+
+dispatcher.broadcast(VALUE_CHANGE, "dummy", 1.23f);
 
   dac.begin(SAMPLERATE, GPIO_DAC_DATAPORT, GPIO_DAC_BCLK, GPIO_DAC_WSEL, GPIO_DAC_DOUT);
 
@@ -308,11 +319,11 @@ void setup()
   // Try to start the DAC
   if (dac.begin())
   {
-    Serial.println("DAC init success");
+   // Serial.println("DAC init success");
   }
   else
   {
-    Serial.println("DAC init fail");
+    // Serial.println("DAC init fail");
   }
 
   // Highest priority audio thread
@@ -387,14 +398,14 @@ void initInputs()
   pots[POT_P4] = Pot("larynx", 34);
   pots[POT_P5] = Pot("pitch", 35);
 
-  Serial.println("Attaching pins");
+  // Serial.println("Attaching pins");
 
   for (int i = 0; i < N_POTS_ACTUAL; i++)
   {
     // adcAttachPin(potChannel[i]);
     adcAttachPin(pots[i].channel());
-    Serial.println(pots[i].id());
-    Serial.println(pots[i].channel(), DEC);
+    // Serial.println(pots[i].id());
+    // Serial.println(pots[i].channel(), DEC);
   }
 
   for (int i = 0; i < N_SWITCHES; i++)
@@ -744,8 +755,8 @@ void OutputDAC(void *pvParameter)
 {
   unsigned int frameCount = 0;
 
-  Serial.print("Audio thread started at core: ");
-  Serial.println(xPortGetCoreID());
+  // Serial.print("Audio thread started at core: ");
+  // Serial.println(xPortGetCoreID());
 
   sf1.updateCoefficients(SF1F, SF1Q, sf1Type, samplerate); // TODO make SF1F etc variable?
   sf2.updateCoefficients(SF2F, SF2Q, sf2Type, samplerate);
