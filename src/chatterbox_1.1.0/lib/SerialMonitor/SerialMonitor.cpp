@@ -4,11 +4,11 @@
 
 SerialMonitor::SerialMonitor()
 {
-    delay(2000); // let it connect
+    // delay(2000); // let it connect
 
-    Serial.begin(serial_rate);
+   // Serial.begin(serial_rate);
 
-    Serial.println("\n*** Starting Chatterbox ***\n");
+   // Serial.println("\n*** Starting Chatterbox ***\n");
 }
 
 void SerialMonitor::registerCB(Dispatcher<EventType, String, float> &dispatcher)

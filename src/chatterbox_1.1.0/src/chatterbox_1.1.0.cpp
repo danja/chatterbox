@@ -30,8 +30,8 @@
 
 #include <WebConnector.h>
 
-#include <dispatcher.hpp> 
-#include <SerialMonitor.h> 
+#include <dispatcher.hpp>
+#include <SerialMonitor.h>
 
 // #define SERIAL_RATE 115200
 
@@ -51,8 +51,6 @@
 
 // #define INPUT_LOCAL 0
 // #define INPUT_WEB 1
-
-
 
 /*
 // ACTUAL Pots
@@ -224,12 +222,17 @@ TaskHandle_t AudioTask;
 // AsyncWebSocket ws("/ws");
 WebConnector web_connector = WebConnector();
 
+SerialMonitor serialMonitor;
+
 //////////////////////////////////////////////
 //// FORWARD DECLARATIONS ////////////////////
 void initLarynxWavetable();
 void initFixedWavetables();
 void OutputDAC(void *pvParameter);
 void ControlInput(void *pvParameter);
+
+// void SerialThread(void *pvParameter);
+
 // void startWebServer();
 
 void togglePushSwitch(int i);
@@ -283,18 +286,25 @@ void loop(){
 /* *** START SETUP() *** */
 void setup()
 {
- // delay(2000); // let it connect
+  // delay(2000); // let it connect
 
- // Serial.begin(SERIAL_RATE);
+  // Serial.begin(SERIAL_RATE);
 
   // Serial.println("\n*** Starting Chatterbox ***\n");
 
-SerialMonitor serialMonitor;
+  delay(2000); // let it connect
 
- Dispatcher<EventType, String, float> dispatcher;
-serialMonitor.registerCB(dispatcher);
+  Serial.begin(serial_rate);
 
-dispatcher.broadcast(VALUE_CHANGE, "dummy", 1.23f);
+  Serial.println("\n*** Starting Chatterbox ***\n");
+
+  //  Dispatcher<EventType, String, float> dispatcher;
+  // serialMonitor.registerCB(dispatcher);
+
+  // dispatcher.broadcast(VALUE_CHANGE, "dummy", 1.23f);
+
+  // Wrote 1016032 bytes (571070 compressed) at 0x00010000
+  // Wrote 1015344 bytes (570548 compressed) at 0x00010000
 
   dac.begin(SAMPLERATE, GPIO_DAC_DATAPORT, GPIO_DAC_BCLK, GPIO_DAC_WSEL, GPIO_DAC_DOUT);
 
@@ -319,7 +329,7 @@ dispatcher.broadcast(VALUE_CHANGE, "dummy", 1.23f);
   // Try to start the DAC
   if (dac.begin())
   {
-   // Serial.println("DAC init success");
+    // Serial.println("DAC init success");
   }
   else
   {
@@ -346,8 +356,28 @@ dispatcher.broadcast(VALUE_CHANGE, "dummy", 1.23f);
       NULL,
       1); // core
 
+  // Low priority serial out thread
+
+  /*
+  xTaskCreatePinnedToCore(
+      SerialThread,
+      "SerialThread",
+      2048,
+      NULL,
+      3, // priority
+      NULL,
+      1); // core
+*/
+
   web_connector.startWebServer();
 }
+
+/*
+void SerialThread(void *pvParameter)
+{
+}
+*/
+
 /*** END SETUP() ***/
 
 /* INITIALIZE WAVETABLE */
@@ -498,6 +528,11 @@ void ControlInput(void *pvParameter)
 {
   initInputs();
 
+  Dispatcher<EventType, String, float> inputDispatcher;
+  serialMonitor.registerCB(inputDispatcher);
+
+  // inputDispatcher.broadcast(VALUE_CHANGE, "dummy", 1.23f);
+
   while (1)
   {
     // vTaskDelay(1000 / portTICK_RATE_MS); // was 1000
@@ -515,9 +550,12 @@ void ControlInput(void *pvParameter)
       }
       pots[pot].raw(sum / ADC_SAMPLES);
 
-      if (abs(pots[pot].previous() - pots[pot].raw()) > 32) // TODO refactor raw()
+      if (abs(pots[pot].previous() - pots[pot].raw()) > 32)
+      { // TODO refactor raw()
         potChanged = true;
-      pots[pot].previous(pots[pot].raw()); ///////////// ADDED /////////////////////////
+inputDispatcher.broadcast(VALUE_CHANGE, pots[pot].id(), pots[pot].value());
+        pots[pot].previous(pots[pot].raw());
+      }
     }
 
     pots[POT_GROWL].raw(pots[POT_P4].raw()); // same as larynx TODO refactor
@@ -594,6 +632,7 @@ void ControlInput(void *pvParameter)
 
       if (switches[i].on() != switches[i].previous())
       {
+        inputDispatcher.broadcast(VALUE_CHANGE, switches[i].id(), switches[i].on());
         if (switches[i].type() == TOGGLE)
           toggleChange = true;
 
@@ -712,7 +751,7 @@ void pushToWebSocket()
   {
     if (abs(pots[i].raw() - pots[i].previous()) >= potResolution)
     {
-     web_connector.convertAndPush(pots[i].id(), pots[i].channel());
+      web_connector.convertAndPush(pots[i].id(), pots[i].channel());
       web_connector.convertAndPush(pots[i].id(), pots[i].value());
     }
   }
@@ -744,9 +783,6 @@ void pushSwitchChange(int i)
     web_connector.convertAndPush(switches[i].id(), 0);
   }
 }
-
-
-
 
 /*****************/
 /* OUTPUT THREAD */
@@ -866,14 +902,14 @@ void OutputDAC(void *pvParameter)
     {
       mix4 = NASAL_LP_GAIN * nasalLP.tick(mix3) + NASAL_FIXEDBP_GAIN * nasalFixedBP.tick(mix3) + NASAL_FIXEDNOTCH_GAIN * nasalFixedNotch.tick(mix3);
 
-      mix4 = shaper.softClip(mix4 / 3.0f);
+      mix4 = shaper.softClip(mix4 / 6.0f);
     }
     float mix5 = F3_GAIN * f3.tick(mix4);
 
     float valL = shaper.softClip(current);
     float valR = creakNoise.stretchedNoise();
 
-    dac.writeSample(mix4, mix5);
+    dac.writeSample(sinePart, mix5);
 
     // ****************** END WIRING ******************
 
@@ -883,4 +919,3 @@ void OutputDAC(void *pvParameter)
   }
 }
 // END OUTPUT THREAD
-
