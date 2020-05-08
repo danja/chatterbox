@@ -28,6 +28,10 @@
 #include <Pot.h>
 #include <Parameters.h>
 
+#include <ProcessorCreator.h>
+#include <Processor.h>
+#include <Softclip.h>
+
 #include <WebConnector.h>
 
 #include <dispatcher.hpp>
@@ -814,6 +818,9 @@ void OutputDAC(void *pvParameter)
   NoiseMaker sf3Noise = NoiseMaker();
   Shapers shaper = Shapers();
 
+ProcessorCreator processorCreator;
+Processor softClip = processorCreator.create(ProcessorCreator::SOFTCLIP);
+
   while (1)
   {
     // *** Read wavetable voice ***
@@ -872,12 +879,12 @@ void OutputDAC(void *pvParameter)
     {
       float sing1Val = SING1_GAIN * sing1.tick(current);
       float sing2Val = SING2_GAIN * sing2.tick(current);
-      current = shaper.softClip((current + sing1Val + sing2Val) / 3.0f);
+      current = softClip.process((current + sing1Val + sing2Val) / 3.0f);
     }
 
     if (switches[TOGGLE_SHOUT].on())
     {
-      current = shaper.softClip(current * (1.0f - growl * shoutNoise.stretchedNoise())); // amplitude mod
+      current = softClip.process(current * (1.0f - growl * shoutNoise.stretchedNoise())); // amplitude mod
     }
     //float fTiltLow_in = (voice + aspiration) / 2.0f;
     //  float fTiltHigh_in = (voice + aspiration) / 2.0f;
@@ -888,13 +895,13 @@ void OutputDAC(void *pvParameter)
 
     float s3 = sf3.tick(noise - sf3Noise.pink(noise)) * SF3_GAIN * switches[SWITCH_SF3].gain();
 
-    float sibilants = shaper.softClip((s1 + s2 + s3) / 3.0f);
+    float sibilants = softClip.process((s1 + s2 + s3) / 3.0f);
 
     float mix1 = current + sibilants;
 
     // pharynx/mouth is serial
-    float mix2 = shaper.softClip(F1_GAIN * f1.tick(mix1) + F1PLUS_GAIN * f1Plus.tick(mix1));
-    float mix3 = shaper.softClip(F2_GAIN * f2.tick(mix2)); // + F2PLUS_GAIN * f2Plus.tick(current)
+    float mix2 = softClip.process(F1_GAIN * f1.tick(mix1) + F1PLUS_GAIN * f1Plus.tick(mix1));
+    float mix3 = softClip.process(F2_GAIN * f2.tick(mix2)); // + F2PLUS_GAIN * f2Plus.tick(current)
 
     float mix4 = mix3;
 
@@ -902,11 +909,13 @@ void OutputDAC(void *pvParameter)
     {
       mix4 = NASAL_LP_GAIN * nasalLP.tick(mix3) + NASAL_FIXEDBP_GAIN * nasalFixedBP.tick(mix3) + NASAL_FIXEDNOTCH_GAIN * nasalFixedNotch.tick(mix3);
 
-      mix4 = shaper.softClip(mix4 / 6.0f);
+      mix4 = softClip.process(mix4 / 3.0f);
+
+      // mix4 = softClip.process(mix4 / 6.0f);
     }
     float mix5 = F3_GAIN * f3.tick(mix4);
 
-    float valL = shaper.softClip(current);
+    float valL = softClip.process(current);
     float valR = creakNoise.stretchedNoise();
 
     dac.writeSample(sinePart, mix5);
