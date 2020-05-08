@@ -9,7 +9,7 @@ class SerialMonitor
 
 public:
     SerialMonitor();
-    void registerCB(Dispatcher<EventType, String, float> &dispatcher);
+    void registerCallback(Dispatcher<EventType, String, float> &dispatcher);
 
 private:
     void listener(EventType type, String name, float value);

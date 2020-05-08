@@ -12,52 +12,52 @@ template <typename... Args>
 class Dispatcher
 {
 public:
-    typedef std::function<void(Args...)> CBType;
+    typedef std::function<void(Args...)> CallbackType;
 
-    class CBID
+    class CallbackID
     {
     public:
-        CBID() : valid(false) {}
+        CallbackID() : valid(false) {}
     private:
         friend class Dispatcher<Args...>;
-        CBID(typename std::list<CBType>::iterator i)
+        CallbackID(typename std::list<CallbackType>::iterator i)
         : iter(i), valid(true)
         {}
 
-        typename std::list<CBType>::iterator iter;
+        typename std::list<CallbackType>::iterator iter;
         bool valid;
     };
 
     // register to be notified
-    CBID addCB(CBType cb)
+    CallbackID addCallback(CallbackType callback)
     {
-        if (cb)
+        if (callback)
         {
-            cbs.push_back(cb);
-            return CBID(--cbs.end());
+            callbacks.push_back(callback);
+            return CallbackID(--callbacks.end());
         }
-        return CBID();
+        return CallbackID();
     }
 
     // unregister to be notified
-    void delCB(CBID &id)
+    void delCallback(CallbackID &id)
     {
         if (id.valid)
         {
-            cbs.erase(id.iter);
+            callbacks.erase(id.iter);
         }
     }
 
     void broadcast(Args... args)
     {
-        for (auto &cb : cbs)
+        for (auto &callback : callbacks)
         {
-            cb(args...);
+            callback(args...);
         }
     }
 
 private:
-    std::list<CBType> cbs;
+    std::list<CallbackType> callbacks;
 };
 
 #endif

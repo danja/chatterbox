@@ -299,7 +299,7 @@ void setup()
   Serial.println("\n*** Starting Chatterbox ***\n");
 
   //  Dispatcher<EventType, String, float> dispatcher;
-  // serialMonitor.registerCB(dispatcher);
+  // serialMonitor.registerCallback(dispatcher);
 
   // dispatcher.broadcast(VALUE_CHANGE, "dummy", 1.23f);
 
@@ -529,7 +529,7 @@ void ControlInput(void *pvParameter)
   initInputs();
 
   Dispatcher<EventType, String, float> inputDispatcher;
-  serialMonitor.registerCB(inputDispatcher);
+  serialMonitor.registerCallback(inputDispatcher);
 
   // inputDispatcher.broadcast(VALUE_CHANGE, "dummy", 1.23f);
 
