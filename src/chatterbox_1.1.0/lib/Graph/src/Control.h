@@ -2,9 +2,9 @@
 
 #include <Node.h>
 
-class ControlNode: public Node {
+class Control: public Node {
   public:
-    // ControlNode();
+    // Control();
     void raw(int raw);
     int raw();
 

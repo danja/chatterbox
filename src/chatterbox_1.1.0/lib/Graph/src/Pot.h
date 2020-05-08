@@ -1,7 +1,7 @@
 #pragma once
 
 #include <WString.h>
-#include <ControlNode.h>
+#include <Control.h>
 
 /* CONTROLS */
 #define N_POTS_ACTUAL 6
@@ -18,7 +18,7 @@
 // VIRTUAL Pots
 #define POT_GROWL 6 // ????
 
-class Pot : public ControlNode {
+class Pot : public Control {
   
   public:
     Pot();

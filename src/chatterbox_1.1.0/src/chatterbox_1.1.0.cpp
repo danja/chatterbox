@@ -23,7 +23,7 @@
 #include <NoiseMaker.h>
 #include <Shapers.h>
 #include <Node.h>
-#include <ControlNode.h>
+#include <Control.h>
 #include <Switch.h>
 #include <Pot.h>
 #include <Parameters.h>

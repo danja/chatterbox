@@ -1,7 +1,7 @@
 #pragma once
 
 #include <WString.h>
-#include <ControlNode.h>
+#include <Control.h>
 
 #define N_SWITCHES 12 // NEEDED
 #define N_PUSH_SWITCHES 8
@@ -25,7 +25,7 @@
 #define TOGGLE_SING 10
 #define TOGGLE_SHOUT 11
 
-class Switch : public ControlNode {
+class Switch : public Control {
   
   public:
     Switch();
