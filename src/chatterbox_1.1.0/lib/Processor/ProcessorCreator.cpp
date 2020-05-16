@@ -7,11 +7,13 @@ ProcessorCreator::ProcessorCreator() {}
 Processor ProcessorCreator::create(PROCESSOR_TYPE type)
 {
 
-    if (type == SOFTCLIP)
+
+   if (type == SOFTCLIP)
     {
         Softclip softclip;
         return softclip;
     }
+
 
     Processor processor;
     return processor;

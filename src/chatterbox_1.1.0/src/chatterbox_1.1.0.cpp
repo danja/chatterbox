@@ -302,6 +302,13 @@ void setup()
 
   Serial.println("\n*** Starting Chatterbox ***\n");
 
+  ///// TEST PROCESSOR
+  
+  //Processor<int> p;
+  //p.parameter("fish", 123);
+  //Serial.println(p.parameter("fish"));
+  
+
   //  Dispatcher<EventType, String, float> dispatcher;
   // serialMonitor.registerCallback(dispatcher);
 

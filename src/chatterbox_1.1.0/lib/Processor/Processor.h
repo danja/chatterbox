@@ -1,22 +1,32 @@
-#pragma once
+#ifndef _PROCESSOR_H_
+#define _PROCESSOR_H_
 
-// #include <WString.h>
+#include <WString.h>
 #include <Node.h>
 
+// SHOULD BE A TEMPLATE???
+class Processor : public Node
+{
 
-class Processor : public Node {
-  
-  public:
-    Processor();
-    float process(float input);
-    
-    /*
-  private:
-    int channel_;
-    int type_;
-    bool on_ = false;
-    bool previous_;
-    float gain_; // TODO refactor
-    bool hold_;
-    */
+public:
+  Processor();
+
+  float process(float input);
+
+  void boolParameter(String name, bool boolParameter);
+  bool boolParameter(String name);
+
+  void intParameter(String name, int intParameter);
+  int intParameter(String name);
+
+  void floatParameter(String name, float floatParameter);
+  float floatParameter(String name);
+
+private:
+  String name_;
+  bool boolParameter_;
+  int intParameter_;
+  float floatParameter_;
 };
+
+#endif

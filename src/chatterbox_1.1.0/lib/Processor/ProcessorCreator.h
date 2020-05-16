@@ -9,6 +9,7 @@ class ProcessorCreator {
   enum PROCESSOR_TYPE {SOFTCLIP};
 
       ProcessorCreator();
+
       Processor create(PROCESSOR_TYPE type);
 
 };

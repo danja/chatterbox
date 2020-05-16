@@ -1,3 +1,8 @@
+**2020-05-16**  *version chatterbox_1.1.0*
+
+I got a bit stuck trying to make a nice (template-based) model for Processor with parameters. Had a break from coding, did a load more on the hardware. Front & back panels prepared.
+Just implemented the ugly processor.
+
 **2020-05-02**  *version chatterbox_1.1.0*
 
 Still refactoring. Trying to pull out the Web control bits, but need to allow access to values such as pitch, f1f etc. As a stepping stone, pulling out all those values into a Parameters object with getters & setters. Is ugly (and should probably be static) but will hopefully allow me to find a better solution...
