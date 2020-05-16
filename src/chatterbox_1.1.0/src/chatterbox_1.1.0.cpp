@@ -296,11 +296,23 @@ void setup()
 
   // Serial.println("\n*** Starting Chatterbox ***\n");
 
-  delay(2000); // let it connect
+  
 
   Serial.begin(serial_rate);
 
+delay(2000); // let it connect
+
   Serial.println("\n*** Starting Chatterbox ***\n");
+
+Processor processor;
+
+processor.floatParameter("test1", 1.23f);
+processor.intParameter("test2", 123);
+processor.boolParameter("test3", true);
+
+Serial.println(processor.floatParameter("test1"), DEC);
+Serial.println(processor.intParameter("test2"), DEC);
+Serial.println(processor.boolParameter("test3"));
 
   ///// TEST PROCESSOR
   

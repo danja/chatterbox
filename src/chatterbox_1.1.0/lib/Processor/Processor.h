@@ -1,6 +1,8 @@
 #ifndef _PROCESSOR_H_
 #define _PROCESSOR_H_
 
+#include <map>
+
 #include <WString.h>
 #include <Node.h>
 
@@ -23,10 +25,13 @@ public:
   float floatParameter(String name);
 
 private:
-  String name_;
-  bool boolParameter_;
-  int intParameter_;
-  float floatParameter_;
+ // String name_;
+  // bool boolParameter_;
+  // int intParameter_;
+  // float floatParameter_;
+  std::map<String, bool> mapOfBool_;
+  std::map<String, int> mapOfInt_;
+  std::map<String, float> mapOfFloat_;
 };
 
 #endif

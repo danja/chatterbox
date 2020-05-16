@@ -1,3 +1,5 @@
+#include <map>
+
 #include <Processor.h>
 
 #include <WString.h>
@@ -5,7 +7,13 @@
 
 Processor::Processor() {}
 
-float Processor::process(float input)
+/*
+  std::map<String, bool> mapOfBool;
+  std::map<String, int> mapOfInt;
+  std::map<String, float> mapOfFloat;
+  */
+ 
+ float Processor::process(float input)
 {
     return input;
 }
@@ -16,33 +24,31 @@ https://github.com/esp8266/Arduino/blob/master/cores/esp8266/WString.h
 
 void Processor::boolParameter(String name, bool boolParameter)
 {
-    name_ = name;
-    boolParameter_ = boolParameter;
+
+    mapOfBool_[name] = boolParameter;
 }
 
 bool Processor::boolParameter(String name)
 {
-    return boolParameter_;
+    return mapOfBool_[name];
 }
 
 void Processor::intParameter(String name, int intParameter)
 {
-    name_ = name;
-    intParameter_ = intParameter;
+    mapOfInt_[name] = intParameter;
 }
 
 int Processor::intParameter(String name)
 {
-    return intParameter_;
+    return mapOfInt_[name];
 }
 
 void Processor::floatParameter(String name, float floatParameter)
 {
-    name_ = name;
-    floatParameter_ = floatParameter;
+    mapOfFloat_[name] = floatParameter;
 }
 
 float Processor::floatParameter(String name)
 {
-    return floatParameter_;
+    return mapOfFloat_[name];
 }
