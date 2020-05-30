@@ -3,7 +3,7 @@
 
 Based on ESP32 with external UDA1334A DAC. Very much **active** work in progress, April 2020. It is basically working, but changing day-to-day. I'm updating these docs with every development.
 
-![New Front Panel](front-panel_2020-05-30.jpeg)
+![New Front Panel](https://github.com/danja/chatterbox/blob/master/media/front-panel_2020-05-30.jpeg)
 
 **Slightly older prototype demo/intro (YouTube video) :**
 
@@ -31,6 +31,10 @@ The human interface is a very appealing part of the original Chatterbox. So joys
 ## Status
 
 The core hardware & software is currently working, but changing on a daily basis. Check [Quasi-blog Notes](https://github.com/danja/chatterbox/blob/master/notes.md).
+
+**2020-05-30** *version chatterbox_1.1.0*
+
+Spent a *lot* of time transferring everything into a permanent pretty box (pictured above). Round in circles a bit with software, but overall have made some progress in refactoring. Soon should be able to get back to the fun side of the coding.
 
 **2020-04-15** *version chatterbox_1.1.0*
 

@@ -2,13 +2,13 @@
 
 So, proper hardware nearing completion:
 
-![New Front Panel](front-panel_2020-05-30.jpeg)
+![New Front Panel](https://github.com/danja/chatterbox/blob/master/media/front-panel_2020-05-30.jpeg)
 
 The only piece currently missing is the MIDI interface. This *should* be trivial: and optoisolator and a transistor (to level-shift from 3.3v to 5v) attached to the UART I've left free on the ESP32. But software for that will have to wait a while, still loads of work on the core code needed.
 
 These are the internals:
 
-![Internals](internals_2020-05-30.jpeg)
+![Internals](https://github.com/danja/chatterbox/blob/master/media/internals_2020-05-30.jpeg)
 
 I first moved all the controls onto the new front panel, then connected these up to the breadboard circuit. Once this was working, I built a totally ESP32 setup on a bit of stripboard. A complication here was that I couldn't find an identical ESP32 module to the one I'd used before, instead tried a different one that appeared to expose all the same functionality, with a slightly different layout. Luckily, it worked!
 
