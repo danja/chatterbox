@@ -331,18 +331,19 @@ Serial.println(processor.boolParameter("test3"));
 
   dac.begin(SAMPLERATE, GPIO_DAC_DATAPORT, GPIO_DAC_BCLK, GPIO_DAC_WSEL, GPIO_DAC_DOUT);
 
-  switches[SWITCH_SF1] = Switch("sf1", 19, PUSH);
-  switches[SWITCH_SF2] = Switch("sf2", 23, PUSH);
-  switches[SWITCH_SF3] = Switch("sf3", 12, PUSH);
-  switches[SWITCH_VOICED] = Switch("voiced", 13, PUSH);
-  switches[SWITCH_ASPIRATED] = Switch("aspirated", 14, PUSH);
-  switches[SWITCH_NASAL] = Switch("nasal", 17, PUSH);
-  switches[SWITCH_DESTRESS] = Switch("destressed", 18, PUSH);
-  switches[SWITCH_STRESS] = Switch("stressed", 5, PUSH);
-  switches[TOGGLE_HOLD] = Switch("hold", 16, TOGGLE);
-  switches[TOGGLE_CREAK] = Switch("creak", 15, TOGGLE);
-  switches[TOGGLE_SING] = Switch("sing", 2, TOGGLE);
-  switches[TOGGLE_SHOUT] = Switch("shout", 4, TOGGLE);
+  switches[SWITCH_SF1] = Switch("sf1", 12, PUSH); //  S1
+  switches[SWITCH_SF2] = Switch("sf2", 19, PUSH); // S2
+  switches[SWITCH_SF3] = Switch("sf3", 5, PUSH); // S3
+  switches[SWITCH_VOICED] = Switch("voiced", 14, PUSH); // S7
+  switches[SWITCH_ASPIRATED] = Switch("aspirated", 17, PUSH); // S5
+  switches[SWITCH_NASAL] = Switch("nasal", 23, PUSH); // S6
+  switches[SWITCH_DESTRESS] = Switch("destressed", 18, PUSH); // S4
+  switches[SWITCH_STRESS] = Switch("stressed", 13, PUSH); // S0
+
+  switches[TOGGLE_HOLD] = Switch("hold", 16, TOGGLE); // T0
+  switches[TOGGLE_CREAK] = Switch("creak", 4, TOGGLE); // T1
+  switches[TOGGLE_SING] = Switch("sing", 2, TOGGLE); // T2
+  switches[TOGGLE_SHOUT] = Switch("shout", 15, TOGGLE); // T3
 
   initLarynxWavetable();
   initFixedWavetables();

@@ -3,7 +3,9 @@
 
 Based on ESP32 with external UDA1334A DAC. Very much **active** work in progress, April 2020. It is basically working, but changing day-to-day. I'm updating these docs with every development.
 
-**Prototype demo/intro (YouTube video) :**
+![New Front Panel](front-panel_2020-05-30.jpeg)
+
+**Slightly older prototype demo/intro (YouTube video) :**
 
 [![Bleepy demo video](https://img.youtube.com/vi/DT7YRqZf7U4/0.jpg)](https://youtu.be/ta3ENgdaIzM)
 

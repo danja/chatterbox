@@ -235,6 +235,8 @@ ESP32
 // {19, 23, 12, 13, 14,    17, 18, 5,     16, 15, 2, 4};
 pin 5 needed 10k pulldown
 
+### ESP32 Devkit V1 DOIT (Banggood)
+
 Pin
 1 EN - 100n -> GND
 2 GPIO 36 ADC -> JOYSTICK X f1f
@@ -255,7 +257,7 @@ Pin
 17 GND
 18 VIN
 
-19 GPOI 3V3
+19 3V3
 20 GPOI 6 (unavailable)
 21 GPOI 7 (unavailable)
 22 GPOI 8 (unavailable)
@@ -274,6 +276,52 @@ Pin
 35 GPOI 22 [I2C SCL] ...(((DISPLAY?)))
 36 GPOI 23 DIGITAL -> SWITCH sf2
 
+----
+
+### AZ Delivery ESP32 Pinout
+
+Pin
+1 3.3v x
+2 EN - 100n -> GND
+3 GPIO 36 ADC -> JOYSTICK X f1f
+4 GPIO 39 ADC -> JOYSTICK Y f2f
+5 GPOI 34 ADC -> POT larynx
+6 GPOI 35 ADC -> POT pitch
+7 GPOI 32 ADC -> POT f3f
+8 GPOI 33 ADC -> POT f3q
+9 GPOI 25 DIGITAL -> 100R -> DAC WSEL
+10 GPOI 26 DIGITAL -> 100R -> DAC BLCK
+11 GPOI 27 DIGITAL 100R -> -> DAC DIN
+12 GPOI 14 DIGITAL -> SWITCH aspirated
+13 GPOI 12 DIGITAL -> SWITCH sf3
+14 GND x
+15 GPOI 13 DIGITAL -> SWITCH voiced
+16 GPOI 9 (unavailable)
+17 GPOI 10 (unavailable)
+18 [CMD!]
+19 5v
+
+20 GPOI 6 (unavailable)
+21 GPOI 7 (unavailable)
+22 GPOI 8 (unavailable)
+23 GPOI 15 DIGITAL -> TOGGLE T1 x
+24 GPOI 2 DIGITAL -> TOGGLE T2 x
+25 GPOI 0 (limited use)
+26 GPOI 4 DIGITAL -> TOGGLE T4 x
+27 GPOI 16 [UART 2 TX] DIGITAL -> TOGGLE T0 x
+28 GPOI 17 [UART 2 RX] DIGITAL -> SWITCH x5
+29 GPOI 5 DIGITAL -> SWITCH x7 (needed 10k pulldown resistor)
+30 GPOI 18 DIGITAL -> SWITCH x6
+31 GPOI 19 DIGITAL -> SWITCH sf1
+32 GND
+33 GPOI 21 [I2C SDA]  ...(((DISPLAY?)))
+34 GPOI 3 [UART 0 RX] ...(((MIDI IN)))
+35 GPOI 1 [UART 0 TX] ...(((MIDI OUT)))
+36 GPOI 22 [I2C SCL] ...(((DISPLAY?)))
+37 GPOI 23 DIGITAL -> SWITCH sf2
+38 GND
+
+----
 ## Initial Considerations
 
 These were notes I had in README.md. After some experimentation I can answer them all, very positively.

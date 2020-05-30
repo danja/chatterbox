@@ -1,3 +1,38 @@
+**2020-05-30** *version chatterbox_1.1.0*
+
+So, proper hardware nearing completion:
+
+![New Front Panel](front-panel_2020-05-30.jpeg)
+
+The only piece currently missing is the MIDI interface. This *should* be trivial: and optoisolator and a transistor (to level-shift from 3.3v to 5v) attached to the UART I've left free on the ESP32. But software for that will have to wait a while, still loads of work on the core code needed.
+
+These are the internals:
+
+![Internals](internals_2020-05-30.jpeg)
+
+I first moved all the controls onto the new front panel, then connected these up to the breadboard circuit. Once this was working, I built a totally ESP32 setup on a bit of stripboard. A complication here was that I couldn't find an identical ESP32 module to the one I'd used before, instead tried a different one that appeared to expose all the same functionality, with a slightly different layout. Luckily, it worked!
+
+(I've got it pushing name-value pairs from the control parameters to ESP32 serial interface so is easy to check).
+
+The stripboard was perfect for the wiring from ports on the ESP32 to SIL connectors, into which I plugged the existing connectors from the controls. 
+Rather than soldering, for the DAC, PSU and amplifier I used SIL connectors plus breadboard-style hookup wired. 
+
+The power supply I used is a cheap linear regulator module, 9v in (fed from an external PSU), 3.3v out.
+
+One thing I hadn't really thought through was that the DAC has 2 outputs, both of which I wanted somehow going to the loudspeaker and also exposed to the outside world. I'd initially thought of Volume and Mix controls, but while considering how to wire these up I decided it would be easier and probably more versatile to use separate Level A and Level B controls. After potentiometers, these can each go directly go to jack sockets (which I have ready but not yet wired up) as well as to the inputs of a one-transistor mixer. The output of the mixer goes to a little LM386-based amplifier module and from there to the speaker. (I hacked the mixer together on breadboard before transferring to a scrap of stripboard).
+
+The volume out of the internal speaker isn't great before the amplifier distorts, but it's certainly adequate for now. Things are very modular inside so it'll be easy enough to swap in someone more hefty later, if I can be bothered. (The speaker I think is 4W, way more that the LM386 can provide). An internal mains supply would be nice to have too, and there's plenty of space in the box.
+
+I've made it so the USB connector is easily accessible, though have also been looking at ESP32 Over The Air (OTA) updates, ie. WiFi.
+
+The new front panel is an A4 piece of laminated aluminium/plastic intended for signage. It was cheaper than the sheet aluminium I could find on Amazon and turned out to be ideal. I've inkjet-printed labels onto a transparent A4 sheet. This is less than perfect, a little bit floppy (spraymount might have been an idea?), but fine for a prototype.
+
+The box is a wooden one, sold on Amazon for craft purposes. I made a simple frame inside on which to mount the front panel. I was tempted to finish the box with decoupage as intended, but decided spraying it black would be quicker.
+
+
+Back to the coding.
+
+
 **2020-05-16**  *version chatterbox_1.1.0*
 
 I got a bit stuck trying to make a nice (template-based) model for Processor with parameters. Had a break from coding, did a load more on the hardware. Front & back panels prepared.
