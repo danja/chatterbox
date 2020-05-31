@@ -321,13 +321,19 @@ Serial.println(processor.boolParameter("test3"));
   //Serial.println(p.parameter("fish"));
   
 
-  //  Dispatcher<EventType, String, float> dispatcher;
-  // serialMonitor.registerCallback(dispatcher);
+  Dispatcher<EventType, String, float> dispatcher;
+  serialMonitor.registerCallback(dispatcher);
 
-  // dispatcher.broadcast(VALUE_CHANGE, "dummy", 1.23f);
+dispatcher.broadcast(VALUE_CHANGE, "dummy", 1.23f);
+/* this makes things very noisy
+   auto callbackid1 = dispatcher.addCallback([](EventType type, String name, float value) {
+                          Serial.println("in chatterbox.cpp");
+                          String message = name + ":" + value;
+                          Serial.println(message);
+                          });
 
-  // Wrote 1016032 bytes (571070 compressed) at 0x00010000
-  // Wrote 1015344 bytes (570548 compressed) at 0x00010000
+  */
+
 
   dac.begin(SAMPLERATE, GPIO_DAC_DATAPORT, GPIO_DAC_BCLK, GPIO_DAC_WSEL, GPIO_DAC_DOUT);
 

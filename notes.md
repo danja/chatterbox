@@ -1,3 +1,18 @@
+**2020-05-31** *version chatterbox_1.1.0*
+
+So... I've got the skeleton of messaging worked out, to pass name:value pairs between 'modules'. 
+
+I first need to wrap the generators, filters etc. in Processor to be able to consistently set parameters. 
+
+Ultimately:
+
+Chatterbox.cpp as top level
+
+Controls.cpp? as input thread
+Output.cpp? as DAC thread  
+Patchbay.cpp? as the wiring 
+
+
 **2020-05-30** *version chatterbox_1.1.0*
 
 So, proper hardware nearing completion:

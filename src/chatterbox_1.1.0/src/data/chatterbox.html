@@ -95,6 +95,7 @@ $(function(){
 			var l = event.data.value.length;
 			var sliderName = event.data.value.substring(1, l-5); 
 			ws.send(sliderName+":"+ui.value);
+			console.log(sliderName+":"+ui.value);
 		});	
 	}
 
