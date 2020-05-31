@@ -1,3 +1,5 @@
+#include <math.h>
+
 //  SvfLinearTrapOptimised2.hpp
 //
 //  Created by Fred Anton Corvest (FAC) on 26/11/2016.
@@ -159,8 +161,8 @@ private:
                 case NO_FLT_TYPE:
                     // nothing todo
                     break;
-                default:
-                    assert(false);
+              //  default:
+                //    assert(false);
             }
         }
         

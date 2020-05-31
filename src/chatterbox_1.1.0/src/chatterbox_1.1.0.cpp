@@ -32,6 +32,8 @@
 #include <Processor.h>
 #include <Softclip.h>
 
+#include <SVF.h>
+
 #include <WebConnector.h>
 
 #include <dispatcher.hpp>
@@ -296,36 +298,33 @@ void setup()
 
   // Serial.println("\n*** Starting Chatterbox ***\n");
 
-  
-
   Serial.begin(serial_rate);
 
-delay(2000); // let it connect
+  delay(2000); // let it connect
 
   Serial.println("\n*** Starting Chatterbox ***\n");
 
-Processor processor;
+  Processor processor;
 
-processor.floatParameter("test1", 1.23f);
-processor.intParameter("test2", 123);
-processor.boolParameter("test3", true);
+  processor.floatParameter("test1", 1.23f);
+  processor.intParameter("test2", 123);
+  processor.boolParameter("test3", true);
 
-Serial.println(processor.floatParameter("test1"), DEC);
-Serial.println(processor.intParameter("test2"), DEC);
-Serial.println(processor.boolParameter("test3"));
+  Serial.println(processor.floatParameter("test1"), DEC);
+  Serial.println(processor.intParameter("test2"), DEC);
+  Serial.println(processor.boolParameter("test3"));
 
   ///// TEST PROCESSOR
-  
+
   //Processor<int> p;
   //p.parameter("fish", 123);
   //Serial.println(p.parameter("fish"));
-  
 
   Dispatcher<EventType, String, float> dispatcher;
   serialMonitor.registerCallback(dispatcher);
 
-dispatcher.broadcast(VALUE_CHANGE, "dummy", 1.23f);
-/* this makes things very noisy
+  dispatcher.broadcast(VALUE_CHANGE, "dummy", 1.23f);
+  /* this makes things very noisy
    auto callbackid1 = dispatcher.addCallback([](EventType type, String name, float value) {
                           Serial.println("in chatterbox.cpp");
                           String message = name + ":" + value;
@@ -334,21 +333,20 @@ dispatcher.broadcast(VALUE_CHANGE, "dummy", 1.23f);
 
   */
 
-
   dac.begin(SAMPLERATE, GPIO_DAC_DATAPORT, GPIO_DAC_BCLK, GPIO_DAC_WSEL, GPIO_DAC_DOUT);
 
-  switches[SWITCH_SF1] = Switch("sf1", 12, PUSH); //  S1
-  switches[SWITCH_SF2] = Switch("sf2", 19, PUSH); // S2
-  switches[SWITCH_SF3] = Switch("sf3", 5, PUSH); // S3
-  switches[SWITCH_VOICED] = Switch("voiced", 14, PUSH); // S7
+  switches[SWITCH_SF1] = Switch("sf1", 12, PUSH);             //  S1
+  switches[SWITCH_SF2] = Switch("sf2", 19, PUSH);             // S2
+  switches[SWITCH_SF3] = Switch("sf3", 5, PUSH);              // S3
+  switches[SWITCH_VOICED] = Switch("voiced", 14, PUSH);       // S7
   switches[SWITCH_ASPIRATED] = Switch("aspirated", 17, PUSH); // S5
-  switches[SWITCH_NASAL] = Switch("nasal", 23, PUSH); // S6
+  switches[SWITCH_NASAL] = Switch("nasal", 23, PUSH);         // S6
   switches[SWITCH_DESTRESS] = Switch("destressed", 18, PUSH); // S4
-  switches[SWITCH_STRESS] = Switch("stressed", 13, PUSH); // S0
+  switches[SWITCH_STRESS] = Switch("stressed", 13, PUSH);     // S0
 
-  switches[TOGGLE_HOLD] = Switch("hold", 16, TOGGLE); // T0
-  switches[TOGGLE_CREAK] = Switch("creak", 4, TOGGLE); // T1
-  switches[TOGGLE_SING] = Switch("sing", 2, TOGGLE); // T2
+  switches[TOGGLE_HOLD] = Switch("hold", 16, TOGGLE);   // T0
+  switches[TOGGLE_CREAK] = Switch("creak", 4, TOGGLE);  // T1
+  switches[TOGGLE_SING] = Switch("sing", 2, TOGGLE);    // T2
   switches[TOGGLE_SHOUT] = Switch("shout", 15, TOGGLE); // T3
 
   initLarynxWavetable();
@@ -489,6 +487,9 @@ void initInputs()
 
 // Variable formant filters
 SvfLinearTrapOptimised2 f1;
+
+SVF svf1;
+
 SvfLinearTrapOptimised2 f2;
 SvfLinearTrapOptimised2 f3;
 
@@ -583,7 +584,7 @@ void ControlInput(void *pvParameter)
       if (abs(pots[pot].previous() - pots[pot].raw()) > 32)
       { // TODO refactor raw()
         potChanged = true;
-inputDispatcher.broadcast(VALUE_CHANGE, pots[pot].id(), pots[pot].value());
+        inputDispatcher.broadcast(VALUE_CHANGE, pots[pot].id(), pots[pot].value());
         pots[pot].previous(pots[pot].raw());
       }
     }
@@ -629,6 +630,7 @@ inputDispatcher.broadcast(VALUE_CHANGE, pots[pot].id(), pots[pot].value());
       pots[POT_P0].range(ADC_TOP, NASAL_LOW, NASAL_HIGH);
 
       f1.updateCoefficients(f1f, F1_NASALQ, nasalF1Type, samplerate);
+    
       f2.updateCoefficients(f2f, F2_NASALQ, f2Type, samplerate);
     }
     else
@@ -637,6 +639,7 @@ inputDispatcher.broadcast(VALUE_CHANGE, pots[pot].id(), pots[pot].value());
       pots[POT_P0].range(ADC_TOP, F1F_LOW, F1F_HIGH);
 
       f1.updateCoefficients(f1f, F1Q, f1Type, samplerate); // TODO allow variable Q?
+       svf1.updateCoefficients(f1f, F1Q, f1Type, samplerate);
       f2.updateCoefficients(f2f, F2Q, f2Type, samplerate);
     }
 
@@ -844,8 +847,8 @@ void OutputDAC(void *pvParameter)
   NoiseMaker sf3Noise = NoiseMaker();
   Shapers shaper = Shapers();
 
-ProcessorCreator processorCreator;
-Processor softClip = processorCreator.create(ProcessorCreator::SOFTCLIP);
+  ProcessorCreator processorCreator;
+  Processor softClip = processorCreator.create(ProcessorCreator::SOFTCLIP);
 
   while (1)
   {
@@ -941,10 +944,14 @@ Processor softClip = processorCreator.create(ProcessorCreator::SOFTCLIP);
     }
     float mix5 = F3_GAIN * f3.tick(mix4);
 
+float left = abs(sinePart);
+
+left = svf1.process(left);
+
     float valL = softClip.process(current);
     float valR = creakNoise.stretchedNoise();
 
-    dac.writeSample(sinePart, mix5);
+    dac.writeSample(left, mix5);
 
     // ****************** END WIRING ******************
 

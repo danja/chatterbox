@@ -30,11 +30,13 @@ The human interface is a very appealing part of the original Chatterbox. So joys
 
 ## Status
 
-The core hardware & software is currently working, but changing on a daily basis. Check [Quasi-blog Notes](https://github.com/danja/chatterbox/blob/master/notes.md).
+Changing on a daily basis. Check [Quasi-blog Notes](https://github.com/danja/chatterbox/blob/master/notes.md).
+
+I built up the hardware & software to proof-of-concept, it *can* work. The hardware is pretty close to being finalised. The software kind-of works, but is rather a mess, now refactoring to allow later experimentation to figure out a good final setup.
 
 **2020-05-30** *version chatterbox_1.1.0*
 
-Spent a *lot* of time transferring everything into a permanent pretty box (pictured above). Round in circles a bit with software, but overall have made some progress in refactoring. Soon should be able to get back to the fun side of the coding.
+Spent a *lot* of time transferring everything into a permanent pretty box (pictured above). Have made some progress in refactoring. Soon should be able to get back to the fun side of the coding.
 
 **2020-04-15** *version chatterbox_1.1.0*
 
