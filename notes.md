@@ -1,3 +1,24 @@
+**2020-06-01** *version chatterbox_1.1.0*
+
+Wrapped the SVF into Processor and in process of swapping references.
+
+Fixed a silly sums problem with the amplitude of larynx wave. (Put in a little max/min value monitor, shows values when stressed+destressed buttons pressed together).
+
+There is a little bit of crosstalk in mixer electronics, putting a sawtooth to one input, sine to the other, the sine carries a little glitch at the transition in the sawtooth.
+TODO check decoupling caps
+
+TODO The X axis of joystick is wired back to front.
+
+Pulled out the 3rd harmonic formant filters for now (I *think* it sounded better with them).
+
+TODO Want to have a look at :
+
+// synthv1_formant.h - formant parallel filter after Dennis H. Klatt's
+//                     Software for a cascade/parallel formant synthesizer
+//                     1979 MIT; 1980 Acoustical Society of America.
+
+
+
 **2020-05-31** *version chatterbox_1.1.0*
 
 So... I've got the skeleton of messaging worked out, to pass name:value pairs between 'modules'. 
