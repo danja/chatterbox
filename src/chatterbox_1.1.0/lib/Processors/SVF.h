@@ -1,7 +1,7 @@
 #ifndef SVF_h
 #define SVF_h
 
-// #include <Arduino.h>
+#include <WString.h>
 #include <Processor.h>
 #include <SvfLinearTrapOptimised2.hpp>
 
@@ -17,11 +17,10 @@ public:
     float process(float x);
     // static float clamp(float x, float lowerlimit, float upperlimit);
    // SvfLinearTrapOptimised2 filter;
-  void updateCoefficients(float cutoff, float q, SvfLinearTrapOptimised2::FLT_TYPE type, float sampleRate);
+  void initParameters(float cutoff, float q, String type, float sampleRate);
 
 private:
       SvfLinearTrapOptimised2 filter;
-
 };
 
 #endif

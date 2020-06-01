@@ -52,3 +52,13 @@ float Processor::floatParameter(String name)
 {
     return mapOfFloat_[name];
 }
+
+void Processor::stringParameter(String name, String stringParameter)
+{
+    mapOfString_[name] = stringParameter;
+}
+
+String Processor::stringParameter(String name)
+{
+    return mapOfString_[name];
+}

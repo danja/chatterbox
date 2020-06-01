@@ -304,6 +304,7 @@ void setup()
 
   Serial.println("\n*** Starting Chatterbox ***\n");
 
+/*
   Processor processor;
 
   processor.floatParameter("test1", 1.23f);
@@ -313,7 +314,7 @@ void setup()
   Serial.println(processor.floatParameter("test1"), DEC);
   Serial.println(processor.intParameter("test2"), DEC);
   Serial.println(processor.boolParameter("test3"));
-
+*/
   ///// TEST PROCESSOR
 
   //Processor<int> p;
@@ -486,12 +487,13 @@ void initInputs()
 // *** Initialise filters ***
 
 // Variable formant filters
-SvfLinearTrapOptimised2 f1;
+//SvfLinearTrapOptimised2 f1;
+// SvfLinearTrapOptimised2 f2;
+// SvfLinearTrapOptimised2 f3;
 
 SVF svf1;
-
-SvfLinearTrapOptimised2 f2;
-SvfLinearTrapOptimised2 f3;
+SVF svf2;
+SVF svf3;
 
 SvfLinearTrapOptimised2 f1Plus;
 SvfLinearTrapOptimised2 f2Plus;
@@ -502,15 +504,18 @@ SvfLinearTrapOptimised2 f2Plus;
 SvfLinearTrapOptimised2 fTiltLow;
 SvfLinearTrapOptimised2 fTiltHigh;
 
-SvfLinearTrapOptimised2::FLT_TYPE f1Type = SvfLinearTrapOptimised2::BAND_PASS_FILTER;
-SvfLinearTrapOptimised2::FLT_TYPE f2Type = SvfLinearTrapOptimised2::BAND_PASS_FILTER;
+// SvfLinearTrapOptimised2::FLT_TYPE f1Type = SvfLinearTrapOptimised2::BAND_PASS_FILTER;
+
+// String svf1Type = "highPass";
+// SvfLinearTrapOptimised2::FLT_TYPE f2Type = SvfLinearTrapOptimised2::BAND_PASS_FILTER;
+// SvfLinearTrapOptimised2::FLT_TYPE f3Type = SvfLinearTrapOptimised2::LOW_PASS_FILTER;
 
 SvfLinearTrapOptimised2::FLT_TYPE f1PlusType = SvfLinearTrapOptimised2::BAND_PASS_FILTER;
 SvfLinearTrapOptimised2::FLT_TYPE f2PlusType = SvfLinearTrapOptimised2::BAND_PASS_FILTER;
 
-SvfLinearTrapOptimised2::FLT_TYPE nasalF1Type = SvfLinearTrapOptimised2::NOTCH_FILTER;
+// SvfLinearTrapOptimised2::FLT_TYPE nasalF1Type = SvfLinearTrapOptimised2::NOTCH_FILTER;
 
-SvfLinearTrapOptimised2::FLT_TYPE f3Type = SvfLinearTrapOptimised2::LOW_PASS_FILTER;
+
 
 // fixed sibilant/fricative filters
 SvfLinearTrapOptimised2 sf1;
@@ -629,18 +634,22 @@ void ControlInput(void *pvParameter)
       pots[POT_P0].id(POT_ID_NASAL);
       pots[POT_P0].range(ADC_TOP, NASAL_LOW, NASAL_HIGH);
 
-      f1.updateCoefficients(f1f, F1_NASALQ, nasalF1Type, samplerate);
-    
-      f2.updateCoefficients(f2f, F2_NASALQ, f2Type, samplerate);
+      // f1.updateCoefficients(f1f, F1_NASALQ, nasalF1Type, samplerate);
+     svf1.initParameters(f1f, F1_NASALQ, "notch", samplerate);
+
+      //f2.updateCoefficients(f2f, F2_NASALQ, f2Type, samplerate);
+       svf2.initParameters(f2f, F2_NASALQ, "bandPass", samplerate);
     }
     else
     {
       pots[POT_P0].id(POT_ID_F1F);
       pots[POT_P0].range(ADC_TOP, F1F_LOW, F1F_HIGH);
 
-      f1.updateCoefficients(f1f, F1Q, f1Type, samplerate); // TODO allow variable Q?
-       svf1.updateCoefficients(f1f, F1Q, f1Type, samplerate);
-      f2.updateCoefficients(f2f, F2Q, f2Type, samplerate);
+      // f1.updateCoefficients(f1f, F1Q, f1Type, samplerate); // TODO allow variable Q?
+     //  svf1.updateCoefficients(f1f, F1Q, f1Type, samplerate);
+     svf1.initParameters(f1f, F1Q, "bandPass", samplerate);
+     // f2.updateCoefficients(f2f, F2Q, f2Type, samplerate);
+      svf2.initParameters(f2f, F2Q, "bandPass", samplerate);
     }
 
     f1Plus.updateCoefficients(f1Plusf, F1PLUSQ, f1PlusType, samplerate); // TODO allow variable Q?
@@ -651,7 +660,8 @@ void ControlInput(void *pvParameter)
 
     // TILT_LOW_Q
 
-    f3.updateCoefficients(f3f, f3q, f3Type, samplerate);
+    // f3.updateCoefficients(f3f, f3q, f3Type, samplerate);
+    svf3.initParameters(f3f, f3q, "lowPass", samplerate);
     // updateCoefficients(double cutoff, double q = 0.5, FLT_TYPE type = LOW_, double sampleRate = 44100)
 
     /********************/
@@ -698,16 +708,20 @@ void ControlInput(void *pvParameter)
     if (switches[SWITCH_DESTRESS].gain())
     {
       emphasisGain = VOICED_GAIN_DESTRESSED;
-      f1.updateCoefficients(f1f, F1_LOWQ, f1Type, samplerate); // TODO allow variable Q?
-      f2.updateCoefficients(f2f, F2_LOWQ, f2Type, samplerate);
+     // f1.updateCoefficients(f1f, F1_LOWQ, f1Type, samplerate); // TODO allow variable Q?
+     svf1.initParameters(f1f, F1_LOWQ, "lowPass", samplerate);
+     // f2.updateCoefficients(f2f, F2_LOWQ, f2Type, samplerate);
+        svf2.initParameters(f2f, F2_LOWQ, "bandPass", samplerate);
       f1Plus.updateCoefficients(f1Plusf, F1PLUS_LOWQ, f1PlusType, samplerate); // TODO allow variable Q?
       f2Plus.updateCoefficients(f2Plusf, F2PLUS_LOWQ, f2PlusType, samplerate);
     }
     else
     {
       emphasisGain = VOICED_GAIN_DEFAULT;
-      f1.updateCoefficients(f1f, F1Q, f1Type, samplerate); // TODO allow variable Q?
-      f2.updateCoefficients(f2f, F2Q, f2Type, samplerate);
+      // f1.updateCoefficients(f1f, F1Q, f1Type, samplerate); // TODO allow variable Q?
+      svf1.initParameters(f1f, F1Q, "bandPass", samplerate);
+     // f2.updateCoefficients(f2f, F2Q, f2Type, samplerate);
+        svf2.initParameters(f2f, F2Q, "bandPass", samplerate);
       f1Plus.updateCoefficients(f1Plusf, F1PLUSQ, f1PlusType, samplerate); // TODO allow variable Q?
       f2Plus.updateCoefficients(f2Plusf, F2PLUSQ, f2PlusType, samplerate);
     }
@@ -929,8 +943,10 @@ void OutputDAC(void *pvParameter)
     float mix1 = current + sibilants;
 
     // pharynx/mouth is serial
-    float mix2 = softClip.process(F1_GAIN * f1.tick(mix1) + F1PLUS_GAIN * f1Plus.tick(mix1));
-    float mix3 = softClip.process(F2_GAIN * f2.tick(mix2)); // + F2PLUS_GAIN * f2Plus.tick(current)
+    // float mix2 = softClip.process(F1_GAIN * f1.tick(mix1) + F1PLUS_GAIN * f1Plus.tick(mix1));
+    float mix2 = softClip.process(F1_GAIN * svf1.process(mix1) + F1PLUS_GAIN * f1Plus.tick(mix1));
+    //float mix3 = softClip.process(F2_GAIN * f2.tick(mix2)); // + F2PLUS_GAIN * f2Plus.tick(current)
+float mix3 = softClip.process(F2_GAIN * svf2.process(mix2));
 
     float mix4 = mix3;
 
@@ -942,11 +958,12 @@ void OutputDAC(void *pvParameter)
 
       // mix4 = softClip.process(mix4 / 6.0f);
     }
-    float mix5 = F3_GAIN * f3.tick(mix4);
+  //  float mix5 = F3_GAIN * f3.tick(mix4);
+ float mix5 = F3_GAIN * svf3.process(mix4);
 
 float left = abs(sinePart);
 
-left = svf1.process(left);
+// left = svf1.process(left);
 
     float valL = softClip.process(current);
     float valR = creakNoise.stretchedNoise();

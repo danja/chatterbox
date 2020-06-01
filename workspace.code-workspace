@@ -10,7 +10,15 @@
 	],
 	"settings": {
 		"files.associations": {
-			"functional": "cpp"
+			"functional": "cpp",
+			"string": "cpp",
+			"chrono": "cpp",
+			"ratio": "cpp",
+			"type_traits": "cpp",
+			"string_view": "cpp",
+			"istream": "cpp",
+			"ostream": "cpp",
+			"variant": "cpp"
 		}
 	},
 	"tasks": {
