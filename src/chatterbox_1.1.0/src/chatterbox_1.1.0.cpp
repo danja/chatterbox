@@ -292,34 +292,11 @@ void loop(){
 /* *** START SETUP() *** */
 void setup()
 {
-  // delay(2000); // let it connect
-
-  // Serial.begin(SERIAL_RATE);
-
-  // Serial.println("\n*** Starting Chatterbox ***\n");
-
   Serial.begin(serial_rate);
 
   delay(2000); // let it connect
 
   Serial.println("\n*** Starting Chatterbox ***\n");
-
-/*
-  Processor processor;
-
-  processor.floatParameter("test1", 1.23f);
-  processor.intParameter("test2", 123);
-  processor.boolParameter("test3", true);
-
-  Serial.println(processor.floatParameter("test1"), DEC);
-  Serial.println(processor.intParameter("test2"), DEC);
-  Serial.println(processor.boolParameter("test3"));
-*/
-  ///// TEST PROCESSOR
-
-  //Processor<int> p;
-  //p.parameter("fish", 123);
-  //Serial.println(p.parameter("fish"));
 
   Dispatcher<EventType, String, float> dispatcher;
   serialMonitor.registerCallback(dispatcher);
@@ -518,9 +495,13 @@ SvfLinearTrapOptimised2::FLT_TYPE f2PlusType = SvfLinearTrapOptimised2::BAND_PAS
 
 
 // fixed sibilant/fricative filters
-SvfLinearTrapOptimised2 sf1;
-SvfLinearTrapOptimised2 sf2;
-SvfLinearTrapOptimised2 sf3;
+SVF fricative1;
+SVF fricative2;
+SVF fricative3;
+
+//SvfLinearTrapOptimised2 sf1;
+//SvfLinearTrapOptimised2 sf2;
+//SvfLinearTrapOptimised2 sf3;
 
 // fixed others
 SvfLinearTrapOptimised2 nasalLP;
@@ -529,9 +510,9 @@ SvfLinearTrapOptimised2 nasalFixedNotch;
 SvfLinearTrapOptimised2 sing1;
 SvfLinearTrapOptimised2 sing2;
 
-SvfLinearTrapOptimised2::FLT_TYPE sf1Type = SvfLinearTrapOptimised2::HIGH_PASS_FILTER;
-SvfLinearTrapOptimised2::FLT_TYPE sf2Type = SvfLinearTrapOptimised2::HIGH_PASS_FILTER;
-SvfLinearTrapOptimised2::FLT_TYPE sf3Type = SvfLinearTrapOptimised2::HIGH_PASS_FILTER;
+// SvfLinearTrapOptimised2::FLT_TYPE sf1Type = SvfLinearTrapOptimised2::HIGH_PASS_FILTER;
+// SvfLinearTrapOptimised2::FLT_TYPE sf2Type = SvfLinearTrapOptimised2::HIGH_PASS_FILTER;
+// SvfLinearTrapOptimised2::FLT_TYPE sf3Type = SvfLinearTrapOptimised2::HIGH_PASS_FILTER;
 
 SvfLinearTrapOptimised2::FLT_TYPE nasalLPType = SvfLinearTrapOptimised2::LOW_PASS_FILTER;
 SvfLinearTrapOptimised2::FLT_TYPE nasalFixedBPType = SvfLinearTrapOptimised2::BAND_PASS_FILTER;
@@ -841,10 +822,13 @@ void OutputDAC(void *pvParameter)
   // Serial.print("Audio thread started at core: ");
   // Serial.println(xPortGetCoreID());
 
-  sf1.updateCoefficients(SF1F, SF1Q, sf1Type, samplerate); // TODO make SF1F etc variable?
-  sf2.updateCoefficients(SF2F, SF2Q, sf2Type, samplerate);
-  sf3.updateCoefficients(SF3F, SF3Q, sf3Type, samplerate);
-  sf3.updateCoefficients(SF3F, SF3Q, sf3Type, samplerate);
+ // sf1.updateCoefficients(SF1F, SF1Q, sf1Type, samplerate); // TODO make SF1F etc variable?
+ // sf2.updateCoefficients(SF2F, SF2Q, sf2Type, samplerate);
+ // sf3.updateCoefficients(SF3F, SF3Q, sf3Type, samplerate);
+  
+    fricative1.initParameters(SF1F, SF1Q, "highPass", samplerate); // TODO make SF1F etc variable?
+  fricative2.initParameters(SF2F, SF2Q, "highPass", samplerate);
+  fricative3.initParameters(SF3F, SF3Q, "highPass", samplerate);
 
   nasalLP.updateCoefficients(NASAL_LPF, NASAL_LPQ, nasalLPType, samplerate);
   nasalFixedBP.updateCoefficients(NASAL_FIXEDBPF, NASAL_FIXEDBPQ, nasalFixedNotchType, samplerate);
@@ -912,7 +896,7 @@ void OutputDAC(void *pvParameter)
       }
     }
 
-    voice = switches[SWITCH_VOICED].gain() * voice;
+    voice = (switches[SWITCH_VOICED].gain() + switches[SWITCH_NASAL].gain()) * voice/2.0f;
 
     float aspiration = switches[SWITCH_ASPIRATED].gain() * noise;
 
@@ -932,11 +916,13 @@ void OutputDAC(void *pvParameter)
     //float fTiltLow_in = (voice + aspiration) / 2.0f;
     //  float fTiltHigh_in = (voice + aspiration) / 2.0f;
 
-    float s1 = sf1.tick(sf1Noise.pink(noise)) * SF1_GAIN * switches[SWITCH_SF1].gain();
+    // float s1 = sf1.tick(sf1Noise.pink(noise)) * SF1_GAIN * switches[SWITCH_SF1].gain();
+    // float s2 = sf2.tick(noise) * SF2_GAIN * switches[SWITCH_SF2].gain();
+    // float s3 = sf3.tick(noise - sf3Noise.pink(noise)) * SF3_GAIN * switches[SWITCH_SF3].gain();
 
-    float s2 = sf2.tick(noise) * SF2_GAIN * switches[SWITCH_SF2].gain();
-
-    float s3 = sf3.tick(noise - sf3Noise.pink(noise)) * SF3_GAIN * switches[SWITCH_SF3].gain();
+    float s1 = fricative1.process(sf1Noise.pink(noise)) * SF1_GAIN * switches[SWITCH_SF1].gain();
+    float s2 = fricative2.process(noise) * SF2_GAIN * switches[SWITCH_SF2].gain();
+    float s3 = 3 * fricative3.process(noise - sf3Noise.pink(noise)) * SF3_GAIN * switches[SWITCH_SF3].gain();
 
     float sibilants = softClip.process((s1 + s2 + s3) / 3.0f);
 
