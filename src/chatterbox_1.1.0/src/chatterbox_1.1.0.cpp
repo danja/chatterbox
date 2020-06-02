@@ -669,7 +669,7 @@ void OutputDAC(void *pvParameter)
   NoiseMaker shoutNoise = NoiseMaker();
   NoiseMaker sf1Noise = NoiseMaker();
   NoiseMaker sf3Noise = NoiseMaker();
-  Shapers shaper = Shapers();
+  // Shapers shaper = Shapers();
 
   ProcessorCreator processorCreator;
   Processor softClip = processorCreator.create(ProcessorCreator::SOFTCLIP);

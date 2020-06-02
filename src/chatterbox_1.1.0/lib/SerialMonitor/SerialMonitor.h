@@ -1,10 +1,15 @@
+#ifndef SerialMonitor_h
+#define SerialMonitor_h
+
 #include <Arduino.h>
 #include <dispatcher.hpp>
+#include <Receiver.h>
 
-enum EventType {VALUE_CHANGE, EVENT2, EVENT3};
+// enum EventType {VALUE_CHANGE, EVENT2, EVENT3};
 const int serial_rate = 115200;
 
-class SerialMonitor
+
+class SerialMonitor: public Receiver
 {
 
 public:
@@ -14,3 +19,5 @@ public:
 private:
     void listener(EventType type, String name, float value);
 };
+
+#endif
