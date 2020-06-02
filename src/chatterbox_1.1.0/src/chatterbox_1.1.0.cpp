@@ -14,7 +14,7 @@
 #include <driver/adc.h> // depends on Espressif ESP32 libs
 #include "i2sdac.h"     // see src/lib - based on https://github.com/wjslager/esp32-dac
 
-#include "SvfLinearTrapOptimised2.hpp"
+// #include "SvfLinearTrapOptimised2.hpp"
 
 // #include "WiFi.h"
 // #include "ESPAsyncWebServer.h"
@@ -335,7 +335,7 @@ void SerialThread(void *pvParameter)
 /*** END SETUP() ***/
 
 /* INITIALIZE WAVETABLE */
-int larynx = TABLESIZE/2; // point in wavetable corresponding to closed larynx
+int larynx = TABLESIZE / 2; // point in wavetable corresponding to closed larynx
 
 void initLarynxWavetable()
 {
@@ -344,7 +344,7 @@ void initLarynxWavetable()
   { // up slope+
 
     larynxWavetable[i] = 4.0f * (float)i / (float)larynx - 1.0f;
-  } 
+  }
   for (unsigned int i = larynx / 2; i < larynx; i++)
   { // down slope
     larynxWavetable[i] = 5.0f - 4.0f * (float)i / (float)larynx;
@@ -427,8 +427,8 @@ SVF svf3;
 //   Biquad(int type, float Fc, float Q, float peakGainDB);
 //Biquad *n1 = new Biquad(HIGHSHELF, 1000.0f / samplerate, F1_NASALQ, F1_NASAL_GAIN);
 
-SvfLinearTrapOptimised2 fTiltLow;
-SvfLinearTrapOptimised2 fTiltHigh;
+// SvfLinearTrapOptimised2 fTiltLow;
+// SvfLinearTrapOptimised2 fTiltHigh;
 
 // SvfLinearTrapOptimised2::FLT_TYPE f1Type = SvfLinearTrapOptimised2::BAND_PASS_FILTER;
 
@@ -451,19 +451,27 @@ SVF fricative3;
 //SvfLinearTrapOptimised2 sf3;
 
 // fixed others
-SvfLinearTrapOptimised2 nasalLP;
-SvfLinearTrapOptimised2 nasalFixedBP;
-SvfLinearTrapOptimised2 nasalFixedNotch;
-SvfLinearTrapOptimised2 sing1;
-SvfLinearTrapOptimised2 sing2;
+// SvfLinearTrapOptimised2 nasalLP;
+// SvfLinearTrapOptimised2 nasalFixedBP;
+// SvfLinearTrapOptimised2 nasalFixedNotch;
+
+SVF nasalLP;
+SVF nasalFixedBP;
+SVF nasalFixedNotch;
+
+// SvfLinearTrapOptimised2 sing1;
+// SvfLinearTrapOptimised2 sing2;
+
+SVF sing1;
+SVF sing2;
 
 // SvfLinearTrapOptimised2::FLT_TYPE sf1Type = SvfLinearTrapOptimised2::HIGH_PASS_FILTER;
 // SvfLinearTrapOptimised2::FLT_TYPE sf2Type = SvfLinearTrapOptimised2::HIGH_PASS_FILTER;
 // SvfLinearTrapOptimised2::FLT_TYPE sf3Type = SvfLinearTrapOptimised2::HIGH_PASS_FILTER;
 
-SvfLinearTrapOptimised2::FLT_TYPE nasalLPType = SvfLinearTrapOptimised2::LOW_PASS_FILTER;
-SvfLinearTrapOptimised2::FLT_TYPE nasalFixedBPType = SvfLinearTrapOptimised2::BAND_PASS_FILTER;
-SvfLinearTrapOptimised2::FLT_TYPE nasalFixedNotchType = SvfLinearTrapOptimised2::NOTCH_FILTER;
+// SvfLinearTrapOptimised2::FLT_TYPE nasalLPType = SvfLinearTrapOptimised2::LOW_PASS_FILTER;
+// SvfLinearTrapOptimised2::FLT_TYPE nasalFixedBPType = SvfLinearTrapOptimised2::BAND_PASS_FILTER;
+// SvfLinearTrapOptimised2::FLT_TYPE nasalFixedNotchType = SvfLinearTrapOptimised2::NOTCH_FILTER;
 SvfLinearTrapOptimised2::FLT_TYPE sing1Type = SvfLinearTrapOptimised2::BAND_PASS_FILTER;
 SvfLinearTrapOptimised2::FLT_TYPE sing2Type = SvfLinearTrapOptimised2::BAND_PASS_FILTER;
 
@@ -583,8 +591,8 @@ void ControlInput(void *pvParameter)
     // f1Plus.updateCoefficients(f1Plusf, F1PLUSQ, f1PlusType, samplerate); // TODO allow variable Q?
     // f2Plus.updateCoefficients(f2Plusf, F1PLUSQ, f2PlusType, samplerate);
 
-    fTiltLow.updateCoefficients(f1f, TILT_LOW_Q, tiltLowType, samplerate);
-    fTiltHigh.updateCoefficients(f2f, TILT_HIGH_Q, tiltHighType, samplerate);
+    // fTiltLow.updateCoefficients(f1f, TILT_LOW_Q, tiltLowType, samplerate);
+    // fTiltHigh.updateCoefficients(f2f, TILT_HIGH_Q, tiltHighType, samplerate);
 
     // TILT_LOW_Q
 
@@ -638,10 +646,10 @@ void ControlInput(void *pvParameter)
       emphasisGain = VOICED_GAIN_DESTRESSED;
       // f1.updateCoefficients(f1f, F1_LOWQ, f1Type, samplerate); // TODO allow variable Q?
       svf1.initParameters(f1f, F1_LOWQ, "lowPass", samplerate);
-    
+
       svf2.initParameters(f2f, F2_LOWQ, "bandPass", samplerate);
-    //  f1Plus.updateCoefficients(f1Plusf, F1PLUS_LOWQ, f1PlusType, samplerate); // TODO allow variable Q?
-    //  f2Plus.updateCoefficients(f2Plusf, F2PLUS_LOWQ, f2PlusType, samplerate);
+      //  f1Plus.updateCoefficients(f1Plusf, F1PLUS_LOWQ, f1PlusType, samplerate); // TODO allow variable Q?
+      //  f2Plus.updateCoefficients(f2Plusf, F2PLUS_LOWQ, f2PlusType, samplerate);
     }
     else
     {
@@ -650,8 +658,8 @@ void ControlInput(void *pvParameter)
       svf1.initParameters(f1f, F1Q, "bandPass", samplerate);
       // f2.updateCoefficients(f2f, F2Q, f2Type, samplerate);
       svf2.initParameters(f2f, F2Q, "bandPass", samplerate);
-    //  f1Plus.updateCoefficients(f1Plusf, F1PLUSQ, f1PlusType, samplerate); // TODO allow variable Q?
-    //  f2Plus.updateCoefficients(f2Plusf, F2PLUSQ, f2PlusType, samplerate);
+      //  f1Plus.updateCoefficients(f1Plusf, F1PLUSQ, f1PlusType, samplerate); // TODO allow variable Q?
+      //  f2Plus.updateCoefficients(f2Plusf, F2PLUSQ, f2PlusType, samplerate);
     }
     if (switches[SWITCH_STRESS].on())
     {
@@ -767,12 +775,19 @@ void OutputDAC(void *pvParameter)
   fricative2.initParameters(SF2F, SF2Q, "highPass", samplerate);
   fricative3.initParameters(SF3F, SF3Q, "highPass", samplerate);
 
-  nasalLP.updateCoefficients(NASAL_LPF, NASAL_LPQ, nasalLPType, samplerate);
-  nasalFixedBP.updateCoefficients(NASAL_FIXEDBPF, NASAL_FIXEDBPQ, nasalFixedNotchType, samplerate);
-  nasalFixedNotch.updateCoefficients(NASAL_FIXEDNOTCHF, NASAL_FIXEDNOTCHQ, nasalFixedNotchType, samplerate);
+  nasalLP.initParameters(NASAL_LPF, NASAL_LPQ, "lowPass", samplerate);
+  nasalFixedBP.initParameters(NASAL_FIXEDBPF, NASAL_FIXEDBPQ, "bandPass", samplerate);
+  nasalFixedNotch.initParameters(NASAL_FIXEDNOTCHF, NASAL_FIXEDNOTCHQ, "notch", samplerate);
 
-  sing1.updateCoefficients(SING1F, SING1Q, sing1Type, samplerate);
-  sing2.updateCoefficients(SING2F, SING2Q, sing2Type, samplerate);
+  //  nasalLP.updateCoefficients(NASAL_LPF, NASAL_LPQ, nasalLPType, samplerate);
+  //  nasalFixedBP.updateCoefficients(NASAL_FIXEDBPF, NASAL_FIXEDBPQ, nasalFixedNotchType, samplerate);
+  //  nasalFixedNotch.updateCoefficients(NASAL_FIXEDNOTCHF, NASAL_FIXEDNOTCHQ, nasalFixedNotchType, samplerate);
+
+ // sing1.updateCoefficients(SING1F, SING1Q, sing1Type, samplerate);
+ // sing2.updateCoefficients(SING2F, SING2Q, sing2Type, samplerate);
+
+ sing1.initParameters(SING1F, SING1Q, "bandPass", samplerate);
+  sing2.initParameters(SING2F, SING2Q, "bandPass", samplerate);
 
   int pointer = 0;
 
@@ -859,8 +874,10 @@ void OutputDAC(void *pvParameter)
 
     if (switches[TOGGLE_SING].on())
     {
-      float sing1Val = SING1_GAIN * sing1.tick(current);
-      float sing2Val = SING2_GAIN * sing2.tick(current);
+      float sing1Val = SING1_GAIN * sing1.process(current);
+      float sing2Val = SING2_GAIN * sing2.process(current);
+    //  float sing1Val = SING1_GAIN * sing1.tick(current);
+    //  float sing2Val = SING2_GAIN * sing2.tick(current);
       current = softClip.process((current + sing1Val + sing2Val) / 3.0f);
     }
 
@@ -893,7 +910,8 @@ void OutputDAC(void *pvParameter)
 
     if (switches[SWITCH_NASAL].on())
     {
-      mix4 = NASAL_LP_GAIN * nasalLP.tick(mix3) + NASAL_FIXEDBP_GAIN * nasalFixedBP.tick(mix3) + NASAL_FIXEDNOTCH_GAIN * nasalFixedNotch.tick(mix3);
+      // mix4 = NASAL_LP_GAIN * nasalLP.tick(mix3) + NASAL_FIXEDBP_GAIN * nasalFixedBP.tick(mix3) + NASAL_FIXEDNOTCH_GAIN * nasalFixedNotch.tick(mix3);
+      mix4 = NASAL_LP_GAIN * nasalLP.process(mix3) + NASAL_FIXEDBP_GAIN * nasalFixedBP.process(mix3) + NASAL_FIXEDNOTCH_GAIN * nasalFixedNotch.process(mix3);
 
       mix4 = softClip.process(mix4 / 3.0f);
 

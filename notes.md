@@ -1,3 +1,18 @@
+**2020-06-02** *version chatterbox_1.1.0*
+
+I'd already printed out Klatt 1979 but clearly hadn't read too closely. It does quite clearly give the algorithm for the formant filters (resonators). After skimming the [source of synthv1](https://github.com/rncbc/synthv1/blob/master/src/synthv1_formant.cpp), there it appears the Klatt algorithm has been used with values taken from [CSound Formant Values](http://www.csounds.com/manual/html/MiscFormants.html). 
+Synthv1 features 5 resonators preset with 5 vowel sounds for 5 different vocal ranges. Each resonator has 3 parameters (frequency, amplitude, bandwidth). What's not obvious is how these are varied in use, but I've got the plugin installed on music room computer, must have a play later.
+
+Chatterbox is limited to 6 analog values, so clearly I'll have to fudge things somehow. I'm still liking the idea of incorporating comb filter(s) somehow to get a better effect with less processing/control. 
+Have a pot for pitch and larynx shapes still makes sense, so *perhaps* if I attach 2 resonators to the joysticks, corresponding to the first 2 formants, with a comb filter in parallel on each, tracking freq. Following these with a crude *tilt* filter might get me a lot of the way, and isn't all that far from what I have already.
+So this calls for:
+
+* implementing Klatt resonators
+* implementing comb filters
+* implementing tilt filter (the variable freq & Q lowpass SVF I already have might be suitable) 
+
+But before getting into this more deeply, there's still refactoring to do...
+
 **2020-06-01** *version chatterbox_1.1.0*
 
 Wrapped the SVF into Processor and in process of swapping references.
