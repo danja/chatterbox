@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Chatterbox</title>
+	<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
+	<link rel="stylesheet" href="chatterbox.css" />
+
+	<script>
+		var config =
+		{
+			analog: [
+				{
+					id: "pitch",
+					label: "Pitch",
+					min: 20,
+					max: 500,
+					default: 150
+				}, {
+					id: "larynx",
+					label: "Larynx",
+					min: 100,
+					max: 2000,
+					default: 50
+				}, {
+					id: "f1f",
+					label: "F1F",
+					min: 150,
+					max: 1400,
+					default: 500
+				}, {
+					id: "f2f",
+					label: "F2F",
+					min: 500,
+					max: 5000,
+					default: 2000
+				}, {
+					id: "f3f",
+					label: "F3F",
+					min: 50,
+					max: 7000,
+					default: 6000
+				}, {
+					id: "f3q",
+					label: "F3Q",
+					min: 1,
+					max: 8,
+					default: 2
+				}],
+			digital: [
+				{ label: "Voiced" },
+				{ label: "Aspirated" },
+				{ label: "SF1" },
+				{ label: "SF2" },
+				{ label: "SF3" }
+			]
+		};
+
+		var sliders = config.analog;
+
+		$(function () {
+			for (var i = 0; i < sliders.length; i++) {
+
+				var labelHTML = "<label>" + sliders[i].label + "</label>";
+				var sliderDivHTML = "<div id=\"" + sliders[i].id + "\" class=\"slider\" />";
+				var valueSpanHTML = "<span id=\"" + sliders[i].id + "Value\" class=\"value\">" + sliders[i].default + "</span>";
+
+				var sliderBlock = "<div class=\"sliderBlock\" id=\"" + sliders[i].id + "Block\">"
+					+ labelHTML + sliderDivHTML + valueSpanHTML
+					+ "</div>";
+
+				$("#sliders").append(sliderBlock);
+
+				var sliderSelector = "#" + sliders[i].id;
+				$(sliderSelector)
+					.slider({
+						value: sliders[i].default,
+						min: sliders[i].min,
+						max: sliders[i].max,
+						range: "min",
+						animate: true,
+
+					});
+
+/*
+				var lastSliderSelector = "#" + sliders[sliders.length - 1].id;
+				$(lastSliderSelector).on('create', function (ev) {
+					console.log("created");
+					initWebSocket();
+				})
+*/
+
+
+				var valueSelector = sliderSelector + "Value";
+				// have to pass selector as data because of scoping
+				// eg. #pitchValue
+
+
+				$(sliderSelector).on("slide", { value: valueSelector }, function (event, ui) {
+					$(event.data.value).text(ui.value);
+					// strip back, eg. #pitchValue -> pitch
+					// string.substring(start, end)
+					var l = event.data.value.length;
+					var sliderName = event.data.value.substring(1, l - 5);
+					ws.send(sliderName + ":" + ui.value);
+					console.log(sliderName + ":" + ui.value);
+				});
+			}
+
+	
+			var ws = new WebSocket("ws://192.168.0.142/ws");
+
+			ws.onopen = function () {
+
+				// Web Socket is connected, send data using send()
+				ws.send("Ping");
+				//  alert("Message is sent...");
+			};
+
+			ws.onmessage = function (evt) {
+				var msg = evt.data;
+				//  alert("Pong received...");
+				// $("#target").text(msg);
+				var parts = msg.split(":");
+				var name = parts[0];
+				var value = parts[1];
+				var selector = "#" + name; // + "Value"
+				$("#target").text(selector + "-" + parseInt(value));
+				console.log(selector);
+				if($(selector).length){
+				$(selector).slider("value", parseInt(value));
+				$(selector+"Value").text(value);
+			
+				}
+				// $(selector).slider("value").val(parseInt(value));
+			};
+
+			ws.onclose = function () {
+				console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason);
+    setTimeout(function() {
+      connect();
+    }, 1000);
+			};
+
+			ws.onerror = function(err) {
+				console.error('Socket encountered error: ', err.message, 'Closing socket');
+    ws.close();
+         };
+		}); // end $(function()
+
+	</script>
+</head>
+
+<body>
+	<div id="sliders">
+	</div>
+
+	<div id="switches">
+	</div>
+
+
+	<div id="target">HERE</div>
+
+</body>
+
+</html>

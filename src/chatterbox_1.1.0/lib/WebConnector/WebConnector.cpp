@@ -66,6 +66,9 @@ void WebConnector::startWebServer()
     // request->send(200, "text/plain", "Hello from Chatterbox!");
     request->send(SPIFFS, "/ws.html", String(), false);
   });
+  server.on("/controls.html", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(SPIFFS, "/controls.html", String(), false);
+  });
 
   server.on("/chatterbox.html", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/chatterbox.html", String(), false);
