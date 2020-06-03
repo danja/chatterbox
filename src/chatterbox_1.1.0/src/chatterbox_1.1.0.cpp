@@ -156,9 +156,9 @@
 I2sDAC dac;
 TaskHandle_t AudioTask;
 
-WebConnector web_connector = WebConnector();
-
+Dispatcher<EventType, String, float> controlDispatcher;
 SerialMonitor serialMonitor;
+WebConnector webConnector = WebConnector();
 
 //////////////////////////////////////////////
 //// FORWARD DECLARATIONS ////////////////////
@@ -222,10 +222,13 @@ void setup()
 
   Serial.println("\n*** Starting Chatterbox ***\n");
 
-  Dispatcher<EventType, String, float> dispatcher;
-  serialMonitor.registerCallback(dispatcher);
+ 
+ serialMonitor.registerCallback(controlDispatcher);
+ webConnector.registerCallback(controlDispatcher);
+   // Dispatcher<EventType, String, float> inputDispatcher;
+  // serialMonitor.registerCallback(inputDispatcher);
 
-  dispatcher.broadcast(VALUE_CHANGE, "dummy", 1.23f);
+  // dispatcher.broadcast(VALUE_CHANGE, "dummy", 1.23f);
   /* this makes things very noisy
    auto callbackid1 = dispatcher.addCallback([](EventType type, String name, float value) {
                           Serial.println("in chatterbox.cpp");
@@ -288,7 +291,7 @@ void setup()
 
   // Low priority serial out thread
 
-  web_connector.startWebServer();
+  webConnector.startWebServer();
 }
 /*** END SETUP() ***/
 
@@ -406,8 +409,8 @@ void ControlInput(void *pvParameter)
 {
   initInputs();
 
-  Dispatcher<EventType, String, float> inputDispatcher;
-  serialMonitor.registerCallback(inputDispatcher);
+  // Dispatcher<EventType, String, float> inputDispatcher;
+  // serialMonitor.registerCallback(inputDispatcher);
 
   // inputDispatcher.broadcast(VALUE_CHANGE, "dummy", 1.23f);
 
@@ -431,7 +434,7 @@ void ControlInput(void *pvParameter)
       if (abs(pots[pot].previous() - pots[pot].raw()) > 32)
       { // TODO refactor raw()
         potChanged = true;
-        inputDispatcher.broadcast(VALUE_CHANGE, pots[pot].id(), pots[pot].value());
+        controlDispatcher.broadcast(VALUE_CHANGE, pots[pot].id(), pots[pot].value());
         pots[pot].previous(pots[pot].raw());
       }
     }
@@ -499,14 +502,14 @@ void ControlInput(void *pvParameter)
 
       if (switches[i].on() != switches[i].previous())
       {
-        inputDispatcher.broadcast(VALUE_CHANGE, switches[i].id(), switches[i].on());
+        controlDispatcher.broadcast(VALUE_CHANGE, switches[i].id(), switches[i].on());
         if (switches[i].type() == TOGGLE)
           toggleChange = true;
 
         switches[i].previous(switches[i].on());
 
         togglePushSwitch(i); // for HOLD toggle
-        pushSwitchChange(i);
+        // pushSwitchChange(i);
       }
 
       if (switches[i].type() == PUSH)
@@ -593,24 +596,26 @@ void ControlInput(void *pvParameter)
         sawtoothRatio = SHOUT_SAWTOOTH_RATIO;
       }
     }
-    pushToWebSocket();
+    /* pushToWebSocket(); */
   }
 }
 /* END INPUT THREAD */
 
 const int potResolution = 32; // TODO sort out noise!!!!
 
+/*
 void pushToWebSocket()
 {
   for (int i = 0; i < N_POTS_ACTUAL; i++)
   {
     if (abs(pots[i].raw() - pots[i].previous()) >= potResolution)
     {
-      web_connector.convertAndPush(pots[i].id(), pots[i].channel());
-      web_connector.convertAndPush(pots[i].id(), pots[i].value());
+      webConnector.convertAndPush(pots[i].id(), pots[i].channel());
+      webConnector.convertAndPush(pots[i].id(), pots[i].value());
     }
   }
 }
+*/
 
 void togglePushSwitch(int i)
 {
@@ -626,18 +631,20 @@ void togglePushSwitch(int i)
   }
 }
 
+/*
 void pushSwitchChange(int i)
 {
-  web_connector.convertAndPush(switches[i].id(), switches[i].channel());
+  webConnector.convertAndPush(switches[i].id(), switches[i].channel());
   if (switches[i].on())
   {
-    web_connector.convertAndPush(switches[i].id(), 1);
+    webConnector.convertAndPush(switches[i].id(), 1);
   }
   else
   {
-    web_connector.convertAndPush(switches[i].id(), 0);
+    webConnector.convertAndPush(switches[i].id(), 0);
   }
 }
+*/
 
 float minValue = 0;
 float maxValue = 0;

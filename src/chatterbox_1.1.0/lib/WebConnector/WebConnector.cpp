@@ -80,74 +80,25 @@ void WebConnector::startWebServer()
 }
 /* END WEB SERVER */
 
-/*
-String WebConnector::pageProcessor(const String &var)
-{
-  char snum[5];
-
-  if (var == "pitch")
-  {
-    itoa((int)pitch, snum, 10);
-    return snum;
-  }
-  if (var == "larynx")
-  {
-    itoa(larynx, snum, 10);
-    return snum;
-  }
-  if (var == "f1f")
-  {
-    itoa(f1f, snum, 10);
-    return snum;
-  }
-  if (var == "f2f")
-  {
-    itoa(f2f, snum, 10);
-    return snum;
-  }
-  if (var == "f3f")
-  {
-    itoa(f3f, snum, 10);
-    return snum;
-  }
-  if (var == "f3q")
-  {
-    itoa(f3q, snum, 10);
-    return snum;
-  }
-
-  for (int i = 0; i < N_SWITCHES; i++)
-  {
-    if (var.compareTo(switches[i].id()) == 0)
-    {
-      if (switches[i].on())
-      {
-        return "on";
-      }
-      else
-      {
-        return "off";
-      }
-    }
-  }
-  return String();
-}
-*/
-  /*
-      if (var == "Q") return "QWERT";
-      if (var == "RR") return F("RRRRR");
-      int x = 1024;
-      char snum[5];
-      itoa(x, snum, 10);
-      if (var == "X") return snum;
-      float f = 1.123456789;
-      char c[50]; //size of the number
-      sprintf(c, "%g", f);
-      if (var == "Y") return c;
-      */
 
 ///// WebSocket bits
 
+void WebConnector::registerCallback(Dispatcher<EventType, String, float> &dispatcher)
+{
+    using namespace std::placeholders;
+    dispatcher.addCallback(std::bind(&WebConnector::listener, this, _1, _2, _3));
+}
+
+void WebConnector::listener(EventType type, String id, float value)
+{
+  char snum[5];
+  itoa(value, snum, 10);
+  String message = id + ":" + snum;
+  // Serial.println(message);
+  ws.textAll(message);
+}
+
+/*
 void WebConnector::convertAndPush(String id, int value)
 {
   char snum[5];
@@ -157,6 +108,7 @@ void WebConnector::convertAndPush(String id, int value)
   ws.textAll(message);
   //   ws.textAll((char*)text);
 }
+*/
 
 void WebConnector::onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len)
 {

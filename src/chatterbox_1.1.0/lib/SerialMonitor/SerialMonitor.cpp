@@ -19,6 +19,6 @@ void SerialMonitor::registerCallback(Dispatcher<EventType, String, float> &dispa
 
 void SerialMonitor::listener(EventType type, String name, float value)
 {
-    Serial.print(name + " : ");
+    Serial.print(name + " SM: ");
     Serial.println(value, DEC);
 }
