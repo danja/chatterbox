@@ -154,11 +154,43 @@
 
 /* KEY COMPONENTS */
 I2sDAC dac;
-TaskHandle_t AudioTask;
+// TaskHandle_t AudioTask;
 
 Dispatcher<EventType, String, float> controlDispatcher;
 SerialMonitor serialMonitor;
 WebConnector webConnector = WebConnector();
+
+class ChatterboxOutput
+{
+public:
+    ChatterboxOutput();
+    // void run();
+//  static TaskHandle_t AudioTask;
+static void run();
+
+  static void OutputDAC(void *pvParameter);
+};
+
+ChatterboxOutput chatterboxOutput;
+
+ChatterboxOutput::ChatterboxOutput(){
+
+}
+
+void ChatterboxOutput::run(){
+   // Highest priority audio thread
+   TaskHandle_t AudioTask;
+   
+  xTaskCreatePinnedToCore(
+      OutputDAC,
+      "audio",
+      2048, // was 4096
+      NULL,
+      1,
+      &AudioTask,
+      0);
+}
+// void OutputDAC(void *pvParameter)
 
 //////////////////////////////////////////////
 //// FORWARD DECLARATIONS ////////////////////
@@ -269,15 +301,8 @@ void setup()
     // Serial.println("DAC init fail");
   }
 
-  // Highest priority audio thread
-  xTaskCreatePinnedToCore(
-      OutputDAC,
-      "audio",
-      2048, // was 4096
-      NULL,
-      1,
-      &AudioTask,
-      0);
+ChatterboxOutput chatterboxOutput; 
+chatterboxOutput.run();
 
   // Lower priority input thread
   xTaskCreatePinnedToCore(
@@ -291,9 +316,16 @@ void setup()
 
   // Low priority serial out thread
 
+
   webConnector.startWebServer();
 }
 /*** END SETUP() ***/
+
+
+
+
+
+
 
 /* INITIALIZE LARYNX WAVETABLE */
 int larynx = TABLESIZE / 2; // point in wavetable corresponding to closed larynx
@@ -652,7 +684,7 @@ float maxValue = 0;
 /*****************/
 /* OUTPUT THREAD */
 /*****************/
-void OutputDAC(void *pvParameter)
+void ChatterboxOutput::OutputDAC(void *pvParameter)
 {
   unsigned int frameCount = 0;
 

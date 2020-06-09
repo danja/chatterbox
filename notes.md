@@ -1,3 +1,12 @@
+**2020-06-08** *version chatterbox_1.1.0*
+
+I was going softly softly through refactoring but then yesterday got a bit impatient, split off the whole of the output thread (OutputDac) into a separate class/file. Which split off lots of the variables etc. I did this back to front! Should have pulled out the variables first. But now I've started, continuing this way, at the moment trasferring the variable definitions into global namespace in ChatterboxOutput.h.
+
+TODO : the **mel scale** looks like it could be a good idea for mapping between physical values and frequencies, it aims to match perceived variations in pitch. Is a fairly straightforward log mapping.
+
+TODO : another thing for later. While reading up on FM synths I've come across several different algorithms that might be good for channel 2.
+There's the operator-based thing of DX7, plus one 
+
 **2020-06-02** *version chatterbox_1.1.0*
 
 I'd already printed out Klatt 1979 but clearly hadn't read too closely. It does quite clearly give the algorithm for the formant filters (resonators). After skimming the [source of synthv1](https://github.com/rncbc/synthv1/blob/master/src/synthv1_formant.cpp), there it appears the Klatt algorithm has been used with values taken from [CSound Formant Values](http://www.csounds.com/manual/html/MiscFormants.html). 
