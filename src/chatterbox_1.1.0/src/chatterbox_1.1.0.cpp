@@ -22,6 +22,8 @@
 #include <Pot.h>
 #include <Parameters.h>
 
+#include <Switches.h>
+
 #include <ProcessorCreator.h>
 #include <Processor.h>
 #include <Softclip.h>
@@ -217,6 +219,8 @@ void initInputs();
 
 Pot pots[N_POTS_VIRTUAL]; // TODO refactor to use std:array?
 Switch switches[N_SWITCHES];
+
+Switches svitches;
 
 float larynxRatio = DEFAULT_LARYNX_RATIO;
 float sineRatio = DEFAULT_SINE_RATIO;
@@ -769,7 +773,8 @@ void ChatterboxOutput::OutputDAC(void *pvParameter)
 
     for (int i = 0; i < N_PUSH_SWITCHES; i++)
     {
-      if (switches[i].on())
+     if (switches[i].on())
+     //if (svitches.getSwitch(i).on())
       {
         switches[i].gain(switches[i].gain() + attackStep); // TODO refactor
       }
