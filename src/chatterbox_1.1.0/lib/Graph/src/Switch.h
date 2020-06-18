@@ -34,9 +34,13 @@ class Switch : public Control {
     // void setChannel(int channel);
     int channel();
     int type();
-    void on(bool on); // change to isOn() ?
-    void previous(bool on); // TODO refactor
-    bool on();
+
+    void on(bool onn); 
+      bool on();
+
+     // void on(bool on) { on_ = on; }; 
+     // bool on() const { return on_; }; 
+    void previous(bool on); 
     bool previous();
     float gain();
     void gain(float gain);
@@ -44,11 +48,13 @@ class Switch : public Control {
     // used for push switches, redundant for toggles
     bool hold();
     void hold(bool hold); 
-    
+    String toString();
+    bool on_; //  = false
+
   private:
     int channel_;
     int type_;
-    bool on_ = false;
+    
     bool previous_;
     float gain_; // TODO refactor
     bool hold_;

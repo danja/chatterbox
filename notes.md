@@ -1,3 +1,16 @@
+**2020-06-19** *version chatterbox_1.1.0*
+
+Thing got into too much of a tangle after splitting of the output thread. After quite a frustrating week, did a reset back to back before then.
+The last couple of days spent splitting off just the switches into a separate class (Switches) that wraps a std:array containing the switch objects. I got very stuck again, despite it seeming a trivial refactoring. This time it was just down to my ignorance of C++, I needed the & here:
+
+Switch& getSwitch(int switchN);
+
+So, that's back to working (badly) as it was before. But next I should be able to pull out the pots in the same fashion, keep splitting things up but piano piano this time.
+
+I didn't finish the sentence the last time. The other algorithm that looks very interesting is one from a short-lived Yahama box (SPDT or something), called formant synthesis. It is and isn't formant synthesis. A bank of (8?) 'operators' that are each an oscillator & a bp filter, plus a bank with noise + bp. Each bit has envelope control. They are mixed in parallel. The reviews say it produces voice/natural instrument kind of voices. No idea how I'll map to the controls, may use a pair of push switches to effect a mode change. 
+
+Also read up a fair bit more or granular synthesis, I really want to play with that. Occurred to me that applying a sorting algorith to granules might be interesting. But save that for a later project (I have an Arduino Due waiting in the wings).
+
 **2020-06-08** *version chatterbox_1.1.0*
 
 I was going softly softly through refactoring but then yesterday got a bit impatient, split off the whole of the output thread (OutputDac) into a separate class/file. Which split off lots of the variables etc. I did this back to front! Should have pulled out the variables first. But now I've started, continuing this way, at the moment trasferring the variable definitions into global namespace in ChatterboxOutput.h.

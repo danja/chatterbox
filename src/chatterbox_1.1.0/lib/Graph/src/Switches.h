@@ -1,14 +1,18 @@
 #include <Switch.h>
 // #include <WString.h>
+#include <array>
 
-class Switches {
+class Switches
+{
 
-  public:
-      Switches();
-      // void setValue(int switchN, bool value);
-      // bool getValue(int switchN);
-      Switch getSwitch(int switchN);
-  private:
-  Switch svitches[N_SWITCHES];
+public:
+  Switches();
+  // void setValue(int switchN, bool value);
+  // bool getValue(int switchN);
+  Switch& getSwitch(int switchN);
+  void init();
 
+private:
+ //  Switch switchArray[N_SWITCHES];
+std::array<Switch, N_SWITCHES> switchArray;
 };

@@ -165,24 +165,25 @@ WebConnector webConnector = WebConnector();
 class ChatterboxOutput
 {
 public:
-    ChatterboxOutput();
-    // void run();
-//  static TaskHandle_t AudioTask;
-static void run();
+  ChatterboxOutput();
+  // void run();
+  //  static TaskHandle_t AudioTask;
+  static void run();
 
   static void OutputDAC(void *pvParameter);
 };
 
 ChatterboxOutput chatterboxOutput;
 
-ChatterboxOutput::ChatterboxOutput(){
-
+ChatterboxOutput::ChatterboxOutput()
+{
 }
 
-void ChatterboxOutput::run(){
-   // Highest priority audio thread
-   TaskHandle_t AudioTask;
-   
+void ChatterboxOutput::run()
+{
+  // Highest priority audio thread
+  TaskHandle_t AudioTask;
+
   xTaskCreatePinnedToCore(
       OutputDAC,
       "audio",
@@ -213,14 +214,17 @@ void setup();
 
 void initInputs();
 
+Switches svitches = Switches();
+
+
 /*********************/
 /*** INPUT RELATED ***/
 /*********************/
 
 Pot pots[N_POTS_VIRTUAL]; // TODO refactor to use std:array?
-Switch switches[N_SWITCHES];
+// Switch svitches.getSwitch(N_SWITCHES];
 
-Switches svitches;
+
 
 float larynxRatio = DEFAULT_LARYNX_RATIO;
 float sineRatio = DEFAULT_SINE_RATIO;
@@ -258,10 +262,9 @@ void setup()
 
   Serial.println("\n*** Starting Chatterbox ***\n");
 
- 
- serialMonitor.registerCallback(controlDispatcher);
- webConnector.registerCallback(controlDispatcher);
-   // Dispatcher<EventType, String, float> inputDispatcher;
+  serialMonitor.registerCallback(controlDispatcher);
+  webConnector.registerCallback(controlDispatcher);
+  // Dispatcher<EventType, String, float> inputDispatcher;
   // serialMonitor.registerCallback(inputDispatcher);
 
   // dispatcher.broadcast(VALUE_CHANGE, "dummy", 1.23f);
@@ -276,19 +279,23 @@ void setup()
 
   dac.begin(SAMPLERATE, GPIO_DAC_DATAPORT, GPIO_DAC_BCLK, GPIO_DAC_WSEL, GPIO_DAC_DOUT);
 
-  switches[SWITCH_SF1] = Switch("sf1", 12, PUSH);             //  S1
-  switches[SWITCH_SF2] = Switch("sf2", 19, PUSH);             // S2
-  switches[SWITCH_SF3] = Switch("sf3", 5, PUSH);              // S3
-  switches[SWITCH_VOICED] = Switch("voiced", 14, PUSH);       // S7
-  switches[SWITCH_ASPIRATED] = Switch("aspirated", 17, PUSH); // S5
-  switches[SWITCH_NASAL] = Switch("nasal", 23, PUSH);         // S6
-  switches[SWITCH_DESTRESS] = Switch("destressed", 18, PUSH); // S4
-  switches[SWITCH_STRESS] = Switch("stressed", 13, PUSH);     // S0
 
-  switches[TOGGLE_HOLD] = Switch("hold", 16, TOGGLE);   // T0
-  switches[TOGGLE_CREAK] = Switch("creak", 4, TOGGLE);  // T1
-  switches[TOGGLE_SING] = Switch("sing", 2, TOGGLE);    // T2
-  switches[TOGGLE_SHOUT] = Switch("shout", 15, TOGGLE); // T3
+
+  /*
+  svitches.getSwitch(SWITCH_SF1] = Switch("sf1", 12, PUSH);             //  S1
+  svitches.getSwitch(SWITCH_SF2] = Switch("sf2", 19, PUSH);             // S2
+  svitches.getSwitch(SWITCH_SF3] = Switch("sf3", 5, PUSH);              // S3
+  svitches.getSwitch(SWITCH_VOICED] = Switch("voiced", 14, PUSH);       // S7
+  svitches.getSwitch(SWITCH_ASPIRATED] = Switch("aspirated", 17, PUSH); // S5
+  svitches.getSwitch(SWITCH_NASAL] = Switch("nasal", 23, PUSH);         // S6
+  svitches.getSwitch(SWITCH_DESTRESS] = Switch("destressed", 18, PUSH); // S4
+  svitches.getSwitch(SWITCH_STRESS] = Switch("stressed", 13, PUSH);     // S0
+
+  svitches.getSwitch(TOGGLE_HOLD] = Switch("hold", 16, TOGGLE);   // T0
+  svitches.getSwitch(TOGGLE_CREAK] = Switch("creak", 4, TOGGLE);  // T1
+  svitches.getSwitch(TOGGLE_SING] = Switch("sing", 2, TOGGLE);    // T2
+  svitches.getSwitch(TOGGLE_SHOUT] = Switch("shout", 15, TOGGLE); // T3
+*/
 
   initLarynxWavetable();
   initFixedWavetables();
@@ -305,8 +312,8 @@ void setup()
     // Serial.println("DAC init fail");
   }
 
-ChatterboxOutput chatterboxOutput; 
-chatterboxOutput.run();
+  ChatterboxOutput chatterboxOutput;
+  chatterboxOutput.run();
 
   // Lower priority input thread
   xTaskCreatePinnedToCore(
@@ -320,16 +327,9 @@ chatterboxOutput.run();
 
   // Low priority serial out thread
 
-
   webConnector.startWebServer();
 }
 /*** END SETUP() ***/
-
-
-
-
-
-
 
 /* INITIALIZE LARYNX WAVETABLE */
 int larynx = TABLESIZE / 2; // point in wavetable corresponding to closed larynx
@@ -385,12 +385,6 @@ void initInputs()
     adcAttachPin(pots[i].channel());
   }
 
-  for (int i = 0; i < N_SWITCHES; i++)
-  {
-    pinMode(switches[i].channel(), INPUT);
-    pinMode(switches[i].channel(), INPUT_PULLDOWN);
-  }
-
   pots[POT_P0].range(ADC_TOP, F1F_LOW, F1F_HIGH);
   pots[POT_P1].range(ADC_TOP, F2F_LOW, F2F_HIGH);
   pots[POT_P2].range(ADC_TOP, F3F_LOW, F3F_HIGH);
@@ -399,6 +393,8 @@ void initInputs()
   pots[POT_P5].range(ADC_TOP, PITCH_MIN, PITCH_MAX);
 
   pots[POT_GROWL].range(ADC_TOP, GROWL_MAX, GROWL_MIN);
+
+svitches.init();
 }
 /* END INITIALISE INPUTS */
 
@@ -438,13 +434,14 @@ float growl;
 
 float emphasisGain = 1.0f;
 
+
 /************************/
 /* *** INPUT THREAD *** */
 /************************/
 void ControlInput(void *pvParameter)
 {
   initInputs();
-
+  
   // Dispatcher<EventType, String, float> inputDispatcher;
   // serialMonitor.registerCallback(inputDispatcher);
 
@@ -454,6 +451,8 @@ void ControlInput(void *pvParameter)
   {
     // vTaskDelay(1000 / portTICK_RATE_MS); // was 1000
     vTaskDelay(2);
+
+    // Serial.println(svitches.getSwitch(0).on());
 
     bool potChanged = false;
 
@@ -477,7 +476,7 @@ void ControlInput(void *pvParameter)
 
     pots[POT_GROWL].raw(pots[POT_P4].raw()); // same as larynx TODO refactor
 
-    if (switches[TOGGLE_CREAK].on())
+    if (svitches.getSwitch(TOGGLE_CREAK).on())
     {
       pots[POT_P4].id(POT_ID_GROWL);
     }
@@ -507,7 +506,7 @@ void ControlInput(void *pvParameter)
     f3f = pots[POT_P2].value();
     f3q = pots[POT_P3].value();
 
-    if (switches[SWITCH_NASAL].on())
+    if (svitches.getSwitch(SWITCH_NASAL).on())
     {
       pots[POT_P0].id(POT_ID_NASAL);
       pots[POT_P0].range(ADC_TOP, NASAL_LOW, NASAL_HIGH);
@@ -531,44 +530,83 @@ void ControlInput(void *pvParameter)
     /********************/
     bool toggleChange = false;
 
-    for (int i = 0; i < N_SWITCHES; i++)
-    {                                                     
-      // switch envelope generator TODO only needed for push switches
-      switches[i].on(digitalRead(switches[i].channel())); // TODO refactor - how?
+/*
+Serial.println();
+Serial.println(svitches.getSwitch(3).on());
+svitches.getSwitch(3).on(true);
+Serial.println(svitches.getSwitch(3).on());
+svitches.getSwitch(3).on_ = true;
+Serial.println(svitches.getSwitch(3).on());
+Serial.println(svitches.getSwitch(3).on_);
+*/
 
-      if (switches[i].on() != switches[i].previous())
+
+    for (int i = 0; i < N_SWITCHES; i++)
+    {
+      bool switchVal = digitalRead(svitches.getSwitch(i).channel());
+      svitches.getSwitch(i).on(switchVal); // TODO refactor - how?
+
+/*
+      if (svitches.getSwitch(i).channel() == 16)
       {
-        controlDispatcher.broadcast(VALUE_CHANGE, switches[i].id(), switches[i].on());
-        if (switches[i].type() == TOGGLE)
+        Serial.println();
+        
+        Serial.println("dotty");
+        Serial.println(svitches.getSwitch(i).on_);
+      }
+*/
+/*
+      if (digitalRead(svitches.getSwitch(i).channel()))
+      {
+        Serial.println();
+        Serial.println(i, DEC);
+        Serial.println(svitches.getSwitch(i).channel());
+        Serial.println(svitches.getSwitch(3).on());
+        Serial.println(digitalRead(14));
+      }
+*/
+
+      if (svitches.getSwitch(i).on() != svitches.getSwitch(i).previous())
+      {
+        controlDispatcher.broadcast(VALUE_CHANGE, svitches.getSwitch(i).id(), svitches.getSwitch(i).on());
+        if (svitches.getSwitch(i).type() == TOGGLE)
           toggleChange = true;
 
-        switches[i].previous(switches[i].on());
+        svitches.getSwitch(i).previous(svitches.getSwitch(i).on());
 
         togglePushSwitch(i); // for HOLD toggle
         // pushSwitchChange(i);
       }
 
-      if (switches[i].type() == PUSH)
+      if (svitches.getSwitch(i).type() == PUSH)
       {
-        switches[i].on(
-            switches[i].on() || (switches[i].hold() && switches[TOGGLE_HOLD].on()));
+        svitches.getSwitch(i).on(
+            svitches.getSwitch(i).on() || (svitches.getSwitch(i).hold() && svitches.getSwitch(TOGGLE_HOLD).on()));
 
-        if (switches[TOGGLE_HOLD].on())
+        if (svitches.getSwitch(TOGGLE_HOLD).on())
 
         { // override envelope
-          if (switches[i].on())
+          if (svitches.getSwitch(i).on())
           {
-            switches[i].gain(1);
+            svitches.getSwitch(i).gain(1);
           }
           else
           {
-            switches[i].gain(0);
+            svitches.getSwitch(i).gain(0);
           }
         }
       }
     }
 
-    if (switches[SWITCH_DESTRESS].gain())
+    /*
+Serial.println(svitches.getSwitch(3).toString());
+Serial.println(svitches.getSwitch(3).on());
+Serial.println(svitches.getSwitch(3).channel(), DEC);
+Serial.println(digitalRead(svitches.getSwitch(3).channel()));
+Serial.println(digitalRead(14));
+*/
+
+    if (svitches.getSwitch(SWITCH_DESTRESS).gain())
     {
       emphasisGain = VOICED_GAIN_DESTRESSED;
 
@@ -582,7 +620,7 @@ void ControlInput(void *pvParameter)
       svf1.initParameters(f1f, F1Q, "bandPass", samplerate);
       svf2.initParameters(f2f, F2Q, "bandPass", samplerate);
     }
-    if (switches[SWITCH_STRESS].on())
+    if (svitches.getSwitch(SWITCH_STRESS).on())
     {
       emphasisGain = VOICED_GAIN_STRESSED;
     }
@@ -599,14 +637,14 @@ void ControlInput(void *pvParameter)
       sineRatio = DEFAULT_SINE_RATIO;
       sawtoothRatio = DEFAULT_SAWTOOTH_RATIO;
 
-      if (switches[TOGGLE_CREAK].on())
+      if (svitches.getSwitch(TOGGLE_CREAK).on())
       {
         larynxRatio = CREAK_LARYNX_RATIO;
         sineRatio = CREAK_SINE_RATIO;
         sawtoothRatio = CREAK_SAWTOOTH_RATIO;
       }
 
-      if (switches[TOGGLE_SING].on())
+      if (svitches.getSwitch(TOGGLE_SING).on())
       {
         larynxRatio = SING_LARYNX_RATIO;
         sineRatio = SING_SINE_RATIO;
@@ -614,7 +652,7 @@ void ControlInput(void *pvParameter)
 
         attackTime = ATTACK_TIME_SING;
         decayTime = DECAY_TIME_SING;
-        attackStep = 1.0f / (attackTime * samplerate); 
+        attackStep = 1.0f / (attackTime * samplerate);
         decayStep = 1.0f / (decayTime * samplerate);
       }
       else
@@ -625,7 +663,7 @@ void ControlInput(void *pvParameter)
         decayStep = 1.0f / (decayTime * samplerate);
       }
 
-      if (switches[TOGGLE_SHOUT].on())
+      if (svitches.getSwitch(TOGGLE_SHOUT).on())
       {
         larynxRatio = SHOUT_LARYNX_RATIO;
         sineRatio = SHOUT_SINE_RATIO;
@@ -655,14 +693,14 @@ void pushToWebSocket()
 
 void togglePushSwitch(int i)
 {
-  if (switches[i].type() != PUSH)
+  if (svitches.getSwitch(i).type() != PUSH)
     return;
 
-  if (switches[TOGGLE_HOLD].on())
+  if (svitches.getSwitch(TOGGLE_HOLD).on())
   {
-    if (switches[i].on())
+    if (svitches.getSwitch(i).on())
     {
-      switches[i].hold(!switches[i].hold()); // toggle, rename to flip method?
+      svitches.getSwitch(i).hold(!svitches.getSwitch(i).hold()); // toggle, rename to flip method?
     }
   }
 }
@@ -670,14 +708,14 @@ void togglePushSwitch(int i)
 /*
 void pushSwitchChange(int i)
 {
-  webConnector.convertAndPush(switches[i].id(), switches[i].channel());
-  if (switches[i].on())
+  webConnector.convertAndPush(svitches.getSwitch(i).id(), svitches.getSwitch(i).channel());
+  if (svitches.getSwitch(i).on())
   {
-    webConnector.convertAndPush(switches[i].id(), 1);
+    webConnector.convertAndPush(svitches.getSwitch(i).id(), 1);
   }
   else
   {
-    webConnector.convertAndPush(switches[i].id(), 0);
+    webConnector.convertAndPush(svitches.getSwitch(i).id(), 0);
   }
 }
 */
@@ -703,7 +741,7 @@ void ChatterboxOutput::OutputDAC(void *pvParameter)
   nasalFixedBP.initParameters(NASAL_FIXEDBPF, NASAL_FIXEDBPQ, "bandPass", samplerate);
   nasalFixedNotch.initParameters(NASAL_FIXEDNOTCHF, NASAL_FIXEDNOTCHQ, "notch", samplerate);
 
- sing1.initParameters(SING1F, SING1Q, "bandPass", samplerate);
+  sing1.initParameters(SING1F, SING1Q, "bandPass", samplerate);
   sing2.initParameters(SING2F, SING2Q, "bandPass", samplerate);
 
   int pointer = 0;
@@ -720,7 +758,7 @@ void ChatterboxOutput::OutputDAC(void *pvParameter)
   while (1)
   {
     // *** Read wavetable voice ***
-    if (switches[TOGGLE_CREAK].on())
+    if (svitches.getSwitch(TOGGLE_CREAK).on())
     {
       pointer = pointer + tableStep * (1.0f - creakNoise.stretchedNoise() * growl);
       if (pointer < 0)
@@ -757,7 +795,7 @@ void ChatterboxOutput::OutputDAC(void *pvParameter)
     {
       maxValue = monitorValue;
     }
-    if (switches[SWITCH_STRESS].on() && switches[SWITCH_DESTRESS].on())
+    if (svitches.getSwitch(SWITCH_STRESS).on() && svitches.getSwitch(SWITCH_DESTRESS).on())
     {
       Serial.print("minValue = ");
       Serial.println(minValue, DEC);
@@ -773,39 +811,39 @@ void ChatterboxOutput::OutputDAC(void *pvParameter)
 
     for (int i = 0; i < N_PUSH_SWITCHES; i++)
     {
-     if (switches[i].on())
-     //if (svitches.getSwitch(i).on())
+      if (svitches.getSwitch(i).on())
+      //if (svitches.getSwitch(i).on())
       {
-        switches[i].gain(switches[i].gain() + attackStep); // TODO refactor
+        svitches.getSwitch(i).gain(svitches.getSwitch(i).gain() + attackStep); // TODO refactor
       }
       else
       {
-        switches[i].gain(switches[i].gain() - decayStep); // TODO refactor
+        svitches.getSwitch(i).gain(svitches.getSwitch(i).gain() - decayStep); // TODO refactor
       }
     }
 
-    voice = (switches[SWITCH_VOICED].gain() + switches[SWITCH_NASAL].gain()) * voice / 2.0f;
+    voice = (svitches.getSwitch(SWITCH_VOICED).gain() + svitches.getSwitch(SWITCH_NASAL).gain()) * voice / 2.0f;
 
-    float aspiration = switches[SWITCH_ASPIRATED].gain() * noise;
+    float aspiration = svitches.getSwitch(SWITCH_ASPIRATED).gain() * noise;
 
     float current = (emphasisGain * (voice + aspiration)) * SIGNAL_GAIN;
 
-    if (switches[TOGGLE_SING].on())
+    if (svitches.getSwitch(TOGGLE_SING).on())
     {
       float sing1Val = SING1_GAIN * sing1.process(current);
       float sing2Val = SING2_GAIN * sing2.process(current);
-    
+
       current = softClip.process((current + sing1Val + sing2Val) / 3.0f);
     }
 
-    if (switches[TOGGLE_SHOUT].on())
+    if (svitches.getSwitch(TOGGLE_SHOUT).on())
     {
       current = softClip.process(current * (1.0f - growl * shoutNoise.stretchedNoise())); // amplitude mod
     }
 
-    float s1 = fricative1.process(sf1Noise.pink(noise)) * SF1_GAIN * switches[SWITCH_SF1].gain();
-    float s2 = fricative2.process(noise) * SF2_GAIN * switches[SWITCH_SF2].gain();
-    float s3 = 3 * fricative3.process(noise - sf3Noise.pink(noise)) * SF3_GAIN * switches[SWITCH_SF3].gain();
+    float s1 = fricative1.process(sf1Noise.pink(noise)) * SF1_GAIN * svitches.getSwitch(SWITCH_SF1).gain();
+    float s2 = fricative2.process(noise) * SF2_GAIN * svitches.getSwitch(SWITCH_SF2).gain();
+    float s3 = 3 * fricative3.process(noise - sf3Noise.pink(noise)) * SF3_GAIN * svitches.getSwitch(SWITCH_SF3).gain();
 
     float sibilants = softClip.process((s1 + s2 + s3) / 3.0f);
 
@@ -816,7 +854,7 @@ void ChatterboxOutput::OutputDAC(void *pvParameter)
     float mix3 = softClip.process(F2_GAIN * svf2.process(mix2));
     float mix4 = mix3;
 
-    if (switches[SWITCH_NASAL].on())
+    if (svitches.getSwitch(SWITCH_NASAL).on())
     {
       mix4 = NASAL_LP_GAIN * nasalLP.process(mix3) + NASAL_FIXEDBP_GAIN * nasalFixedBP.process(mix3) + NASAL_FIXEDNOTCH_GAIN * nasalFixedNotch.process(mix3);
 
@@ -824,8 +862,8 @@ void ChatterboxOutput::OutputDAC(void *pvParameter)
     }
     float mix5 = F3_GAIN * svf3.process(mix4);
 
-    float valL = softClip.process(current);
-    float valR = creakNoise.stretchedNoise();
+    // float valL = softClip.process(current);
+    // float valR = creakNoise.stretchedNoise();
 
     dac.writeSample(sinePart, mix5); //mix5
 
