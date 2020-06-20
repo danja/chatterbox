@@ -18,7 +18,8 @@
 			"string_view": "cpp",
 			"istream": "cpp",
 			"ostream": "cpp",
-			"variant": "cpp"
+			"variant": "cpp",
+			"array": "cpp"
 		}
 	},
 	"tasks": {

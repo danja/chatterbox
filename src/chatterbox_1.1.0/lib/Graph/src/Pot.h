@@ -1,4 +1,5 @@
-#pragma once
+#ifndef Pot_h
+#define Pot_h
 
 #include <WString.h>
 #include <Control.h>
@@ -44,3 +45,5 @@ class Pot : public Control {
     float offset_ = 0;
     float scale_ = 1.0f;
 };
+
+#endif

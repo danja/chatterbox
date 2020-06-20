@@ -35,22 +35,10 @@ int Switch::type()
 void Switch::on(bool onn)
 {
   on_ = onn;
-  if (channel_ == 160)
-  {
-    Serial.println("set");
-    Serial.println(Switch::id());
-    Serial.println(on_);
-  }
 }
 
 bool Switch::on()
 {
-  if (channel_ == 160)
-  {
-    Serial.println("get");
-    Serial.println(Switch::id());
-    Serial.println(on_);
-  }
   return on_;
   // return digitalRead(channel_);
 }
