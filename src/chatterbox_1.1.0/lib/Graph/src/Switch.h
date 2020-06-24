@@ -1,4 +1,5 @@
-#pragma once
+#ifndef Switch_h
+#define Switch_h
 
 #include <WString.h>
 #include <Control.h>
@@ -59,3 +60,5 @@ class Switch : public Control {
     float gain_; // TODO refactor
     bool hold_;
 };
+
+#endif

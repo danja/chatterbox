@@ -29,6 +29,7 @@
 #include <Processor.h>
 #include <Softclip.h>
 
+#include <SineWavetable.h>
 #include <SVF.h>
 
 #include <WebConnector.h>
@@ -48,7 +49,7 @@
 
 #define ADC_TOP 4096
 
-#define TABLESIZE  2048 // 1024 //  2048
+#define TABLESIZE 2048 // 1024 //  2048
 
 #define ADC_SAMPLES 32 // pot reading takes mean over this number of values
 
@@ -58,7 +59,7 @@
 #define F2_GAIN 1.0f
 #define F3_GAIN 0.5f
 #define SF1_GAIN 0.4f
-#define SF2_GAIN 0.8f
+#define SF2_GAIN 0.8f 
 #define SF3_GAIN 1.0f
 #define VOICED_GAIN_DEFAULT 1.0f
 #define VOICED_GAIN_DESTRESSED 0.7f
@@ -213,7 +214,7 @@ void initInputs();
 /*********************/
 
 Switches switches = Switches(); ///////////////////////////////////
-// Pot poth.getPot(N_POTS_VIRTUAL]; 
+// Pot poth.getPot(N_POTS_VIRTUAL];
 Pots poth;
 
 float larynxRatio = DEFAULT_LARYNX_RATIO;
@@ -233,6 +234,8 @@ float decayStep = 1.0f / (decayTime * samplerate);
 float larynxWavetable[TABLESIZE];
 float sawtoothWavetable[TABLESIZE];
 float sineWavetable[TABLESIZE];
+
+SineWavetable sinWavetable;
 
 float tableStep = 1;
 
@@ -271,6 +274,8 @@ void setup()
 
   initLarynxWavetable();
   initFixedWavetables();
+
+  sinWavetable.init();
 
   // Serial.println("portTICK_RATE_MS = " + portTICK_RATE_MS);
 
@@ -345,9 +350,9 @@ void initInputs()
   adc1_config_width(ADC_WIDTH_BIT_12);
   adc1_config_channel_atten(ADC1_CHANNEL_0, ADC_ATTEN_DB_11);
 
-poth.init();
+  poth.init();
 
-/*
+  /*
   poth.getPot(POT_P0] = Pot("f1f", 36);
   poth.getPot(POT_P1] = Pot("f2f", 39);
   poth.getPot(POT_P2] = Pot("f3f", 32);
@@ -369,7 +374,7 @@ poth.init();
 
   poth.getPot(POT_GROWL].range(ADC_TOP, GROWL_MAX, GROWL_MIN);
 */
-switches.init();
+  switches.init();
 }
 /* END INITIALISE INPUTS */
 
@@ -409,14 +414,13 @@ float growl;
 
 float emphasisGain = 1.0f;
 
-
 /************************/
 /* *** INPUT THREAD *** */
 /************************/
 void ControlInput(void *pvParameter)
 {
   initInputs();
-  
+
   // Dispatcher<EventType, String, float> inputDispatcher;
   // serialMonitor.registerCallback(inputDispatcher);
 
@@ -425,7 +429,7 @@ void ControlInput(void *pvParameter)
   while (1)
   {
     // vTaskDelay(1000 / portTICK_RATE_MS); // was 1000
-   // vTaskDelay(1); // 2
+    // vTaskDelay(1); // 2
 
     // Serial.println(switches.getSwitch(0).on());
 
@@ -434,7 +438,7 @@ void ControlInput(void *pvParameter)
     // take mean of ADC readings, they are prone to noise
     for (int pot = 0; pot < N_POTS_ACTUAL; pot++)
     {
-vTaskDelay(1); 
+      vTaskDelay(1);
       int sum = 0;
       for (int j = 0; j < ADC_SAMPLES; j++)
       {
@@ -451,7 +455,7 @@ vTaskDelay(1);
     }
 
     // poth.getPot(POT_GROWL].raw(poth.getPot(POT_P4].raw()); // same as larynx TODO refactor
-poth.getPot(POT_GROWL).raw(poth.getPot(POT_P4).raw()); // same as larynx TODO refactor
+    poth.getPot(POT_GROWL).raw(poth.getPot(POT_P4).raw()); // same as larynx TODO refactor
 
     if (switches.getSwitch(TOGGLE_CREAK).on())
     {
@@ -468,15 +472,15 @@ poth.getPot(POT_GROWL).raw(poth.getPot(POT_P4).raw()); // same as larynx TODO re
     {
       // pitch control
       // pitch = poth.getPot(POT_P5].value();
-       pitch = poth.getPot(POT_P5).value();
+      pitch = poth.getPot(POT_P5).value();
     }
 
     growl = poth.getPot(POT_GROWL).value();
-//   growl = poth.getPot(POT_GROWL].value();
+    //   growl = poth.getPot(POT_GROWL].value();
 
     tableStep = pitch * tablesize / samplerate; // tableStep aka delta
 
-//  if (abs(larynx - poth.getPot(POT_P4].value()) > 8)
+    //  if (abs(larynx - poth.getPot(POT_P4].value()) > 8)
     if (abs(larynx - poth.getPot(POT_P4).value()) > 8)
     {
       larynx = poth.getPot(POT_P4).value();
@@ -488,7 +492,7 @@ poth.getPot(POT_GROWL).raw(poth.getPot(POT_P4).raw()); // same as larynx TODO re
     f2f = poth.getPot(POT_P1).value();
     f3f = poth.getPot(POT_P2).value();
     f3q = poth.getPot(POT_P3).value();
-/*
+    /*
 f1f = poth.getPot(POT_P0].value();
     f2f = poth.getPot(POT_P1].value();
     f3f = poth.getPot(POT_P2].value();
@@ -518,7 +522,7 @@ f1f = poth.getPot(POT_P0].value();
     /********************/
     bool toggleChange = false;
 
-/*
+    /*
 Serial.println();
 Serial.println(switches.getSwitch(3).on());
 switches.getSwitch(3).on(true);
@@ -528,13 +532,12 @@ Serial.println(switches.getSwitch(3).on());
 Serial.println(switches.getSwitch(3).on_);
 */
 
-
     for (int i = 0; i < N_SWITCHES; i++)
     {
       bool switchVal = digitalRead(switches.getSwitch(i).channel());
       switches.getSwitch(i).on(switchVal); // TODO refactor - how?
 
-/*
+      /*
       if (switches.getSwitch(i).channel() == 16)
       {
         Serial.println();
@@ -543,7 +546,7 @@ Serial.println(switches.getSwitch(3).on_);
         Serial.println(switches.getSwitch(i).on_);
       }
 */
-/*
+      /*
       if (digitalRead(switches.getSwitch(i).channel()))
       {
         Serial.println();
@@ -662,7 +665,6 @@ Serial.println(digitalRead(14));
   }
 }
 /* END INPUT THREAD */
-
 
 void togglePushSwitch(int i)
 {
@@ -828,10 +830,9 @@ void ChatterboxOutput::OutputDAC(void *pvParameter)
     // ****************** END WIRING ******************
 
     // Pause thread after delivering 64 samples so that other threads can do stuff
-    
+
     if (frameCount++ % 64 == 0)
       vTaskDelay(1); // was 64, 1
-      
   }
 }
 // END OUTPUT THREAD

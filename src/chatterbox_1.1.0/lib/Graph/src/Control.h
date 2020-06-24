@@ -1,4 +1,5 @@
-#pragma once
+#ifndef Control_h
+#define Control_h
 
 #include <Node.h>
 
@@ -11,3 +12,5 @@ class Control: public Node {
   private:
     int raw_;
 };
+
+#endif
