@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <Wavetable.h>
 #include <Pots.h>
 #include <Pot.h>
 
@@ -9,7 +10,7 @@ Pots::Pots()
 
 void Pots::init()
 {
-    float tablesize = (float)TABLESIZE; // move
+   // float tablesize = (float)TABLESIZE; // move
 
     potArray[POT_P0] = Pot("f1f", 36);
     potArray[POT_P1] = Pot("f2f", 39);

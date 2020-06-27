@@ -30,6 +30,7 @@
 #include <Softclip.h>
 
 #include <SineWavetable.h>
+#include <SawtoothWavetable.h>
 #include <SVF.h>
 
 #include <WebConnector.h>
@@ -49,8 +50,6 @@
 
 #define ADC_TOP 4096
 
-#define TABLESIZE 2048 // 1024 //  2048
-
 #define ADC_SAMPLES 32 // pot reading takes mean over this number of values
 
 // Mixing
@@ -59,7 +58,7 @@
 #define F2_GAIN 1.0f
 #define F3_GAIN 0.5f
 #define SF1_GAIN 0.4f
-#define SF2_GAIN 0.8f 
+#define SF2_GAIN 0.8f
 #define SF3_GAIN 1.0f
 #define VOICED_GAIN_DEFAULT 1.0f
 #define VOICED_GAIN_DESTRESSED 0.7f
@@ -152,7 +151,20 @@
 
 /* KEY COMPONENTS */
 I2sDAC dac;
-// TaskHandle_t AudioTask;
+
+float larynxWavetable[TABLESIZE];
+
+float sawtoothWavetable[TABLESIZE];
+float sineWavetable[TABLESIZE];
+
+// SineWavetable sinWavetable;
+// SawtoothWavetable sawWavetable;
+
+TaskHandle_t controlInputHandle = NULL;
+TaskHandle_t outputDACHandle = NULL;
+
+SineWavetable sinWavetable; // not used
+SawtoothWavetable sawWavetable; 
 
 Dispatcher<EventType, String, float> controlDispatcher;
 SerialMonitor serialMonitor;
@@ -162,8 +174,7 @@ class ChatterboxOutput
 {
 public:
   ChatterboxOutput();
-  // void run();
-  //  static TaskHandle_t AudioTask;
+
   static void run();
 
   static void OutputDAC(void *pvParameter);
@@ -177,16 +188,13 @@ ChatterboxOutput::ChatterboxOutput()
 
 void ChatterboxOutput::run()
 {
-  // Highest priority audio thread
-  TaskHandle_t AudioTask;
-
   xTaskCreatePinnedToCore(
       OutputDAC,
       "audio",
-      4096, // was 2048
+      2048, // was 2048, 4096
       NULL,
       1,
-      &AudioTask,
+      &outputDACHandle, // was &AudioTask,
       0);
 }
 // void OutputDAC(void *pvParameter)
@@ -214,28 +222,19 @@ void initInputs();
 /*********************/
 
 Switches switches = Switches(); ///////////////////////////////////
-// Pot poth.getPot(N_POTS_VIRTUAL];
-Pots poth;
+Pots pots;
 
 float larynxRatio = DEFAULT_LARYNX_RATIO;
 float sineRatio = DEFAULT_SINE_RATIO;
 float sawtoothRatio = DEFAULT_SAWTOOTH_RATIO;
 
-// save a bit of casting - better just to define as floats, will cast to int automatically when needed?
 float samplerate = (float)SAMPLERATE;
-float tablesize = (float)TABLESIZE;
 
 float attackTime = ATTACK_TIME; // 10mS
 float attackStep = 1.0f / (attackTime * samplerate);
 
 float decayTime = DECAY_TIME; // 10mS
 float decayStep = 1.0f / (decayTime * samplerate);
-
-float larynxWavetable[TABLESIZE];
-float sawtoothWavetable[TABLESIZE];
-float sineWavetable[TABLESIZE];
-
-SineWavetable sinWavetable;
 
 float tableStep = 1;
 
@@ -275,8 +274,6 @@ void setup()
   initLarynxWavetable();
   initFixedWavetables();
 
-  sinWavetable.init();
-
   // Serial.println("portTICK_RATE_MS = " + portTICK_RATE_MS);
 
   // Try to start the DAC
@@ -296,15 +293,32 @@ void setup()
   xTaskCreatePinnedToCore(
       ControlInput,
       "ControlInput",
-      4096, // was 2048
+      2048, // was 4096
       NULL,
       2, // priority
-      NULL,
+      &controlInputHandle,
       1); // core
 
   // Low priority serial out thread
 
   webConnector.startWebServer();
+
+  /*
+  Serial.print("esp_get_free_heap_size() = ");
+  Serial.println(esp_get_free_heap_size(), DEC);
+
+  Serial.print("esp_get_minimum_free_heap_size() = ");
+  Serial.println(esp_get_minimum_free_heap_size(), DEC);
+
+  Serial.print("uxTaskGetStackHighWaterMark(controlInputHandle) = ");
+  Serial.println(uxTaskGetStackHighWaterMark(controlInputHandle), DEC);
+
+  Serial.print("uxTaskGetStackHighWaterMark(outputDACHandle) = ");
+  Serial.println(uxTaskGetStackHighWaterMark(outputDACHandle), DEC);
+
+  Serial.print("uxTaskGetNumberOfTasks() = ");
+  Serial.println(uxTaskGetNumberOfTasks(), DEC);
+*/
 }
 /*** END SETUP() ***/
 
@@ -337,9 +351,9 @@ void initFixedWavetables()
   float sinScale = 2.0f * PI / (float)TABLESIZE;
 
   for (unsigned int i = 0; i < TABLESIZE; i++)
-  { // flat section __
-    sawtoothWavetable[i] = ((float)i * sawScale - 1);
-    sineWavetable[i] = sin((float)i * sinScale);
+  { 
+   sawtoothWavetable[i] = ((float)i * sawScale - 1);
+   sineWavetable[i] = sin((float)i * sinScale);
   }
 }
 
@@ -350,30 +364,8 @@ void initInputs()
   adc1_config_width(ADC_WIDTH_BIT_12);
   adc1_config_channel_atten(ADC1_CHANNEL_0, ADC_ATTEN_DB_11);
 
-  poth.init();
+  pots.init();
 
-  /*
-  poth.getPot(POT_P0] = Pot("f1f", 36);
-  poth.getPot(POT_P1] = Pot("f2f", 39);
-  poth.getPot(POT_P2] = Pot("f3f", 32);
-  poth.getPot(POT_P3] = Pot("f3q", 33);
-  poth.getPot(POT_P4] = Pot("larynx", 34);
-  poth.getPot(POT_P5] = Pot("pitch", 35);
-
-  for (int i = 0; i < N_POTS_ACTUAL; i++)
-  {
-    adcAttachPin(poth.getPot(i].channel());
-  }
-
-  poth.getPot(POT_P0].range(ADC_TOP, F1F_LOW, F1F_HIGH);
-  poth.getPot(POT_P1].range(ADC_TOP, F2F_LOW, F2F_HIGH);
-  poth.getPot(POT_P2].range(ADC_TOP, F3F_LOW, F3F_HIGH);
-  poth.getPot(POT_P3].range(ADC_TOP, F3Q_MIN, F3Q_MAX);
-  poth.getPot(POT_P4].range(ADC_TOP, tablesize * LARYNX_MIN / 100.0f, tablesize * LARYNX_MAX / 100.0f);
-  poth.getPot(POT_P5].range(ADC_TOP, PITCH_MIN, PITCH_MAX);
-
-  poth.getPot(POT_GROWL].range(ADC_TOP, GROWL_MAX, GROWL_MIN);
-*/
   switches.init();
 }
 /* END INITIALISE INPUTS */
@@ -442,74 +434,72 @@ void ControlInput(void *pvParameter)
       int sum = 0;
       for (int j = 0; j < ADC_SAMPLES; j++)
       {
-        sum += analogRead(poth.getPot(pot).channel()); // get value from pot / ADC
+        sum += analogRead(pots.getPot(pot).channel()); // get value from pot / ADC
       }
-      poth.getPot(pot).raw(sum / ADC_SAMPLES);
+      pots.getPot(pot).raw(sum / ADC_SAMPLES);
 
-      if (abs(poth.getPot(pot).previous() - poth.getPot(pot).raw()) > 32)
+      if (abs(pots.getPot(pot).previous() - pots.getPot(pot).raw()) > 32)
       { // TODO refactor raw()
         potChanged = true;
-        controlDispatcher.broadcast(VALUE_CHANGE, poth.getPot(pot).id(), poth.getPot(pot).value());
-        poth.getPot(pot).previous(poth.getPot(pot).raw());
+        controlDispatcher.broadcast(VALUE_CHANGE, pots.getPot(pot).id(), pots.getPot(pot).value());
+        pots.getPot(pot).previous(pots.getPot(pot).raw());
       }
     }
 
-    // poth.getPot(POT_GROWL].raw(poth.getPot(POT_P4].raw()); // same as larynx TODO refactor
-    poth.getPot(POT_GROWL).raw(poth.getPot(POT_P4).raw()); // same as larynx TODO refactor
+    pots.getPot(POT_GROWL).raw(pots.getPot(POT_P4).raw()); // same as larynx TODO refactor
 
     if (switches.getSwitch(TOGGLE_CREAK).on())
     {
-      poth.getPot(POT_P4).id(POT_ID_GROWL);
-      //   poth.getPot(POT_P4].id(POT_ID_GROWL);
+      pots.getPot(POT_P4).id(POT_ID_GROWL);
     }
     else
     {
-      poth.getPot(POT_P4).id(POT_ID_LARYNX);
-      // poth.getPot(POT_P4].id(POT_ID_LARYNX);
+      pots.getPot(POT_P4).id(POT_ID_LARYNX);
+      // pots.getPot(POT_P4].id(POT_ID_LARYNX);
     }
 
     if (potChanged)
     {
       // pitch control
-      // pitch = poth.getPot(POT_P5].value();
-      pitch = poth.getPot(POT_P5).value();
+      // pitch = pots.getPot(POT_P5].value();
+      pitch = pots.getPot(POT_P5).value();
     }
 
-    growl = poth.getPot(POT_GROWL).value();
-    //   growl = poth.getPot(POT_GROWL].value();
+    growl = pots.getPot(POT_GROWL).value();
+    //   growl = pots.getPot(POT_GROWL].value();
 
     tableStep = pitch * tablesize / samplerate; // tableStep aka delta
 
-    //  if (abs(larynx - poth.getPot(POT_P4].value()) > 8)
-    if (abs(larynx - poth.getPot(POT_P4).value()) > 8)
+    //  if (abs(larynx - pots.getPot(POT_P4].value()) > 8)
+    if (abs(larynx - pots.getPot(POT_P4).value()) > 8)
     {
-      larynx = poth.getPot(POT_P4).value();
-      // larynx = poth.getPot(POT_P4].value();
+      larynx = pots.getPot(POT_P4).value();
+      // larynx = pots.getPot(POT_P4].value();
       initLarynxWavetable();
     }
 
-    f1f = poth.getPot(POT_P0).value();
-    f2f = poth.getPot(POT_P1).value();
-    f3f = poth.getPot(POT_P2).value();
-    f3q = poth.getPot(POT_P3).value();
+    f1f = pots.getPot(POT_P0).value();
+    f2f = pots.getPot(POT_P1).value();
+    f3f = pots.getPot(POT_P2).value();
+    f3q = pots.getPot(POT_P3).value();
     /*
-f1f = poth.getPot(POT_P0].value();
-    f2f = poth.getPot(POT_P1].value();
-    f3f = poth.getPot(POT_P2].value();
-    f3q = poth.getPot(POT_P3].value();
+f1f = pots.getPot(POT_P0].value();
+    f2f = pots.getPot(POT_P1].value();
+    f3f = pots.getPot(POT_P2].value();
+    f3q = pots.getPot(POT_P3].value();
     */
     if (switches.getSwitch(SWITCH_NASAL).on())
     {
-      poth.getPot(POT_P0).id(POT_ID_NASAL);
-      poth.getPot(POT_P0).range(ADC_TOP, NASAL_LOW, NASAL_HIGH);
+      pots.getPot(POT_P0).id(POT_ID_NASAL);
+      pots.getPot(POT_P0).range(ADC_TOP, NASAL_LOW, NASAL_HIGH);
 
       svf1.initParameters(f1f, F1_NASALQ, "notch", samplerate);
       svf2.initParameters(f2f, F2_NASALQ, "bandPass", samplerate);
     }
     else
     {
-      poth.getPot(POT_P0).id(POT_ID_F1F);
-      poth.getPot(POT_P0).range(ADC_TOP, F1F_LOW, F1F_HIGH);
+      pots.getPot(POT_P0).id(POT_ID_F1F);
+      pots.getPot(POT_P0).range(ADC_TOP, F1F_LOW, F1F_HIGH);
 
       svf1.initParameters(f1f, F1Q, "bandPass", samplerate);
       svf2.initParameters(f2f, F2Q, "bandPass", samplerate);
@@ -522,40 +512,10 @@ f1f = poth.getPot(POT_P0].value();
     /********************/
     bool toggleChange = false;
 
-    /*
-Serial.println();
-Serial.println(switches.getSwitch(3).on());
-switches.getSwitch(3).on(true);
-Serial.println(switches.getSwitch(3).on());
-switches.getSwitch(3).on_ = true;
-Serial.println(switches.getSwitch(3).on());
-Serial.println(switches.getSwitch(3).on_);
-*/
-
     for (int i = 0; i < N_SWITCHES; i++)
     {
       bool switchVal = digitalRead(switches.getSwitch(i).channel());
       switches.getSwitch(i).on(switchVal); // TODO refactor - how?
-
-      /*
-      if (switches.getSwitch(i).channel() == 16)
-      {
-        Serial.println();
-        
-        Serial.println("dotty");
-        Serial.println(switches.getSwitch(i).on_);
-      }
-*/
-      /*
-      if (digitalRead(switches.getSwitch(i).channel()))
-      {
-        Serial.println();
-        Serial.println(i, DEC);
-        Serial.println(switches.getSwitch(i).channel());
-        Serial.println(switches.getSwitch(3).on());
-        Serial.println(digitalRead(14));
-      }
-*/
 
       if (switches.getSwitch(i).on() != switches.getSwitch(i).previous())
       {
@@ -588,14 +548,6 @@ Serial.println(switches.getSwitch(3).on_);
         }
       }
     }
-
-    /*
-Serial.println(switches.getSwitch(3).toString());
-Serial.println(switches.getSwitch(3).on());
-Serial.println(switches.getSwitch(3).channel(), DEC);
-Serial.println(digitalRead(switches.getSwitch(3).channel()));
-Serial.println(digitalRead(14));
-*/
 
     if (switches.getSwitch(SWITCH_DESTRESS).gain())
     {
@@ -688,6 +640,7 @@ float maxValue = 0;
 /*****************/
 void ChatterboxOutput::OutputDAC(void *pvParameter)
 {
+
   unsigned int frameCount = 0;
 
   // Serial.print("Audio thread started at core: ");
@@ -715,6 +668,15 @@ void ChatterboxOutput::OutputDAC(void *pvParameter)
   ProcessorCreator processorCreator;
   Processor softClip = processorCreator.create(ProcessorCreator::SOFTCLIP);
 
+  /*
+ Serial.println("*******");
+for(int i=0; i<TABLESIZE;i=i+100){
+    Serial.println(sineWavetable[i], DEC);
+    Serial.println(sinWavetable.get(i), DEC);
+  }
+  delay(1000);
+*/
+
   while (1)
   {
     // *** Read wavetable voice ***
@@ -741,8 +703,12 @@ void ChatterboxOutput::OutputDAC(void *pvParameter)
     int upper = ((int)ceil(pointer)) % TABLESIZE;
 
     float larynxPart = larynxWavetable[lower] * err + larynxWavetable[upper] * (1 - err);
+    // float sinePart = sinWavetable.get(lower) * err + sinWavetable.get(upper) * (1 - err);
+    // float sawtoothPart = sawWavetable.get(lower) * err + sawWavetable.get(upper) * (1 - err);
+   
     float sinePart = sineWavetable[lower] * err + sineWavetable[upper] * (1 - err);
     float sawtoothPart = sawtoothWavetable[lower] * err + sawtoothWavetable[upper] * (1 - err);
+
     float voice = sineRatio * sinePart + sawtoothRatio * sawtoothPart + larynxRatio * larynxPart;
 
     // CHECK THE MIN/MAX OF A VALUE
@@ -825,7 +791,7 @@ void ChatterboxOutput::OutputDAC(void *pvParameter)
     // float valL = softClip.process(current);
     // float valR = creakNoise.stretchedNoise();
 
-    dac.writeSample(sawtoothPart, mix5); //mix5
+    dac.writeSample(sinePart, mix5); //mix5
 
     // ****************** END WIRING ******************
 

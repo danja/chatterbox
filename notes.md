@@ -1,3 +1,76 @@
+**2020-06-27**  *version chatterbox_1.1.0*
+
+Another little hitch in the Great Refactoring. My ignorance of C++ is the common issue.
+
+I'm trying to move the wavetables (currently 3: larynx, sine & sawtooth) out to objects but keep running into a problem where the output develops a glitchiness. 
+I think yesterday's experiments showed that it wasn't gross memory usage that was causing the problem and that the values were getting their right values.
+
+TODO: I should have a look at calculating the values in real time rather than using table lookup, reading about it suggests that this may be more efficient, at least for the simple functions. But I do want the option to use wavetables (definitely in a later sound machine with granular synth features).
+
+* moving things to static
+* using std:array
+* playing around with getting values vs. references
+
+* moving object construction to the output thread
+got continuous reboots - d'oh! - the memory allocation for output thread presumably too low. Upped from 2048 to 8192
+
+**2020-06-26**  *version chatterbox_1.1.0*
+
+Sawtooth & sin, arrays and objects, tablesize 2048, noisy
+esp_get_free_heap_size() = 132072
+esp_get_minimum_free_heap_size() = 132064
+uxTaskGetStackHighWaterMark(controlInputHandle) = 1048
+uxTaskGetStackHighWaterMark(outputDACHandle) = 876
+uxTaskGetNumberOfTasks() = 14
+
+sin object, arrays, tablesize 2048 noisy
+esp_get_free_heap_size() = 140296
+esp_get_minimum_free_heap_size() = 140292
+uxTaskGetStackHighWaterMark(controlInputHandle) = 1032
+uxTaskGetStackHighWaterMark(outputDACHandle) = 816
+uxTaskGetNumberOfTasks() = 14
+
+sin object, saw array, tablesize 2048 noisy
+esp_get_free_heap_size() = 148648
+esp_get_minimum_free_heap_size() = 148640
+uxTaskGetStackHighWaterMark(controlInputHandle) = 1048
+uxTaskGetStackHighWaterMark(outputDACHandle) = 876
+uxTaskGetNumberOfTasks() = 14
+
+sin & saw objects, no arrays
+esp_get_free_heap_size() = 148620
+esp_get_minimum_free_heap_size() = 148616
+uxTaskGetStackHighWaterMark(controlInputHandle) = 1048
+uxTaskGetStackHighWaterMark(outputDACHandle) = 876
+uxTaskGetNumberOfTasks() = 14
+
+esp_get_free_heap_size() = 148480
+esp_get_minimum_free_heap_size() = 148472
+uxTaskGetStackHighWaterMark(controlInputHandle) = 1048
+uxTaskGetStackHighWaterMark(outputDACHandle) = 876
+uxTaskGetNumberOfTasks() = 14
+
+tablesize = 1024, objects only, noisy
+esp_get_free_heap_size() = 160772
+esp_get_minimum_free_heap_size() = 160764
+uxTaskGetStackHighWaterMark(controlInputHandle) = 1048
+uxTaskGetStackHighWaterMark(outputDACHandle) = 876
+uxTaskGetNumberOfTasks() = 14
+
+tablesize = 512, objects only, noisy
+esp_get_free_heap_size() = 166896
+esp_get_minimum_free_heap_size() = 166892
+uxTaskGetStackHighWaterMark(controlInputHandle) = 1048
+uxTaskGetStackHighWaterMark(outputDACHandle) = 876
+uxTaskGetNumberOfTasks() = 14
+
+tablesize = 512, arrays only, clean
+esp_get_free_heap_size() = 166964
+esp_get_minimum_free_heap_size() = 166960
+uxTaskGetStackHighWaterMark(controlInputHandle) = 1048
+uxTaskGetStackHighWaterMark(outputDACHandle) = 876
+uxTaskGetNumberOfTasks() = 14
+
 **2020-06-19** *version chatterbox_1.1.0*
 
 Thing got into too much of a tangle after splitting of the output thread. After quite a frustrating week, did a reset back to back before then.

@@ -6,7 +6,7 @@
 // #include <WString.h>
 #include <array>
 
-#define TABLESIZE 2048 // 1024 MOVE!
+// #define TABLESIZE 2048 // 1024 MOVE!
 
 #define ADC_TOP 4096
 

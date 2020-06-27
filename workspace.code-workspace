@@ -20,7 +20,8 @@
 			"ostream": "cpp",
 			"variant": "cpp",
 			"array": "cpp"
-		}
+		},
+		"python.pythonPath": "/home/danny/anaconda3/envs/j/bin/python"
 	},
 	"tasks": {
 		"version": "2.0.0",
