@@ -2,6 +2,17 @@
 
 *I've hardly been using this, left here just as a last-ditch reminder...*
 
+*2020-07-02*
+
+**MIDI**
+
+* Wired interface
+  * Output
+  * Input
+
+* BLE ??
+
+
 **Research**
 * check github markdown for checkboxes/todo lists
 

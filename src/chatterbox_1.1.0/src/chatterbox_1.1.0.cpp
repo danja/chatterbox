@@ -12,7 +12,7 @@
 
 #include <Arduino.h>
 #include <driver/adc.h> // depends on Espressif ESP32 libs
-#include "i2sdac.h"     // see src/lib - based on https://github.com/wjslager/esp32-dac
+#include <I2SDAC.h>     // see src/lib - based on https://github.com/wjslager/esp32-dac
 
 #include <NoiseMaker.h>
 #include <Shapers.h>
@@ -22,15 +22,16 @@
 #include <Pot.h>
 #include <Pots.h>
 #include <Parameters.h>
-
 #include <Switches.h>
+
+#include <Wavetable.h>
 
 #include <ProcessorCreator.h>
 #include <Processor.h>
 #include <Softclip.h>
 
-#include <SineWavetable.h>
-#include <SawtoothWavetable.h>
+// #include <SineWavetable.h>
+// #include <SawtoothWavetable.h>
 #include <SVF.h>
 
 #include <WebConnector.h>
@@ -53,7 +54,7 @@
 #define ADC_SAMPLES 32 // pot reading takes mean over this number of values
 
 // Mixing
-#define SIGNAL_GAIN 0.5f
+#define SIGNAL_GAIN 0.4f
 #define F1_GAIN 1.0f
 #define F2_GAIN 1.0f
 #define F3_GAIN 0.5f
@@ -63,10 +64,12 @@
 #define VOICED_GAIN_DEFAULT 1.0f
 #define VOICED_GAIN_DESTRESSED 0.7f
 #define VOICED_GAIN_STRESSED 1.5f
-#define NASAL_LP_GAIN 0.5f
+
 #define SING1_GAIN 0.7f
 #define SING2_GAIN 0.5f
-#define NASAL_FIXEDBP_GAIN 0.8f
+
+#define NASAL_LP_GAIN 0.5f
+#define NASAL_FIXEDBP_GAIN 0.6f
 #define NASAL_FIXEDNOTCH_GAIN 1.0f
 
 #define DEFAULT_SINE_RATIO 0.4f // .4
@@ -157,14 +160,8 @@ float larynxWavetable[TABLESIZE];
 float sawtoothWavetable[TABLESIZE];
 float sineWavetable[TABLESIZE];
 
-// SineWavetable sinWavetable;
-// SawtoothWavetable sawWavetable;
-
 TaskHandle_t controlInputHandle = NULL;
 TaskHandle_t outputDACHandle = NULL;
-
-SineWavetable sinWavetable; // not used
-SawtoothWavetable sawWavetable; 
 
 Dispatcher<EventType, String, float> controlDispatcher;
 SerialMonitor serialMonitor;
@@ -193,7 +190,7 @@ void ChatterboxOutput::run()
       "audio",
       2048, // was 2048, 4096
       NULL,
-      1,
+      1 | portPRIVILEGE_BIT,
       &outputDACHandle, // was &AudioTask,
       0);
 }
@@ -269,7 +266,7 @@ void setup()
 
   */
 
-  dac.begin(SAMPLERATE, GPIO_DAC_DATAPORT, GPIO_DAC_BCLK, GPIO_DAC_WSEL, GPIO_DAC_DOUT);
+  // dac.begin(SAMPLERATE, GPIO_DAC_DATAPORT, GPIO_DAC_BCLK, GPIO_DAC_WSEL, GPIO_DAC_DOUT);
 
   initLarynxWavetable();
   initFixedWavetables();
@@ -277,13 +274,14 @@ void setup()
   // Serial.println("portTICK_RATE_MS = " + portTICK_RATE_MS);
 
   // Try to start the DAC
-  if (dac.begin())
+
+  if (dac.begin(SAMPLERATE, GPIO_DAC_DATAPORT, GPIO_DAC_BCLK, GPIO_DAC_WSEL, GPIO_DAC_DOUT))
   {
-    // Serial.println("DAC init success");
+    Serial.println("DAC init success");
   }
   else
   {
-    // Serial.println("DAC init fail");
+    Serial.println("DAC init fail");
   }
 
   ChatterboxOutput chatterboxOutput;
@@ -351,9 +349,9 @@ void initFixedWavetables()
   float sinScale = 2.0f * PI / (float)TABLESIZE;
 
   for (unsigned int i = 0; i < TABLESIZE; i++)
-  { 
-   sawtoothWavetable[i] = ((float)i * sawScale - 1);
-   sineWavetable[i] = sin((float)i * sinScale);
+  {
+    sawtoothWavetable[i] = ((float)i * sawScale - 1);
+    sineWavetable[i] = sin((float)i * sinScale);
   }
 }
 
@@ -641,6 +639,9 @@ float maxValue = 0;
 void ChatterboxOutput::OutputDAC(void *pvParameter)
 {
 
+  // static SineWavetable sinWavetable;
+  // static SawtoothWavetable sawWavetable;
+
   unsigned int frameCount = 0;
 
   // Serial.print("Audio thread started at core: ");
@@ -705,9 +706,13 @@ for(int i=0; i<TABLESIZE;i=i+100){
     float larynxPart = larynxWavetable[lower] * err + larynxWavetable[upper] * (1 - err);
     // float sinePart = sinWavetable.get(lower) * err + sinWavetable.get(upper) * (1 - err);
     // float sawtoothPart = sawWavetable.get(lower) * err + sawWavetable.get(upper) * (1 - err);
-   
+
     float sinePart = sineWavetable[lower] * err + sineWavetable[upper] * (1 - err);
     float sawtoothPart = sawtoothWavetable[lower] * err + sawtoothWavetable[upper] * (1 - err);
+
+    // tableStep = pitch * tablesize / samplerate;
+
+    // sinePart = sin(waveX);
 
     float voice = sineRatio * sinePart + sawtoothRatio * sawtoothPart + larynxRatio * larynxPart;
 
@@ -750,7 +755,7 @@ for(int i=0; i<TABLESIZE;i=i+100){
 
     voice = (switches.getSwitch(SWITCH_VOICED).gain() + switches.getSwitch(SWITCH_NASAL).gain()) * voice / 2.0f;
 
-    float aspiration = switches.getSwitch(SWITCH_ASPIRATED).gain() * noise;
+    float aspiration = switches.getSwitch(SWITCH_ASPIRATED).gain() * noise/2.0f;
 
     float current = (emphasisGain * (voice + aspiration)) * SIGNAL_GAIN;
 
@@ -759,39 +764,40 @@ for(int i=0; i<TABLESIZE;i=i+100){
       float sing1Val = SING1_GAIN * sing1.process(current);
       float sing2Val = SING2_GAIN * sing2.process(current);
 
-      current = softClip.process((current + sing1Val + sing2Val) / 3.0f);
+      current = (current + sing1Val + sing2Val) / 2.0f; // softClip.process(
     }
 
     if (switches.getSwitch(TOGGLE_SHOUT).on())
     {
-      current = softClip.process(current * (1.0f - growl * shoutNoise.stretchedNoise())); // amplitude mod
+      current = current * (1.0f - growl * shoutNoise.stretchedNoise()); // amplitude mod softClip.process(
     }
 
     float s1 = fricative1.process(sf1Noise.pink(noise)) * SF1_GAIN * switches.getSwitch(SWITCH_SF1).gain();
-    float s2 = fricative2.process(noise) * SF2_GAIN * switches.getSwitch(SWITCH_SF2).gain();
-    float s3 = 3 * fricative3.process(noise - sf3Noise.pink(noise)) * SF3_GAIN * switches.getSwitch(SWITCH_SF3).gain();
+    float s2 = 1.5f * fricative2.process(noise) * SF2_GAIN * switches.getSwitch(SWITCH_SF2).gain();
+    float s3 = 5.0f * fricative3.process(noise - sf3Noise.pink(noise)) * SF3_GAIN * switches.getSwitch(SWITCH_SF3).gain();
 
-    float sibilants = softClip.process((s1 + s2 + s3) / 3.0f);
+    float sibilants = (s1 + s2 + s3) / 3.0f; // softClip.process(
 
     float mix1 = current + sibilants;
 
     // pharynx/mouth is serial
-    float mix2 = softClip.process(F1_GAIN * svf1.process(mix1));
-    float mix3 = softClip.process(F2_GAIN * svf2.process(mix2));
+    float mix2 = F1_GAIN * svf1.process(mix1); // softClip.process(
+    float mix3 = F2_GAIN * svf2.process(mix2 * 0.9f); // softClip.process(
     float mix4 = mix3;
 
     if (switches.getSwitch(SWITCH_NASAL).on())
     {
       mix4 = NASAL_LP_GAIN * nasalLP.process(mix3) + NASAL_FIXEDBP_GAIN * nasalFixedBP.process(mix3) + NASAL_FIXEDNOTCH_GAIN * nasalFixedNotch.process(mix3);
 
-      mix4 = softClip.process(mix4 / 3.0f);
+      mix4 = mix4 / 3.0f; // softClip.process(
     }
     float mix5 = F3_GAIN * svf3.process(mix4);
 
     // float valL = softClip.process(current);
     // float valR = creakNoise.stretchedNoise();
 
-    dac.writeSample(sinePart, mix5); //mix5
+    // Outputs A, B
+    dac.writeSample(sinePart, mix5 * 1.2f); //mix5
 
     // ****************** END WIRING ******************
 

@@ -1,15 +1,21 @@
 #include <SawtoothWavetable.h>
 #include <Arduino.h>
 
-// float SawtoothWavetable::sawtoothWavetable[TABLESIZE];
-std::array<float, TABLESIZE> SawtoothWavetable::sawtoothWavetable;
+float SawtoothWavetable::sawtoothWavetable[TABLESIZE];
+//std::array<float, TABLESIZE> SawtoothWavetable::sawtoothWavetable;
 
 SawtoothWavetable::SawtoothWavetable()
 {
-     for (unsigned int i = 0; i < tablesize; i++)
+    
+    for (unsigned int i = 0; i < tablesize; i++)
     {
-    SawtoothWavetable::sawtoothWavetable[i] = ((float)i * sawScale - 1);
+        SawtoothWavetable::sawtoothWavetable[i] = ((float)i * sawScale - 1);
     }
+}
+
+SawtoothWavetable::~SawtoothWavetable()
+{
+    delete[] SawtoothWavetable::sawtoothWavetable;
 }
 
 /*

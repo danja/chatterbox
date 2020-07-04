@@ -1,3 +1,82 @@
+**2020-07-04**  *version chatterbox_1.1.0*
+
+The code was giving me a headache so yesterday had a go at improving the internal amplifier. What I had was one of these LM386 modules:
+
+![LM386 Module](https://github.com/danja/chatterbox/blob/master/media/lm386-module.jpeg)
+
+I'd mounted it upside-down on the main stripboard via SIL sockets, lower left here:
+
+![Inside box](https://github.com/danja/chatterbox/blob/master/media/lm386-in-place.jpeg)
+
+The loudspeaker I've got in there is 10cm, 4 ohm, rated at 2W. But the signal was distorting long before it got very loud. 
+I think the LM386 is rated around 250mW. Rooting through my components, I've got some BC109s (NPN) and BC179s (PNP). Complementary, both in little TO-18 metal packages. Each rated 600mW. So I found a textbook amplifier, tweaked a little for the components I had:
+
+![3-Transistor amplifier](https://github.com/danja/chatterbox/blob/master/media/simple-transistor-amp.jpeg)
+
+I soldered this up on a bit of stripboard last night, just tried it out. Definite improvement, so I fitted it:
+
+![Transistor amplifier](https://github.com/danja/chatterbox/blob/master/media/simple-transistor-amp-board.jpeg)
+
+![New amplifier in box](https://github.com/danja/chatterbox/blob/master/media/simple-transistor-amp-in-place.jpeg)
+
+Because all the connectors between the PCBs are made with plugs & sockets, all I had to do was drill 4 little holes in the box to mount, total time around 10 mins.
+
+The level is still well below the volume the speaker can handle. (I did try tweaking the resistor values, but the current ones seem optimal). I would guess it's probably now getting to around 500mW.
+
+It did occur to me that this might have been from overloading 1-transistor mixer I'd put in. It wasn't (because of the easy connectors, took literally 2 mins to check). 
+This mixer is pretty much redundant, I guess I went for overkill on isolating the signal paths. But it's harmless so leaving in for now. This is the circuit:
+
+![Mixer circuit](https://github.com/danja/chatterbox/blob/master/media/simple-transistor-amp.jpeg)
+
+It's on the middle circuit board in the photo above.
+
+I reckon there are 2 limiting factors on the amplifier: one is just the components I have in stock. The other is the power supply - I'm currently using an external standard lowish current 9v DC power adapter. There's room in the box for an internal PSU, and I have the parts, but am not really motivated to put one in right now. 
+A better amplifier (module?) and *perhaps* a less noisy supply for the ESP32/DAC would be desirable, but not a priority. Back to the code...
+
+**2020-07-02**  *version chatterbox_1.1.0*
+
+After a lot of I integrated the earlevel.com wavetable code. Made a horrible noise, predictably - it's quite sophisticated. Pulled it out again. Useful exercise though, maybe.
+
+Tried generating sine in real time, noisy.
+
+**2020-06-30**  *version chatterbox_1.1.0*
+
+Other little tasks while pondering wavetable issues.
+
+Misc. links:
+
+smoothing noisy pot signal :
+https://stackoverflow.com/questions/10930732/c-efficiently-calculating-a-running-median
+
+flash partitions:
+https://github.com/espressif/arduino-esp32/issues/1476
+
+https://stackoverflow.com/questions/17775066/c-c-performance-of-static-arrays-vs-dynamic-arrays
+
+VIRTUAL ANALOG OSCILLATORS
+https://ccrma.stanford.edu/~juhan/vas.html
+
+THREEDEE : REAL-TIME 3D SOUND PROCESSOR
+https://ccrma.stanford.edu/~juhan/threedee.html
+
+https://www.earlevel.com/main/category/digital-audio/oscillators/wavetable-oscillators/
+
+cheapish ADCs
+https://www.audiophonics.fr/en/devices-hifi-audio-adc-c-6407.html
+
+http://www.icstation.com/pcm1802-24bit-audio-stereo-converter-decoder-amplifier-player-board-p-13557.html
+
+https://www.aliexpress.com/w/wholesale-pcm1802.html
+
+debugging
+https://docs.platformio.org/en/latest/tutorials/espressif32/arduino_debugging_unit_testing.html
+
+To Hell With Setters and Getters
+https://medium.com/@Jernfrost/to-hell-with-setters-and-getters-7814e7b2f949
+
+muzines.co.uk - electronic music magazines
+
+
 **2020-06-27**  *version chatterbox_1.1.0*
 
 Another little hitch in the Great Refactoring. My ignorance of C++ is the common issue.
@@ -13,6 +92,9 @@ TODO: I should have a look at calculating the values in real time rather than us
 
 * moving object construction to the output thread
 got continuous reboots - d'oh! - the memory allocation for output thread presumably too low. Upped from 2048 to 8192
+
+
+https://github.com/espressif/arduino-esp32/issues/1476
 
 **2020-06-26**  *version chatterbox_1.1.0*
 
