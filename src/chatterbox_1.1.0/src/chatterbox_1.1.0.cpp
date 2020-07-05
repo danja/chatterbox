@@ -33,6 +33,7 @@
 // #include <SineWavetable.h>
 // #include <SawtoothWavetable.h>
 #include <SVF.h>
+#include <Patchbay.h>
 
 #include <WebConnector.h>
 
@@ -375,6 +376,9 @@ SVF svf1;
 SVF svf2;
 SVF svf3;
 
+Patchbay patchbay;
+
+
 //   Biquad(int type, float Fc, float Q, float peakGainDB);
 //Biquad *n1 = new Biquad(HIGHSHELF, 1000.0f / samplerate, F1_NASALQ, F1_NASAL_GAIN);
 
@@ -678,6 +682,8 @@ for(int i=0; i<TABLESIZE;i=i+100){
   delay(1000);
 */
 
+patchbay.setModules(svf1);
+
   while (1)
   {
     // *** Read wavetable voice ***
@@ -781,7 +787,8 @@ for(int i=0; i<TABLESIZE;i=i+100){
     float mix1 = current + sibilants;
 
     // pharynx/mouth is serial
-    float mix2 = F1_GAIN * svf1.process(mix1); // softClip.process(
+   // float mix2 = F1_GAIN * svf1.process(mix1); // softClip.process(
+     float mix2 = F1_GAIN * patchbay.process(mix1); // softClip.process(
     float mix3 = F2_GAIN * svf2.process(mix2 * 0.9f); // softClip.process(
     float mix4 = mix3;
 

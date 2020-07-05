@@ -26,7 +26,7 @@ The level is still well below the volume the speaker can handle. (I did try twea
 It did occur to me that this might have been from overloading 1-transistor mixer I'd put in. It wasn't (because of the easy connectors, took literally 2 mins to check). 
 This mixer is pretty much redundant, I guess I went for overkill on isolating the signal paths. But it's harmless so leaving in for now. This is the circuit:
 
-![Mixer circuit](https://github.com/danja/chatterbox/blob/master/media/simple-transistor-amp.jpeg)
+![Mixer circuit](https://github.com/danja/chatterbox/blob/master/media/mixer-circuit.jpeg)
 
 It's on the middle circuit board in the photo above.
 
