@@ -14,6 +14,8 @@
 #include <driver/adc.h> // depends on Espressif ESP32 libs
 #include <I2SDAC.h>     // see src/lib - based on https://github.com/wjslager/esp32-dac
 
+#include "Plotter.h"
+
 #include <NoiseMaker.h>
 #include <Shapers.h>
 #include <Node.h>
@@ -174,9 +176,7 @@ class ChatterboxOutput
 {
 public:
   ChatterboxOutput();
-
   static void run();
-
   static void OutputDAC(void *pvParameter);
 };
 
@@ -193,7 +193,7 @@ void ChatterboxOutput::run()
       "audio",
       2048, // was 2048, 4096
       NULL,
-      1 | portPRIVILEGE_BIT,
+      0,                // 1 | portPRIVILEGE_BIT,
       &outputDACHandle, // was &AudioTask,
       0);
 }
@@ -240,9 +240,16 @@ float tableStep = 1;
 
 int bufferIndex = 0;
 
-void loop(){
-    // do nothing
-    // vTaskDelay(1);
+// Plotted variables must be declared as globals
+double xPlot;
+double yPlot;
+
+// Also declare plotter as global
+Plotter plotter;
+
+void loop()
+{
+  // vTaskDelay(5000);
 };
 
 /* *** START SETUP() *** */
@@ -253,6 +260,9 @@ void setup()
   delay(2000); // let it connect
 
   Serial.println("\n*** Starting Chatterbox ***\n");
+
+  plotter.Begin();
+  plotter.AddTimeGraph("Time graph w/ 100 points", 100, "x label", xPlot);
 
   serialMonitor.registerCallback(controlDispatcher);
   webConnector.registerCallback(controlDispatcher);
@@ -380,7 +390,6 @@ SVF svf3;
 
 Patchbay patchbay;
 
-
 //   Biquad(int type, float Fc, float Q, float peakGainDB);
 //Biquad *n1 = new Biquad(HIGHSHELF, 1000.0f / samplerate, F1_NASALQ, F1_NASAL_GAIN);
 
@@ -400,6 +409,7 @@ int dt = 0;
 
 float pitch;
 // larynx is initialized at wavetable
+float larynxPart;
 
 float f1f;
 float f2f;
@@ -424,6 +434,7 @@ void ControlInput(void *pvParameter)
 
   while (1)
   {
+
     // vTaskDelay(1000 / portTICK_RATE_MS); // was 1000
     // vTaskDelay(1); // 2
 
@@ -497,8 +508,8 @@ f1f = pots.getPot(POT_P0].value();
       pots.getPot(POT_P0).id(POT_ID_NASAL);
       pots.getPot(POT_P0).range(ADC_TOP, NASAL_LOW, NASAL_HIGH);
 
-      svf1.initParameters(f1f, F1_NASALQ, "notch", samplerate,  F1_GAIN); // NOTE not individual gain
-      svf2.initParameters(f2f, F2_NASALQ, "bandPass", samplerate,  F2_GAIN);
+      svf1.initParameters(f1f, F1_NASALQ, "notch", samplerate, F1_GAIN); // NOTE not individual gain
+      svf2.initParameters(f2f, F2_NASALQ, "bandPass", samplerate, F2_GAIN);
     }
     else
     {
@@ -508,8 +519,6 @@ f1f = pots.getPot(POT_P0].value();
       svf1.initParameters(f1f, F1Q, "bandPass", samplerate, F1_GAIN);
       svf2.initParameters(f2f, F2Q, "bandPass", samplerate, F2_GAIN);
     }
-
-
 
     svf3.initParameters(f3f, f3q, "lowPass", samplerate, F3_GAIN);
 
@@ -660,8 +669,8 @@ void ChatterboxOutput::OutputDAC(void *pvParameter)
   fricative3.initParameters(SF3F, SF3Q, "highPass", samplerate, SF3_GAIN);
 
   nasalLP.initParameters(NASAL_LPF, NASAL_LPQ, "lowPass", samplerate, NASAL_LP_GAIN);
-  nasalFixedBP.initParameters(NASAL_FIXEDBPF, NASAL_FIXEDBPQ, "bandPass", samplerate,NASAL_FIXEDBP_GAIN);
-  nasalFixedNotch.initParameters(NASAL_FIXEDNOTCHF, NASAL_FIXEDNOTCHQ, "notch", samplerate,NASAL_FIXEDNOTCH_GAIN);
+  nasalFixedBP.initParameters(NASAL_FIXEDBPF, NASAL_FIXEDBPQ, "bandPass", samplerate, NASAL_FIXEDBP_GAIN);
+  nasalFixedNotch.initParameters(NASAL_FIXEDNOTCHF, NASAL_FIXEDNOTCHQ, "notch", samplerate, NASAL_FIXEDNOTCH_GAIN);
 
   sing1.initParameters(SING1F, SING1Q, "bandPass", samplerate, SING1_GAIN);
   sing2.initParameters(SING2F, SING2Q, "bandPass", samplerate, SING2_GAIN);
@@ -672,10 +681,10 @@ void ChatterboxOutput::OutputDAC(void *pvParameter)
   NoiseMaker shoutNoise = NoiseMaker();
   NoiseMaker sf1Noise = NoiseMaker();
   NoiseMaker sf3Noise = NoiseMaker();
-  // Shapers shaper = Shapers();
 
-  ProcessorCreator processorCreator;
-  Processor softClip = processorCreator.create(ProcessorCreator::SOFTCLIP);
+  // ProcessorCreator processorCreator;
+  // Softclip softClip;
+  // = processorCreator.create(ProcessorCreator::SOFTCLIP);
 
   /*
  Serial.println("*******");
@@ -686,7 +695,7 @@ for(int i=0; i<TABLESIZE;i=i+100){
   delay(1000);
 */
 
-patchbay.setModules(svf1);
+  patchbay.setModules(svf1);
 
   while (1)
   {
@@ -713,9 +722,14 @@ patchbay.setModules(svf1);
     int lower = (int)floor(pointer);
     int upper = ((int)ceil(pointer)) % TABLESIZE;
 
-    float larynxPart = larynxWavetable[lower] * err + larynxWavetable[upper] * (1 - err);
+   larynxPart = larynxWavetable[lower] * err + larynxWavetable[upper] * (1 - err);
     // float sinePart = sinWavetable.get(lower) * err + sinWavetable.get(upper) * (1 - err);
     // float sawtoothPart = sawWavetable.get(lower) * err + sawWavetable.get(upper) * (1 - err);
+
+// Serial.println("----");
+// Serial.println(larynxPart, DEC);
+// larynxPart = softClip.process(lPart); // bad!
+ // Serial.println(larynxPart, DEC);
 
     float sinePart = sineWavetable[lower] * err + sineWavetable[upper] * (1 - err);
     float sawtoothPart = sawtoothWavetable[lower] * err + sawtoothWavetable[upper] * (1 - err);
@@ -765,14 +779,14 @@ patchbay.setModules(svf1);
 
     voice = (switches.getSwitch(SWITCH_VOICED).gain() + switches.getSwitch(SWITCH_NASAL).gain()) * voice / 2.0f;
 
-    float aspiration = switches.getSwitch(SWITCH_ASPIRATED).gain() * noise/2.0f;
+    float aspiration = switches.getSwitch(SWITCH_ASPIRATED).gain() * noise / 2.0f;
 
     float current = (emphasisGain * (voice + aspiration)) * SIGNAL_GAIN;
 
     if (switches.getSwitch(TOGGLE_SING).on())
     {
-      float sing1Val = sing1.process(current); // SING1_GAIN * 
-      float sing2Val = sing2.process(current); // SING2_GAIN * 
+      float sing1Val = sing1.process(current); // SING1_GAIN *
+      float sing2Val = sing2.process(current); // SING2_GAIN *
 
       current = (current + sing1Val + sing2Val) / 2.0f; // softClip.process(
     }
@@ -782,41 +796,46 @@ patchbay.setModules(svf1);
       current = current * (1.0f - growl * shoutNoise.stretchedNoise()); // amplitude mod softClip.process(
     }
 
-    float s1 = fricative1.process(sf1Noise.pink(noise)) * switches.getSwitch(SWITCH_SF1).gain(); // SF1_GAIN * 
-    float s2 = 1.5f * fricative2.process(noise) * switches.getSwitch(SWITCH_SF2).gain(); // SF2_GAIN * 
-    float s3 = 5.0f * fricative3.process(noise - sf3Noise.pink(noise)) * switches.getSwitch(SWITCH_SF3).gain(); // SF3_GAIN * 
+    float s1 = fricative1.process(sf1Noise.pink(noise)) * switches.getSwitch(SWITCH_SF1).gain();                // SF1_GAIN *
+    float s2 = 1.5f * fricative2.process(noise) * switches.getSwitch(SWITCH_SF2).gain();                        // SF2_GAIN *
+    float s3 = 5.0f * fricative3.process(noise - sf3Noise.pink(noise)) * switches.getSwitch(SWITCH_SF3).gain(); // SF3_GAIN *
 
     float sibilants = (s1 + s2 + s3) / 3.0f; // softClip.process(
 
     float mix1 = current + sibilants;
 
     // pharynx/mouth is serial
-   // float mix2 = F1_GAIN * svf1.process(mix1); // softClip.process(
-  //   float mix2 = patchbay.process(mix1); // softClip.process( F1_GAIN * 
-  float mix2 = svf1.process(mix1);
-    float mix3 = svf2.process(mix2 * 0.9f); // softClip.process( F2_GAIN * 
+    // float mix2 = F1_GAIN * svf1.process(mix1); // softClip.process(
+    //   float mix2 = patchbay.process(mix1); // softClip.process( F1_GAIN *
+    float mix2 = svf1.process(mix1);
+    float mix3 = svf2.process(mix2 * 0.9f); // softClip.process( F2_GAIN *
     float mix4 = mix3;
 
     if (switches.getSwitch(SWITCH_NASAL).on())
     {
       mix4 = nasalLP.process(mix3) + nasalFixedBP.process(mix3) + nasalFixedNotch.process(mix3);
-// NASAL_LP_GAIN * NASAL_FIXEDBP_GAIN * NASAL_FIXEDNOTCH_GAIN * 
+      // NASAL_LP_GAIN * NASAL_FIXEDBP_GAIN * NASAL_FIXEDNOTCH_GAIN *
       mix4 = mix4 / 3.0f; // softClip.process(
     }
-    float mix5 = svf3.process(mix4); // F3_GAIN * 
+    float mix5 = svf3.process(mix4); // F3_GAIN *
 
     // float valL = softClip.process(current);
     // float valR = creakNoise.stretchedNoise();
 
+    xPlot = larynxPart;
+
     // Outputs A, B
-    dac.writeSample(sinePart, mix5 ); //mix5
+    dac.writeSample(larynxPart, mix5); //mix5
 
     // ****************** END WIRING ******************
 
     // Pause thread after delivering 64 samples so that other threads can do stuff
 
     if (frameCount++ % 64 == 0)
+    {
       vTaskDelay(1); // was 64, 1
+      //  plotter.Plot();
+    }
   }
 }
 // END OUTPUT THREAD
