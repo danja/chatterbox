@@ -56,15 +56,17 @@
 
 // Mixing
 #define SIGNAL_GAIN 0.4f
+
+#define VOICED_GAIN_DEFAULT 1.0f
+#define VOICED_GAIN_DESTRESSED 0.7f
+#define VOICED_GAIN_STRESSED 1.5f
+
 #define F1_GAIN 1.0f
 #define F2_GAIN 1.0f
 #define F3_GAIN 0.5f
 #define SF1_GAIN 0.4f
 #define SF2_GAIN 0.8f
 #define SF3_GAIN 1.0f
-#define VOICED_GAIN_DEFAULT 1.0f
-#define VOICED_GAIN_DESTRESSED 0.7f
-#define VOICED_GAIN_STRESSED 1.5f
 
 #define SING1_GAIN 0.7f
 #define SING2_GAIN 0.5f
@@ -495,19 +497,21 @@ f1f = pots.getPot(POT_P0].value();
       pots.getPot(POT_P0).id(POT_ID_NASAL);
       pots.getPot(POT_P0).range(ADC_TOP, NASAL_LOW, NASAL_HIGH);
 
-      svf1.initParameters(f1f, F1_NASALQ, "notch", samplerate);
-      svf2.initParameters(f2f, F2_NASALQ, "bandPass", samplerate);
+      svf1.initParameters(f1f, F1_NASALQ, "notch", samplerate,  F1_GAIN); // NOTE not individual gain
+      svf2.initParameters(f2f, F2_NASALQ, "bandPass", samplerate,  F2_GAIN);
     }
     else
     {
       pots.getPot(POT_P0).id(POT_ID_F1F);
       pots.getPot(POT_P0).range(ADC_TOP, F1F_LOW, F1F_HIGH);
 
-      svf1.initParameters(f1f, F1Q, "bandPass", samplerate);
-      svf2.initParameters(f2f, F2Q, "bandPass", samplerate);
+      svf1.initParameters(f1f, F1Q, "bandPass", samplerate, F1_GAIN);
+      svf2.initParameters(f2f, F2Q, "bandPass", samplerate, F2_GAIN);
     }
 
-    svf3.initParameters(f3f, f3q, "lowPass", samplerate);
+
+
+    svf3.initParameters(f3f, f3q, "lowPass", samplerate, F3_GAIN);
 
     /********************/
     /*** SWITCH INPUT ***/
@@ -555,15 +559,15 @@ f1f = pots.getPot(POT_P0].value();
     {
       emphasisGain = VOICED_GAIN_DESTRESSED;
 
-      svf1.initParameters(f1f, F1_LOWQ, "lowPass", samplerate);
-      svf2.initParameters(f2f, F2_LOWQ, "bandPass", samplerate);
+      svf1.initParameters(f1f, F1_LOWQ, "lowPass", samplerate, F1_GAIN);
+      svf2.initParameters(f2f, F2_LOWQ, "bandPass", samplerate, F2_GAIN);
     }
     else
     {
       emphasisGain = VOICED_GAIN_DEFAULT;
 
-      svf1.initParameters(f1f, F1Q, "bandPass", samplerate);
-      svf2.initParameters(f2f, F2Q, "bandPass", samplerate);
+      svf1.initParameters(f1f, F1Q, "bandPass", samplerate, F1_GAIN);
+      svf2.initParameters(f2f, F2Q, "bandPass", samplerate, F2_GAIN);
     }
     if (switches.getSwitch(SWITCH_STRESS).on())
     {
@@ -651,16 +655,16 @@ void ChatterboxOutput::OutputDAC(void *pvParameter)
   // Serial.print("Audio thread started at core: ");
   // Serial.println(xPortGetCoreID());
 
-  fricative1.initParameters(SF1F, SF1Q, "highPass", samplerate); // TODO make SF1F etc variable?
-  fricative2.initParameters(SF2F, SF2Q, "highPass", samplerate);
-  fricative3.initParameters(SF3F, SF3Q, "highPass", samplerate);
+  fricative1.initParameters(SF1F, SF1Q, "highPass", samplerate, SF1_GAIN); // TODO make SF1F etc variable?
+  fricative2.initParameters(SF2F, SF2Q, "highPass", samplerate, SF2_GAIN);
+  fricative3.initParameters(SF3F, SF3Q, "highPass", samplerate, SF3_GAIN);
 
-  nasalLP.initParameters(NASAL_LPF, NASAL_LPQ, "lowPass", samplerate);
-  nasalFixedBP.initParameters(NASAL_FIXEDBPF, NASAL_FIXEDBPQ, "bandPass", samplerate);
-  nasalFixedNotch.initParameters(NASAL_FIXEDNOTCHF, NASAL_FIXEDNOTCHQ, "notch", samplerate);
+  nasalLP.initParameters(NASAL_LPF, NASAL_LPQ, "lowPass", samplerate, NASAL_LP_GAIN);
+  nasalFixedBP.initParameters(NASAL_FIXEDBPF, NASAL_FIXEDBPQ, "bandPass", samplerate,NASAL_FIXEDBP_GAIN);
+  nasalFixedNotch.initParameters(NASAL_FIXEDNOTCHF, NASAL_FIXEDNOTCHQ, "notch", samplerate,NASAL_FIXEDNOTCH_GAIN);
 
-  sing1.initParameters(SING1F, SING1Q, "bandPass", samplerate);
-  sing2.initParameters(SING2F, SING2Q, "bandPass", samplerate);
+  sing1.initParameters(SING1F, SING1Q, "bandPass", samplerate, SING1_GAIN);
+  sing2.initParameters(SING2F, SING2Q, "bandPass", samplerate, SING2_GAIN);
 
   int pointer = 0;
 
@@ -767,8 +771,8 @@ patchbay.setModules(svf1);
 
     if (switches.getSwitch(TOGGLE_SING).on())
     {
-      float sing1Val = SING1_GAIN * sing1.process(current);
-      float sing2Val = SING2_GAIN * sing2.process(current);
+      float sing1Val = sing1.process(current); // SING1_GAIN * 
+      float sing2Val = sing2.process(current); // SING2_GAIN * 
 
       current = (current + sing1Val + sing2Val) / 2.0f; // softClip.process(
     }
@@ -778,9 +782,9 @@ patchbay.setModules(svf1);
       current = current * (1.0f - growl * shoutNoise.stretchedNoise()); // amplitude mod softClip.process(
     }
 
-    float s1 = fricative1.process(sf1Noise.pink(noise)) * SF1_GAIN * switches.getSwitch(SWITCH_SF1).gain();
-    float s2 = 1.5f * fricative2.process(noise) * SF2_GAIN * switches.getSwitch(SWITCH_SF2).gain();
-    float s3 = 5.0f * fricative3.process(noise - sf3Noise.pink(noise)) * SF3_GAIN * switches.getSwitch(SWITCH_SF3).gain();
+    float s1 = fricative1.process(sf1Noise.pink(noise)) * switches.getSwitch(SWITCH_SF1).gain(); // SF1_GAIN * 
+    float s2 = 1.5f * fricative2.process(noise) * switches.getSwitch(SWITCH_SF2).gain(); // SF2_GAIN * 
+    float s3 = 5.0f * fricative3.process(noise - sf3Noise.pink(noise)) * switches.getSwitch(SWITCH_SF3).gain(); // SF3_GAIN * 
 
     float sibilants = (s1 + s2 + s3) / 3.0f; // softClip.process(
 
@@ -788,23 +792,24 @@ patchbay.setModules(svf1);
 
     // pharynx/mouth is serial
    // float mix2 = F1_GAIN * svf1.process(mix1); // softClip.process(
-     float mix2 = F1_GAIN * patchbay.process(mix1); // softClip.process(
-    float mix3 = F2_GAIN * svf2.process(mix2 * 0.9f); // softClip.process(
+  //   float mix2 = patchbay.process(mix1); // softClip.process( F1_GAIN * 
+  float mix2 = svf1.process(mix1);
+    float mix3 = svf2.process(mix2 * 0.9f); // softClip.process( F2_GAIN * 
     float mix4 = mix3;
 
     if (switches.getSwitch(SWITCH_NASAL).on())
     {
-      mix4 = NASAL_LP_GAIN * nasalLP.process(mix3) + NASAL_FIXEDBP_GAIN * nasalFixedBP.process(mix3) + NASAL_FIXEDNOTCH_GAIN * nasalFixedNotch.process(mix3);
-
+      mix4 = nasalLP.process(mix3) + nasalFixedBP.process(mix3) + nasalFixedNotch.process(mix3);
+// NASAL_LP_GAIN * NASAL_FIXEDBP_GAIN * NASAL_FIXEDNOTCH_GAIN * 
       mix4 = mix4 / 3.0f; // softClip.process(
     }
-    float mix5 = F3_GAIN * svf3.process(mix4);
+    float mix5 = svf3.process(mix4); // F3_GAIN * 
 
     // float valL = softClip.process(current);
     // float valR = creakNoise.stretchedNoise();
 
     // Outputs A, B
-    dac.writeSample(sinePart, mix5 * 1.2f); //mix5
+    dac.writeSample(sinePart, mix5 ); //mix5
 
     // ****************** END WIRING ******************
 

@@ -7,13 +7,14 @@ SVF::SVF() {}
 
 float SVF::process(float x)
 {
-    return filter.tick(x);
+    return gain_ * filter.tick(x);
 }
 
 // (f1f, F1_NASALQ, "notch", samplerate);
 
-void SVF::initParameters(float freq, float q, String typeString, float sampleRate)
+void SVF::initParameters(float freq, float q, String typeString, float sampleRate, float gain)
 {
+    gain_ = gain;
     floatParameter("freq", freq);
     floatParameter("q", q);
     floatParameter("sampleRate", sampleRate);

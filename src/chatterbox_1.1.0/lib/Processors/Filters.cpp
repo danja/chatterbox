@@ -20,11 +20,11 @@ const float Filters::process(const float x)
     return Filters::svf3.process(x);
 }
 
-void Filters::update(String name, float freq, float q, String typeString, float sampleRate)
+void Filters::update(String name, float freq, float q, String typeString, float sampleRate, float gain)
 {
     if (name == "svf3")
     {
-        Filters::svf3.initParameters(freq, q, typeString, sampleRate);
+        Filters::svf3.initParameters(freq, q, typeString, sampleRate, gain);
        // Serial.println("svf3 update");
     }
 }

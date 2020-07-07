@@ -11,7 +11,7 @@ class Filters : public Processor
 
 public:
     Filters();
-    void update(String name, float cutoff, float q, String type, float sampleRate);
+    void update(String name, float cutoff, float q, String type, float sampleRate, float gain);
     const float process(const float x);
    
 private:

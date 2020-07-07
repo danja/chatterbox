@@ -17,10 +17,11 @@ public:
     float process(float x);
     // static float clamp(float x, float lowerlimit, float upperlimit);
    // SvfLinearTrapOptimised2 filter;
-  void initParameters(float cutoff, float q, String type, float sampleRate);
+  void initParameters(float cutoff, float q, String type, float sampleRate, float gain);
 
 private:
       SvfLinearTrapOptimised2 filter;
+      float gain_ = 1.0f;
 };
 
 #endif
