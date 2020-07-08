@@ -1,3 +1,18 @@
+**2020-07-09**  *version chatterbox_1.1.0*
+
+Few steps forward, not got around to noting down...
+
+I've tweaked the larynx waveform generation algorithm to better approximate what is found in the literature.
+The up-ramp is shorter for more pulsy waves, going to more balanced at triangle end.
+Also running it through the softClip filter to round off the corners a bit.
+
+![improved-larynx-1](https://github.com/danja/chatterbox/blob/master/media/improved-larynx-1.png)
+
+![improved-larynx-2](https://github.com/danja/chatterbox/blob/master/media/improved-larynx-2.png)
+
+Also moved the control input thread code into it's own class (though still in the chatterbox_1.1.0.cpp file).
+
+
 **2020-07-04**  *version chatterbox_1.1.0*
 
 The code was giving me a headache so yesterday had a go at improving the internal amplifier. What I had was one of these LM386 modules:

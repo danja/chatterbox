@@ -176,19 +176,12 @@ class ChatterboxOutput
 {
 public:
   ChatterboxOutput();
-  static void run();
   static void OutputDAC(void *pvParameter);
 };
 
-ChatterboxOutput chatterboxOutput;
-
 ChatterboxOutput::ChatterboxOutput()
 {
-}
-
-void ChatterboxOutput::run()
-{
-  xTaskCreatePinnedToCore(
+   xTaskCreatePinnedToCore(
       OutputDAC,
       "audio",
       2048, // was 2048, 4096
@@ -198,13 +191,38 @@ void ChatterboxOutput::run()
       0);
 }
 
+
+//////////////////////////////////////////////////////
+class ChatterboxInput
+{
+public:
+  ChatterboxInput();
+  static void ControlInput(void *pvParameter);
+};
+
+ChatterboxInput::ChatterboxInput()
+{
+  xTaskCreatePinnedToCore(
+      ControlInput,
+      "ControlInput",
+      2048, // was 4096
+      NULL,
+      2, // priority
+      &controlInputHandle,
+      1); // core
+}
+
+
+
+//////////////////////////////////////////////////////
+
 static Softclip softClip;
 
 //////////////////////////////////////////////
 //// FORWARD DECLARATIONS ////////////////////
 void initLarynxWavetable();
 void initFixedWavetables();
-void OutputDAC(void *pvParameter);
+// void OutputDAC(void *pvParameter);
 void ControlInput(void *pvParameter);
 
 void togglePushSwitch(int i);
@@ -247,7 +265,14 @@ double yPlot;
 Plotter plotter;
 
 void loop(){
-    // vTaskDelay(5000);
+   vTaskDelay(5000);
+  Serial.println("LOOP");
+     Serial.println(pcTaskGetTaskName(NULL));
+     Serial.println(uxTaskPriorityGet(NULL));
+      vTaskDelay(5000); 
+      
+     // vTaskSuspend( NULL );
+  // vTaskDelay(5000);
 };
 
 /* *** START SETUP() *** */
@@ -255,9 +280,12 @@ void setup()
 {
   Serial.begin(serial_rate);
 
-  delay(2000); // let it connect
+  delay(3000); // let it connect
 
   Serial.println("\n*** Starting Chatterbox ***\n");
+
+ //Serial.println(pcTaskGetTaskName(NULL));
+   //  Serial.println(uxTaskPriorityGet(NULL));
 
   plotter.Begin();
   plotter.AddTimeGraph("Time graph w/ 100 points", 100, "x label", xPlot);
@@ -281,18 +309,8 @@ void setup()
     Serial.println("DAC init fail");
   }
 
-  ChatterboxOutput chatterboxOutput;
-  chatterboxOutput.run();
-
-  // Lower priority input thread
-  xTaskCreatePinnedToCore(
-      ControlInput,
-      "ControlInput",
-      2048, // was 4096
-      NULL,
-      2, // priority
-      &controlInputHandle,
-      1); // core
+  static ChatterboxOutput chatterboxOutput;
+  static ChatterboxInput chatterboxInput;
 
   webConnector.startWebServer();
 
@@ -409,7 +427,7 @@ float emphasisGain = 1.0f;
 /************************/
 /* *** INPUT THREAD *** */
 /************************/
-void ControlInput(void *pvParameter)
+void ChatterboxInput::ControlInput(void *pvParameter)
 {
   initInputs();
 
