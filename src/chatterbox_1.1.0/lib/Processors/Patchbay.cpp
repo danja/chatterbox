@@ -3,7 +3,7 @@
 
 Patchbay::Patchbay() {}
 
-void Patchbay::setModules(Processor const& svf1){
+void Patchbay::setModules(SVF const& svf1){
     svf1_ = svf1;
 }
 

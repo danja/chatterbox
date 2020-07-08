@@ -12,10 +12,10 @@ public:
     Patchbay();
 
     float process(float x);
-    void setModules(Processor const& svf1);
+    void setModules(SVF const& svf1);
 
 private:
-      Processor svf1_;
+      SVF svf1_;
 };
 
 #endif
