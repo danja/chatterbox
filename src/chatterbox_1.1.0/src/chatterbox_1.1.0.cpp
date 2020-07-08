@@ -98,7 +98,7 @@
 #define PITCH_MIN 20
 #define PITCH_MAX 500
 
-#define LARYNX_MIN 5 // % of wave is larynx open
+#define LARYNX_MIN 5 // % of wave is larynxSplit open
 #define LARYNX_MAX 95
 
 #define F1F_LOW 150 // formant filter 1 centre frequency lowest value
@@ -191,9 +191,9 @@ void ChatterboxOutput::run()
   xTaskCreatePinnedToCore(
       OutputDAC,
       "audio",
-      2048, // was 2048, 4096
+      4096, // was 2048, 4096
       NULL,
-      0,                // 1 | portPRIVILEGE_BIT,
+      10,               // 1 | portPRIVILEGE_BIT,
       &outputDACHandle, // was &AudioTask,
       0);
 }
@@ -247,9 +247,8 @@ double yPlot;
 // Also declare plotter as global
 Plotter plotter;
 
-void loop()
-{
-  // vTaskDelay(5000);
+void loop(){
+    // vTaskDelay(5000);
 };
 
 /* *** START SETUP() *** */
@@ -333,22 +332,22 @@ void setup()
 }
 /*** END SETUP() ***/
 
-/* INITIALIZE LARYNX WAVETABLE */
-int larynx = TABLESIZE / 2; // point in wavetable corresponding to closed larynx
+/* INITIALIZE larynxSplit WAVETABLE */
+int larynxSplit = TABLESIZE / 2; // point in wavetable corresponding to closed larynxSplit
 
 void initLarynxWavetable()
 {
-
-  for (unsigned int i = 0; i < larynx / 2; i++)
+  // float larynxR = larynxSplit/tablesize;
+  // float larynxPeak = 0.5f * larynxR;
+  for (unsigned int i = 0; i < larynxSplit * 0.5; i++)
   { // up slope+
-
-    larynxWavetable[i] = 4.0f * (float)i / (float)larynx - 1.0f;
+    larynxWavetable[i] = 4.0f * (float)i / (float)larynxSplit - 1.0f;
   }
-  for (unsigned int i = larynx / 2; i < larynx; i++)
+  for (unsigned int i = larynxSplit * 0.5; i < larynxSplit; i++)
   { // down slope
-    larynxWavetable[i] = 5.0f - 4.0f * (float)i / (float)larynx;
+    larynxWavetable[i] = 3.0f - 4.0f * (float)i / (float)larynxSplit;
   }
-  for (unsigned int i = larynx; i < TABLESIZE; i++)
+  for (unsigned int i = larynxSplit; i < TABLESIZE; i++)
   { // flat section __
     larynxWavetable[i] = -0.99f;
   }
@@ -408,7 +407,7 @@ SVF sing2;
 int dt = 0;
 
 float pitch;
-// larynx is initialized at wavetable
+// larynxSplit is initialized at wavetable
 float larynxPart;
 
 float f1f;
@@ -417,6 +416,8 @@ float f3f;
 float f3q;
 
 float growl;
+
+static Softclip softClip;
 
 float emphasisGain = 1.0f;
 
@@ -461,7 +462,7 @@ void ControlInput(void *pvParameter)
       }
     }
 
-    pots.getPot(POT_GROWL).raw(pots.getPot(POT_P4).raw()); // same as larynx TODO refactor
+    pots.getPot(POT_GROWL).raw(pots.getPot(POT_P4).raw()); // same as larynxSplit TODO refactor
 
     if (switches.getSwitch(TOGGLE_CREAK).on())
     {
@@ -485,11 +486,11 @@ void ControlInput(void *pvParameter)
 
     tableStep = pitch * tablesize / samplerate; // tableStep aka delta
 
-    //  if (abs(larynx - pots.getPot(POT_P4].value()) > 8)
-    if (abs(larynx - pots.getPot(POT_P4).value()) > 8)
+    //  if (abs(larynxSplit - pots.getPot(POT_P4].value()) > 8)
+    if (abs(larynxSplit - pots.getPot(POT_P4).value()) > 8)
     {
-      larynx = pots.getPot(POT_P4).value();
-      // larynx = pots.getPot(POT_P4].value();
+      larynxSplit = pots.getPot(POT_P4).value();
+      // larynxSplit = pots.getPot(POT_P4].value();
       initLarynxWavetable();
     }
 
@@ -650,6 +651,10 @@ void togglePushSwitch(int i)
 float minValue = 0;
 float maxValue = 0;
 
+// ProcessorCreator processorCreator;
+//Softclip softClip;
+// = processorCreator.create(ProcessorCreator::SOFTCLIP);
+
 /*****************/
 /* OUTPUT THREAD */
 /*****************/
@@ -681,10 +686,6 @@ void ChatterboxOutput::OutputDAC(void *pvParameter)
   NoiseMaker shoutNoise = NoiseMaker();
   NoiseMaker sf1Noise = NoiseMaker();
   NoiseMaker sf3Noise = NoiseMaker();
-
-  // ProcessorCreator processorCreator;
-  // Softclip softClip;
-  // = processorCreator.create(ProcessorCreator::SOFTCLIP);
 
   /*
  Serial.println("*******");
@@ -722,14 +723,14 @@ for(int i=0; i<TABLESIZE;i=i+100){
     int lower = (int)floor(pointer);
     int upper = ((int)ceil(pointer)) % TABLESIZE;
 
-   larynxPart = larynxWavetable[lower] * err + larynxWavetable[upper] * (1 - err);
+    float larynxPart = larynxWavetable[lower] * err + larynxWavetable[upper] * (1 - err);
     // float sinePart = sinWavetable.get(lower) * err + sinWavetable.get(upper) * (1 - err);
     // float sawtoothPart = sawWavetable.get(lower) * err + sawWavetable.get(upper) * (1 - err);
 
-// Serial.println("----");
-// Serial.println(larynxPart, DEC);
-// larynxPart = softClip.process(lPart); // bad!
- // Serial.println(larynxPart, DEC);
+    // Serial.println("----");
+    // Serial.println(larynxPart, DEC);
+    // larynxPart = softClip.process(lPart);
+    // Serial.println(larynxPart, DEC);
 
     float sinePart = sineWavetable[lower] * err + sineWavetable[upper] * (1 - err);
     float sawtoothPart = sawtoothWavetable[lower] * err + sawtoothWavetable[upper] * (1 - err);
