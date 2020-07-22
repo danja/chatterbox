@@ -14,7 +14,7 @@ class SVF : public Processor
 public:
     SVF();
 
-    float process(float x);
+    float process(const float x);
     // static float clamp(float x, float lowerlimit, float upperlimit);
    // SvfLinearTrapOptimised2 filter;
   void initParameters(float cutoff, float q, String type, float sampleRate, float gain);

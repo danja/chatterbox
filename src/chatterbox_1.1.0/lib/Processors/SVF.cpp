@@ -1,13 +1,20 @@
 #include <SvfLinearTrapOptimised2.hpp>
 #include <SVF.h>
+#include <Arduino.h>
 
 SVF::SVF() {}
 
 // SvfLinearTrapOptimised2::FLT_TYPE f1Type = SvfLinearTrapOptimised2::BAND_PASS_FILTER;
 
-float SVF::process(float x)
+float SVF::process(const float x)
 {
-    return gain_ * filter.tick(x);
+   // Serial.println("SVF");
+   // Serial.println(x, DEC);
+    float out = gain_ * filter.tick(x);
+   // Serial.println("SVF out v");
+   // Serial.println(out, DEC);
+   // Serial.println("SVF out ^");
+    return out;
 }
 
 // (f1f, F1_NASALQ, "notch", samplerate);

@@ -11,7 +11,7 @@ class Patchbay : public Processor
 public:
     Patchbay();
 
-    float process(float x);
+    float process(const float x);
     void setModules(SVF const& svf1);
 
 private:

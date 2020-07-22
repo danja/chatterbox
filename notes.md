@@ -1,3 +1,52 @@
+**2020-07-20**
+
+I've been trying to get MIDI in & out working.
+
+I had a little annoyance in that I'd left these free:
+
+GPIO 21 [I2C SDA]  ...(((DISPLAY?)))
+GPIO 3 [UART 0 RX] ...(((MIDI IN)))
+GPIO 1 [UART 0 TX] ...(((MIDI OUT)))
+GPIO 22 [I2C SCL] ...(((DISPLAY?)))
+
+Not for the first time, I hadn't read enough manual. 
+I tried some direct I/O using a UART lib...it didn't work.
+Apparently UART0 is used by the ESP32 card's USB/serial so is effectively out of bounds. I haven't found a definitive statement but consensus seems to be that the corresponding pins are probly hardwire to the card's USB subsystem.
+Boo!
+
+But the ESP32 has 3 UARTs and they can be assigned to any pins via the internal multiplexer. UART2 is used (by flash?) but UART1 should be free.
+
+Rather than spending more time on addressing UART directly, I decided to go straight to MIDI.
+
+The prefered MIDI lib appears to be this one:
+
+https://github.com/FortySevenEffects Arduino MIDI Library v5.0.2
+
+I tried EspSoftwareSerial, but I got opaque errors. 
+
+More success with HardwareSerial.
+
+
+
+#include <MIDI.h>
+
+// Create and bind the MIDI interface to the default hardware Serial port
+MIDI_CREATE_DEFAULT_INSTANCE();
+
+void setup()
+{
+    MIDI.begin(MIDI_CHANNEL_OMNI);  // Listen to all incoming messages
+}
+
+void loop()
+{
+    // Send note 42 with velocity 127 on channel 1
+    MIDI.sendNoteOn(42, 127, 1);
+
+    // Read incoming messages
+    MIDI.read();
+}
+
 **2020-07-09**  *version chatterbox_1.1.0*
 
 Few steps forward, not got around to noting down...

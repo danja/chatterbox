@@ -42,6 +42,19 @@
 #include <dispatcher.hpp>
 #include <SerialMonitor.h>
 
+////////
+#include <MIDI.h>
+// #include <SoftwareSerial.h>
+#include <HardwareSerial.h>
+////////////////////// 
+
+
+static const int RX_BUF_SIZE = 1024;
+
+#define TXD_PIN (GPIO_NUM_21)
+#define RXD_PIN (GPIO_NUM_22)
+
+////////////////////////////////
 #define SAMPLERATE 22050
 //22050
 // 44100
@@ -172,6 +185,15 @@ Dispatcher<EventType, String, float> controlDispatcher;
 SerialMonitor serialMonitor;
 WebConnector webConnector = WebConnector();
 
+//////////////////////////////
+using Transport = MIDI_NAMESPACE::SerialMIDI<HardwareSerial>;
+   int rxPin = 21; //  1; //
+   int txPin = 22; // 3;
+   HardwareSerial hardwareSerial = HardwareSerial(1); // UART_NUM_1
+   Transport serialMIDI(hardwareSerial);
+   MIDI_NAMESPACE::MidiInterface<Transport> MIDI((Transport&)serialMIDI);
+///////////////////////////////
+
 class ChatterboxOutput
 {
 public:
@@ -265,14 +287,19 @@ double yPlot;
 Plotter plotter;
 
 void loop(){
-   vTaskDelay(5000);
-  Serial.println("LOOP");
-     Serial.println(pcTaskGetTaskName(NULL));
-     Serial.println(uxTaskPriorityGet(NULL));
-      vTaskDelay(5000); 
-      
+  // vTaskDelay(1000);
+    // Read incoming messages
+  //  Serial.println(MIDI.read());
      // vTaskSuspend( NULL );
-  // vTaskDelay(5000);
+     
+        // Send note 42 with velocity 127 on channel 1
+    MIDI.sendNoteOn(20, 127, 1);
+   vTaskDelay(500);
+    MIDI.sendNoteOff(20, 127, 1);
+      vTaskDelay(500);
+      MIDI.sendNoteOn(80, 127, 1);
+        vTaskDelay(500);
+      MIDI.sendNoteOff(80, 127, 1);
 };
 
 /* *** START SETUP() *** */
@@ -286,6 +313,17 @@ void setup()
 
  //Serial.println(pcTaskGetTaskName(NULL));
    //  Serial.println(uxTaskPriorityGet(NULL));
+
+
+MIDI.begin(1);  // MIDI_CHANNEL_OMNI Listen to all incoming messages
+// hardwareSerial.begin(31250, SERIAL_8N1, rxPin, txPin);
+
+hardwareSerial.begin(31250, SERIAL_8N1, rxPin, txPin, false, 100);
+
+// void HardwareSerial::begin
+// (unsigned long baud, uint32_t config, int8_t rxPin, int8_t txPin, bool invert, unsigned long timeout_ms)
+// Each byte is prefaced with a start bit (always zero),
+// followed by 8 data bits, then one stop bit (always high). MIDI doesn't use parity bits.
 
   plotter.Begin();
   plotter.AddTimeGraph("Time graph w/ 100 points", 100, "x label", xPlot);
@@ -433,6 +471,9 @@ void ChatterboxInput::ControlInput(void *pvParameter)
 
   while (1)
   {
+    
+    //  Serial.println(MIDI.read(),BIN);
+
     // vTaskDelay(1000 / portTICK_RATE_MS); // was 1000
 
     bool potChanged = false;
@@ -471,6 +512,14 @@ void ChatterboxInput::ControlInput(void *pvParameter)
     {
       // pitch control
       pitch = pots.getPot(POT_P5).value();
+    }
+
+    if(MIDI.read()){
+
+      byte data1 = MIDI.getData1();
+      Serial.println(data1,DEC);
+float pwr = ((float)data1 - 69.0f)/12.0f;
+pitch = 440.0f * powf(2.0f,pwr);
     }
 
     growl = pots.getPot(POT_GROWL).value();
@@ -783,7 +832,7 @@ for(int i=0; i<TABLESIZE;i=i+100){
     float mix1 = current + sibilants;
 
     // pharynx/mouth is serial
-    // float mix2 = patchbay.process(mix1);
+     // float mix2 = patchbay.process(mix1);
     float mix2 = svf1.process(mix1);
     float mix3 = svf2.process(mix2 * 0.9f);
     float mix4 = mix3;
