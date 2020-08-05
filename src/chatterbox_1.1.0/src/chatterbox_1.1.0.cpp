@@ -23,7 +23,7 @@
 #include <Switch.h>
 #include <Pot.h>
 #include <Pots.h>
-#include <Parameters.h>
+// #include <Parameters.h>
 #include <Switches.h>
 
 #include <Wavetable.h>
@@ -46,8 +46,7 @@
 #include <MIDI.h>
 // #include <SoftwareSerial.h>
 #include <HardwareSerial.h>
-////////////////////// 
-
+//////////////////////
 
 static const int RX_BUF_SIZE = 1024;
 
@@ -187,11 +186,11 @@ WebConnector webConnector = WebConnector();
 
 //////////////////////////////
 using Transport = MIDI_NAMESPACE::SerialMIDI<HardwareSerial>;
-   int rxPin = 21; //  1; //
-   int txPin = 22; // 3;
-   HardwareSerial hardwareSerial = HardwareSerial(1); // UART_NUM_1
-   Transport serialMIDI(hardwareSerial);
-   MIDI_NAMESPACE::MidiInterface<Transport> MIDI((Transport&)serialMIDI);
+int rxPin = 21;                                    //  1; //
+int txPin = 22;                                    // 3;
+HardwareSerial hardwareSerial = HardwareSerial(1); // UART_NUM_1
+Transport serialMIDI(hardwareSerial);
+MIDI_NAMESPACE::MidiInterface<Transport> MIDI((Transport &)serialMIDI);
 ///////////////////////////////
 
 class ChatterboxOutput
@@ -203,7 +202,7 @@ public:
 
 ChatterboxOutput::ChatterboxOutput()
 {
-   xTaskCreatePinnedToCore(
+  xTaskCreatePinnedToCore(
       OutputDAC,
       "audio",
       2048, // was 2048, 4096
@@ -212,7 +211,6 @@ ChatterboxOutput::ChatterboxOutput()
       &outputDACHandle, // was &AudioTask,
       0);
 }
-
 
 //////////////////////////////////////////////////////
 class ChatterboxInput
@@ -233,8 +231,6 @@ ChatterboxInput::ChatterboxInput()
       &controlInputHandle,
       1); // core
 }
-
-
 
 //////////////////////////////////////////////////////
 
@@ -286,20 +282,23 @@ double yPlot;
 // Also declare plotter as global
 Plotter plotter;
 
-void loop(){
+void loop()
+{
   // vTaskDelay(1000);
-    // Read incoming messages
+  // Read incoming messages
   //  Serial.println(MIDI.read());
-     // vTaskSuspend( NULL );
-     
-        // Send note 42 with velocity 127 on channel 1
-    MIDI.sendNoteOn(20, 127, 1);
-   vTaskDelay(500);
-    MIDI.sendNoteOff(20, 127, 1);
-      vTaskDelay(500);
-      MIDI.sendNoteOn(80, 127, 1);
-        vTaskDelay(500);
-      MIDI.sendNoteOff(80, 127, 1);
+  // vTaskSuspend( NULL );
+
+  // Send note 42 with velocity 127 on channel 1
+  /*
+  MIDI.sendNoteOn(20, 127, 1);
+  vTaskDelay(500);
+  MIDI.sendNoteOff(20, 127, 1);
+  vTaskDelay(500);
+  MIDI.sendNoteOn(80, 127, 1);
+  vTaskDelay(500);
+  MIDI.sendNoteOff(80, 127, 1);
+  */
 };
 
 /* *** START SETUP() *** */
@@ -311,19 +310,18 @@ void setup()
 
   Serial.println("\n*** Starting Chatterbox ***\n");
 
- //Serial.println(pcTaskGetTaskName(NULL));
-   //  Serial.println(uxTaskPriorityGet(NULL));
+  //Serial.println(pcTaskGetTaskName(NULL));
+  //  Serial.println(uxTaskPriorityGet(NULL));
 
+  MIDI.begin(1); // MIDI_CHANNEL_OMNI Listen to all incoming messages
+  // hardwareSerial.begin(31250, SERIAL_8N1, rxPin, txPin);
 
-MIDI.begin(1);  // MIDI_CHANNEL_OMNI Listen to all incoming messages
-// hardwareSerial.begin(31250, SERIAL_8N1, rxPin, txPin);
+  hardwareSerial.begin(31250, SERIAL_8N1, rxPin, txPin, false, 100);
 
-hardwareSerial.begin(31250, SERIAL_8N1, rxPin, txPin, false, 100);
-
-// void HardwareSerial::begin
-// (unsigned long baud, uint32_t config, int8_t rxPin, int8_t txPin, bool invert, unsigned long timeout_ms)
-// Each byte is prefaced with a start bit (always zero),
-// followed by 8 data bits, then one stop bit (always high). MIDI doesn't use parity bits.
+  // void HardwareSerial::begin
+  // (unsigned long baud, uint32_t config, int8_t rxPin, int8_t txPin, bool invert, unsigned long timeout_ms)
+  // Each byte is prefaced with a start bit (always zero),
+  // followed by 8 data bits, then one stop bit (always high). MIDI doesn't use parity bits.
 
   plotter.Begin();
   plotter.AddTimeGraph("Time graph w/ 100 points", 100, "x label", xPlot);
@@ -410,6 +408,18 @@ void initFixedWavetables()
   }
 }
 
+// https://en.wikipedia.org/wiki/MIDI_tuning_standard
+int freqToMIDINote(float freq)
+{
+  return 69 + 12.0f * log2(freq / 440.0f);
+}
+
+float midiNoteToFreq(int note)
+{
+  float pwr = ((float)note - 69.0f) / 12.0f;
+  return 440.0f * powf(2.0f, pwr);
+}
+
 /* INITIALISE INPUTS */
 void initInputs()
 {
@@ -426,9 +436,9 @@ void initInputs()
 // *** Initialise filters ***
 
 // Variable formant filters
-SVF svf1;
-SVF svf2;
-SVF svf3;
+// SVF svf1;
+// SVF svf2;
+// SVF svf3;
 
 static Patchbay patchbay;
 
@@ -436,27 +446,27 @@ static Patchbay patchbay;
 //Biquad *n1 = new Biquad(HIGHSHELF, 1000.0f / samplerate, F1_NASALQ, F1_NASAL_GAIN);
 
 // fixed sibilant/fricative filters
-SVF fricative1;
-SVF fricative2;
-SVF fricative3;
+// SVF patchbay.fricative1;
+// SVF patchbay.fricative2;
+// SVF patchbay.fricative3;
 
-SVF nasalLP;
-SVF nasalFixedBP;
-SVF nasalFixedNotch;
+// SVF patchbay.nasalLP;
+// SVF patchbay.nasalFixedBP;
+// SVF patchbay.nasalFixedNotch;
 
-SVF sing1;
-SVF sing2;
+// SVF patchbay.sing1;
+// SVF patchbay.sing2;
 
 int dt = 0;
 
-float pitch;
+// float pitch;
 // larynxSplit is initialized at wavetable
-float larynxPart;
+// float larynxPart;
 
-float f1f;
-float f2f;
-float f3f;
-float f3q;
+// float f1f;
+// float f2f;
+// float f3f;
+// float f3q;
 
 float growl;
 
@@ -471,7 +481,7 @@ void ChatterboxInput::ControlInput(void *pvParameter)
 
   while (1)
   {
-    
+
     //  Serial.println(MIDI.read(),BIN);
 
     // vTaskDelay(1000 / portTICK_RATE_MS); // was 1000
@@ -511,20 +521,21 @@ void ChatterboxInput::ControlInput(void *pvParameter)
     if (potChanged)
     {
       // pitch control
-      pitch = pots.getPot(POT_P5).value();
+      MIDI.sendNoteOff(freqToMIDINote(patchbay.pitch), 127, 1); // temp test
+      patchbay.pitch = pots.getPot(POT_P5).value();
+       MIDI.sendNoteOn(freqToMIDINote(patchbay.pitch), 127, 1);
     }
 
-    if(MIDI.read()){
-
+    if (MIDI.read())
+    {
       byte data1 = MIDI.getData1();
-      Serial.println(data1,DEC);
-float pwr = ((float)data1 - 69.0f)/12.0f;
-pitch = 440.0f * powf(2.0f,pwr);
+      // Serial.println(data1, DEC);
+      patchbay.pitch = midiNoteToFreq(data1);
     }
 
     growl = pots.getPot(POT_GROWL).value();
 
-    tableStep = pitch * tablesize / samplerate; // tableStep aka delta
+    tableStep = patchbay.pitch * tablesize / samplerate; // tableStep aka delta
 
     if (abs(larynxSplit - pots.getPot(POT_P4).value()) > 8)
     {
@@ -532,29 +543,29 @@ pitch = 440.0f * powf(2.0f,pwr);
       initLarynxWavetable();
     }
 
-    f1f = pots.getPot(POT_P0).value();
-    f2f = pots.getPot(POT_P1).value();
-    f3f = pots.getPot(POT_P2).value();
-    f3q = pots.getPot(POT_P3).value();
+    patchbay.f1f = pots.getPot(POT_P0).value();
+    patchbay.f2f = pots.getPot(POT_P1).value();
+    patchbay.f3f = pots.getPot(POT_P2).value();
+    patchbay.f3q = pots.getPot(POT_P3).value();
 
     if (switches.getSwitch(SWITCH_NASAL).on())
     {
       pots.getPot(POT_P0).id(POT_ID_NASAL);
       pots.getPot(POT_P0).range(ADC_TOP, NASAL_LOW, NASAL_HIGH);
 
-      svf1.initParameters(f1f, F1_NASALQ, "notch", samplerate, F1_GAIN); // NOTE not individual gain
-      svf2.initParameters(f2f, F2_NASALQ, "bandPass", samplerate, F2_GAIN);
+      patchbay.svf1.initParameters(patchbay.f1f, F1_NASALQ, "notch", samplerate, F1_GAIN); // NOTE not individual gain
+      patchbay.svf2.initParameters(patchbay.f2f, F2_NASALQ, "bandPass", samplerate, F2_GAIN);
     }
     else
     {
       pots.getPot(POT_P0).id(POT_ID_F1F);
       pots.getPot(POT_P0).range(ADC_TOP, F1F_LOW, F1F_HIGH);
 
-      svf1.initParameters(f1f, F1Q, "bandPass", samplerate, F1_GAIN);
-      svf2.initParameters(f2f, F2Q, "bandPass", samplerate, F2_GAIN);
+      patchbay.svf1.initParameters(patchbay.f1f, F1Q, "bandPass", samplerate, F1_GAIN);
+      patchbay.svf2.initParameters(patchbay.f2f, F2Q, "bandPass", samplerate, F2_GAIN);
     }
 
-    svf3.initParameters(f3f, f3q, "lowPass", samplerate, F3_GAIN);
+    patchbay.svf3.initParameters(patchbay.f3f, patchbay.f3q, "lowPass", samplerate, F3_GAIN);
 
     /********************/
     /*** SWITCH INPUT ***/
@@ -583,7 +594,6 @@ pitch = 440.0f * powf(2.0f,pwr);
             switches.getSwitch(i).on() || (switches.getSwitch(i).hold() && switches.getSwitch(TOGGLE_HOLD).on()));
 
         if (switches.getSwitch(TOGGLE_HOLD).on())
-
         { // override envelope
           if (switches.getSwitch(i).on())
           {
@@ -595,21 +605,22 @@ pitch = 440.0f * powf(2.0f,pwr);
           }
         }
       }
+      /// need a check for switch change for MIDI here somewhere
     }
 
     if (switches.getSwitch(SWITCH_DESTRESS).gain())
     {
       emphasisGain = VOICED_GAIN_DESTRESSED;
 
-      svf1.initParameters(f1f, F1_LOWQ, "lowPass", samplerate, F1_GAIN);
-      svf2.initParameters(f2f, F2_LOWQ, "bandPass", samplerate, F2_GAIN);
+      patchbay.svf1.initParameters(patchbay.f1f, F1_LOWQ, "lowPass", samplerate, F1_GAIN);
+      patchbay.svf2.initParameters(patchbay.f2f, F2_LOWQ, "bandPass", samplerate, F2_GAIN);
     }
     else
     {
       emphasisGain = VOICED_GAIN_DEFAULT;
 
-      svf1.initParameters(f1f, F1Q, "bandPass", samplerate, F1_GAIN);
-      svf2.initParameters(f2f, F2Q, "bandPass", samplerate, F2_GAIN);
+      patchbay.svf1.initParameters(patchbay.f1f, F1Q, "bandPass", samplerate, F1_GAIN);
+      patchbay.svf2.initParameters(patchbay.f2f, F2Q, "bandPass", samplerate, F2_GAIN);
     }
     if (switches.getSwitch(SWITCH_STRESS).on())
     {
@@ -698,16 +709,16 @@ void ChatterboxOutput::OutputDAC(void *pvParameter)
 
   unsigned int frameCount = 0;
 
-  fricative1.initParameters(SF1F, SF1Q, "highPass", samplerate, SF1_GAIN); // TODO make SF1F etc variable?
-  fricative2.initParameters(SF2F, SF2Q, "highPass", samplerate, SF2_GAIN);
-  fricative3.initParameters(SF3F, SF3Q, "highPass", samplerate, SF3_GAIN);
+  patchbay.fricative1.initParameters(SF1F, SF1Q, "highPass", samplerate, SF1_GAIN); // TODO make SF1F etc variable?
+  patchbay.fricative2.initParameters(SF2F, SF2Q, "highPass", samplerate, SF2_GAIN);
+  patchbay.fricative3.initParameters(SF3F, SF3Q, "highPass", samplerate, SF3_GAIN);
 
-  nasalLP.initParameters(NASAL_LPF, NASAL_LPQ, "lowPass", samplerate, NASAL_LP_GAIN);
-  nasalFixedBP.initParameters(NASAL_FIXEDBPF, NASAL_FIXEDBPQ, "bandPass", samplerate, NASAL_FIXEDBP_GAIN);
-  nasalFixedNotch.initParameters(NASAL_FIXEDNOTCHF, NASAL_FIXEDNOTCHQ, "notch", samplerate, NASAL_FIXEDNOTCH_GAIN);
+  patchbay.nasalLP.initParameters(NASAL_LPF, NASAL_LPQ, "lowPass", samplerate, NASAL_LP_GAIN);
+  patchbay.nasalFixedBP.initParameters(NASAL_FIXEDBPF, NASAL_FIXEDBPQ, "bandPass", samplerate, NASAL_FIXEDBP_GAIN);
+  patchbay.nasalFixedNotch.initParameters(NASAL_FIXEDNOTCHF, NASAL_FIXEDNOTCHQ, "notch", samplerate, NASAL_FIXEDNOTCH_GAIN);
 
-  sing1.initParameters(SING1F, SING1Q, "bandPass", samplerate, SING1_GAIN);
-  sing2.initParameters(SING2F, SING2Q, "bandPass", samplerate, SING2_GAIN);
+  patchbay.sing1.initParameters(SING1F, SING1Q, "bandPass", samplerate, SING1_GAIN);
+  patchbay.sing2.initParameters(SING2F, SING2Q, "bandPass", samplerate, SING2_GAIN);
 
   int pointer = 0;
 
@@ -725,7 +736,7 @@ for(int i=0; i<TABLESIZE;i=i+100){
   delay(1000);
 */
 
-  patchbay.setModules(svf1);
+  // patchbay.setModules(svf1);
 
   while (1)
   {
@@ -752,7 +763,7 @@ for(int i=0; i<TABLESIZE;i=i+100){
     int lower = (int)floor(pointer);
     int upper = ((int)ceil(pointer)) % TABLESIZE;
 
-    float larynxPart = larynxWavetable[lower] * err + larynxWavetable[upper] * (1 - err);
+    patchbay.larynxPart = larynxWavetable[lower] * err + larynxWavetable[upper] * (1 - err);
     // float sinePart = sinWavetable.get(lower) * err + sinWavetable.get(upper) * (1 - err);
     // float sawtoothPart = sawWavetable.get(lower) * err + sawWavetable.get(upper) * (1 - err);
 
@@ -766,10 +777,10 @@ for(int i=0; i<TABLESIZE;i=i+100){
 
     // sinePart = sin(waveX);
 
-    float voice = sineRatio * sinePart + sawtoothRatio * sawtoothPart + larynxRatio * larynxPart;
+    float voice = sineRatio * sinePart + sawtoothRatio * sawtoothPart + larynxRatio * patchbay.larynxPart;
 
     // CHECK THE MIN/MAX OF A VALUE
-    float monitorValue = larynxPart;
+    float monitorValue = patchbay.larynxPart;
     if (monitorValue < minValue)
     {
       minValue = monitorValue;
@@ -812,8 +823,8 @@ for(int i=0; i<TABLESIZE;i=i+100){
 
     if (switches.getSwitch(TOGGLE_SING).on())
     {
-      float sing1Val = sing1.process(current);
-      float sing2Val = sing2.process(current);
+      float sing1Val = patchbay.sing1.process(current);
+      float sing2Val = patchbay.sing2.process(current);
 
       current = (current + sing1Val + sing2Val) / 2.0f;
     }
@@ -823,31 +834,31 @@ for(int i=0; i<TABLESIZE;i=i+100){
       current = current * (1.0f - growl * shoutNoise.stretchedNoise()); // amplitude mod
     }
 
-    float s1 = fricative1.process(sf1Noise.pink(noise)) * switches.getSwitch(SWITCH_SF1).gain();                // SF1_GAIN *
-    float s2 = 1.5f * fricative2.process(noise) * switches.getSwitch(SWITCH_SF2).gain();                        // SF2_GAIN *
-    float s3 = 5.0f * fricative3.process(noise - sf3Noise.pink(noise)) * switches.getSwitch(SWITCH_SF3).gain(); // SF3_GAIN *
+    float s1 = patchbay.fricative1.process(sf1Noise.pink(noise)) * switches.getSwitch(SWITCH_SF1).gain();                // SF1_GAIN *
+    float s2 = 1.5f * patchbay.fricative2.process(noise) * switches.getSwitch(SWITCH_SF2).gain();                        // SF2_GAIN *
+    float s3 = 5.0f * patchbay.fricative3.process(noise - sf3Noise.pink(noise)) * switches.getSwitch(SWITCH_SF3).gain(); // SF3_GAIN *
 
     float sibilants = (s1 + s2 + s3) / 3.0f;
 
     float mix1 = current + sibilants;
 
     // pharynx/mouth is serial
-     // float mix2 = patchbay.process(mix1);
-    float mix2 = svf1.process(mix1);
-    float mix3 = svf2.process(mix2 * 0.9f);
+    // float mix2 = patchbay.process(mix1);
+    float mix2 = patchbay.svf1.process(mix1);
+    float mix3 = patchbay.svf2.process(mix2 * 0.9f);
     float mix4 = mix3;
 
     if (switches.getSwitch(SWITCH_NASAL).on())
     {
-      mix4 = nasalLP.process(mix3) + nasalFixedBP.process(mix3) + nasalFixedNotch.process(mix3);
+      mix4 = patchbay.nasalLP.process(mix3) + patchbay.nasalFixedBP.process(mix3) + patchbay.nasalFixedNotch.process(mix3);
       mix4 = mix4 / 3.0f;
     }
-    float mix5 = svf3.process(mix4);
+    float mix5 = patchbay.svf3.process(mix4);
 
-    xPlot = larynxPart;
+    xPlot = patchbay.larynxPart;
 
     // Outputs A, B
-    dac.writeSample(larynxPart, mix5); //mix5
+    dac.writeSample(2.0f * patchbay.larynxPart, 2.0f * mix5); //mix5
 
     // ****************** END WIRING ******************
 

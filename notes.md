@@ -1,4 +1,18 @@
-**2020-07-20**
+**2020-07-23**   *version chatterbox_1.1.0*
+
+Ok, finally got MIDI input working using:
+
+https://github.com/FortySevenEffects Arduino MIDI Library v5.0.2
+
+with 
+
+GPIO 21 [I2C SDA] - MIDI rx
+GPIO 22 [I2C SCL] - MIDI tx 
+
+
+https://en.wikipedia.org/wiki/MIDI_tuning_standard
+
+**2020-07-20**   *version chatterbox_1.1.0*
 
 I've been trying to get MIDI in & out working.
 
@@ -25,27 +39,6 @@ https://github.com/FortySevenEffects Arduino MIDI Library v5.0.2
 I tried EspSoftwareSerial, but I got opaque errors. 
 
 More success with HardwareSerial.
-
-
-
-#include <MIDI.h>
-
-// Create and bind the MIDI interface to the default hardware Serial port
-MIDI_CREATE_DEFAULT_INSTANCE();
-
-void setup()
-{
-    MIDI.begin(MIDI_CHANNEL_OMNI);  // Listen to all incoming messages
-}
-
-void loop()
-{
-    // Send note 42 with velocity 127 on channel 1
-    MIDI.sendNoteOn(42, 127, 1);
-
-    // Read incoming messages
-    MIDI.read();
-}
 
 **2020-07-09**  *version chatterbox_1.1.0*
 
