@@ -2,14 +2,15 @@
 #define Patchbay_h
 
 #include <WString.h>
-#include <Processor.h>
 #include <SVF.h>
+#include <Receiver.h>
 
-class Patchbay : public Processor
+
+class Patchbay : public Receiver
 {
-
 public:
     Patchbay();
+    void registerCallback(Dispatcher<EventType, String, float> &dispatcher);
 
     float process(const float x);
     void setModules(SVF const& svf1);
@@ -50,8 +51,9 @@ public:
     float decayTime;
     float decayStep;
 
-// private:
-  //  SVF svf1_;
+private:
+    void listener(EventType type, String name, float value);
+    //  SVF svf1_;
 };
 
 #endif

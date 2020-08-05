@@ -1,4 +1,5 @@
-#pragma once
+#ifndef WebConnector_h
+#define WebConnector_h
 
 #include <WString.h>
 #include <Receiver.h>
@@ -6,9 +7,6 @@
 #include "WiFi.h"
 #include "ESPAsyncWebServer.h"
 #include "SPIFFS.h"
-
- // 
-
 
 class WebConnector: public Receiver
 {
@@ -22,10 +20,7 @@ public:
 
 private:
     void listener(EventType type, String name, float value);
-    // String pageProcessor(const String &var);
-    // AsyncWebServer server;
-   // AsyncWebSocket ws;
    static String pageProcessor(const String &var);
-    // AsyncWebServer server(http_port);
-    // AsyncWebSocket ws("/ws");
 };
+
+#endif

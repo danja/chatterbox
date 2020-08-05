@@ -4,7 +4,7 @@
 #include <WString.h>
 #include <dispatcher.hpp>
 
-enum EventType {VALUE_CHANGE, EVENT2, EVENT3};
+enum EventType {NOTE_ON, NOTE_OFF, VALUE_CHANGE, EVENT2, EVENT3};
 
 class Receiver
 {

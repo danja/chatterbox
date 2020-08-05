@@ -17,12 +17,7 @@ IPAddress secondaryDNS(8, 8, 4, 4); //optional
 AsyncWebServer server(http_port); // 
     AsyncWebSocket ws("/ws");
 
-WebConnector::WebConnector(
-
-  
-){}
-
-/* WEB SERVER THREAD */
+WebConnector::WebConnector(){}
 
 void WebConnector::startWebServer()
 {

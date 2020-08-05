@@ -37,18 +37,10 @@
 #include <SVF.h>
 #include <Patchbay.h>
 
-#include <WebConnector.h>
-
 #include <dispatcher.hpp>
 #include <SerialMonitor.h>
-
-#include <MIDI.h>
-#include <HardwareSerial.h>
-
-// MIDI
-static const int RX_BUF_SIZE = 1024;
-#define TXD_PIN (GPIO_NUM_21)
-#define RXD_PIN (GPIO_NUM_22)
+#include <MIDIConnector.h>
+#include <WebConnector.h>
 
 #define SAMPLERATE 22050
 
@@ -177,15 +169,19 @@ TaskHandle_t outputDACHandle = NULL;
 
 Dispatcher<EventType, String, float> controlDispatcher;
 SerialMonitor serialMonitor;
-WebConnector webConnector = WebConnector();
+WebConnector webConnector; ///
+MIDIConnector midiConnector;
+
 
 // MIDI
+/*
 using Transport = MIDI_NAMESPACE::SerialMIDI<HardwareSerial>;
 int rxPin = 21;                                    //  1; //
 int txPin = 22;                                    // 3;
 HardwareSerial hardwareSerial = HardwareSerial(1); // UART_NUM_1
 Transport serialMIDI(hardwareSerial);
 MIDI_NAMESPACE::MidiInterface<Transport> MIDI((Transport &)serialMIDI);
+*/
 
 class ChatterboxOutput
 {
@@ -273,20 +269,17 @@ void setup()
 
     Serial.println("\n*** Starting Chatterbox ***\n");
 
-    MIDI.begin(1); // MIDI_CHANNEL_OMNI Listen to all incoming messages
-
-    hardwareSerial.begin(31250, SERIAL_8N1, rxPin, txPin, false, 100);
-
-    // void HardwareSerial::begin
-    // (unsigned long baud, uint32_t config, int8_t rxPin, int8_t txPin, bool invert, unsigned long timeout_ms)
-    // Each byte is prefaced with a start bit (always zero),
-    // followed by 8 data bits, then one stop bit (always high). MIDI doesn't use parity bits.
+    // MIDI.begin(1); // MIDI_CHANNEL_OMNI Listen to all incoming messages
+    // hardwareSerial.begin(31250, SERIAL_8N1, rxPin, txPin, false, 100);
 
     // plotter.Begin();
     // plotter.AddTimeGraph("Time graph w/ 100 points", 100, "x label", xPlot);
 
     serialMonitor.registerCallback(controlDispatcher);
     webConnector.registerCallback(controlDispatcher);
+    midiConnector.registerCallback(controlDispatcher);
+
+    patchbay.registerCallback(midiConnector.midiDispatcher);
 
     initLarynxWavetable();
     initFixedWavetables();
@@ -308,6 +301,7 @@ void setup()
     static ChatterboxInput chatterboxInput;
 
     webConnector.startWebServer();
+    midiConnector.start();
 
     /*
     Serial.print("esp_get_free_heap_size() = ");
@@ -367,17 +361,7 @@ void initFixedWavetables()
     }
 }
 
-// https://en.wikipedia.org/wiki/MIDI_tuning_standard
-int freqToMIDINote(float freq)
-{
-    return 69 + 12.0f * log2(freq / 440.0f);
-}
 
-float midiNoteToFreq(int note)
-{
-    float pwr = ((float)note - 69.0f) / 12.0f;
-    return 440.0f * powf(2.0f, pwr);
-}
 
 /* INITIALISE INPUTS */
 void initInputs()
@@ -417,7 +401,8 @@ void ChatterboxInput::ControlInput(void *pvParameter)
 
     while (1)
     {
-
+       midiConnector.read();
+      // vTaskDelay(1);
         //  Serial.println(MIDI.read(),BIN);
 
         // vTaskDelay(1000 / portTICK_RATE_MS); // was 1000
@@ -457,17 +442,12 @@ void ChatterboxInput::ControlInput(void *pvParameter)
         if (potChanged)
         {
             // pitch control
-            MIDI.sendNoteOff(freqToMIDINote(patchbay.pitch), 127, 1); // temp test
+          //  MIDI.sendNoteOff(freqToMIDINote(patchbay.pitch), 127, 1); // temp test
             patchbay.pitch = pots.getPot(POT_P5).value();
-            MIDI.sendNoteOn(freqToMIDINote(patchbay.pitch), 127, 1);
+            //  MIDI.sendNoteOn(freqToMIDINote(patchbay.pitch), 127, 1);
         }
 
-        if (MIDI.read())
-        {
-            byte data1 = MIDI.getData1();
-            // Serial.println(data1, DEC);
-            patchbay.pitch = midiNoteToFreq(data1);
-        }
+
 
         patchbay.growl = pots.getPot(POT_GROWL).value();
 
@@ -541,7 +521,6 @@ void ChatterboxInput::ControlInput(void *pvParameter)
                     }
                 }
             }
-            /// need a check for switch change for MIDI here somewhere
         }
 
         if (switches.getSwitch(SWITCH_DESTRESS).gain())
@@ -663,7 +642,7 @@ void ChatterboxOutput::OutputDAC(void *pvParameter)
     NoiseMaker sf1Noise = NoiseMaker();
     NoiseMaker sf3Noise = NoiseMaker();
 
-  // patchbay.setModules(svf1);
+    // patchbay.setModules(svf1);
 
     while (1)
     {
