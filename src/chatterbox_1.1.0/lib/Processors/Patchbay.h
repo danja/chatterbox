@@ -37,8 +37,21 @@ public:
     float f3f = 0;
     float f3q = 0;
 
-private:
-    SVF svf1_;
+    float emphasisGain = 1.0f;
+
+    float larynxRatio;
+    float sineRatio;
+    float sawtoothRatio;
+
+    float growl;
+
+    float attackTime;
+    float attackStep;
+    float decayTime;
+    float decayStep;
+
+// private:
+  //  SVF svf1_;
 };
 
 #endif
