@@ -5,6 +5,8 @@
 #include <dispatcher.hpp>
 #include <Receiver.h>
 
+#include <Wavetable.h> // only for tablesize
+
 #define TXD_PIN (GPIO_NUM_21)
 #define RXD_PIN (GPIO_NUM_22)
 
@@ -69,23 +71,43 @@ void MIDIConnector::read() {
     if (MIDI.read())
     {
         byte type = MIDI.getType();
-        
-        Serial.println(type,HEX);
+        if (type == 0xFE) return;
 
-        float pitch;
-        float gain;
+        byte channel = MIDI.getChannel();
 
+        Serial.println(type, HEX);
+
+        byte data1 = MIDI.getData1();
+        byte data2 = MIDI.getData2();
+
+        /*
+        Serial.print("data1 ");
+        Serial.println(data1, HEX);
+        Serial.print("data2 ");
+        Serial.println(data2, HEX);
+        */
         switch (type) {
 
         case 0x90: // Note On midiDefs.h
-            pitch = midiNoteToFreq(MIDI.getData1());
-            gain = (float)MIDI.getData2()/128.0f;
-            midiDispatcher.broadcast(NOTE_ON, "pitch", pitch);
-            midiDispatcher.broadcast(NOTE_ON, "gain", gain);
+            midiDispatcher.broadcast(NOTE_ON, "pitch", midiNoteToFreq(data1));
+            midiDispatcher.broadcast(NOTE_ON, "gain", (float)MIDI.getData2()/128.0f);
             break;
 
         case 0x80: // Note Off midiDefs.h
             midiDispatcher.broadcast(NOTE_OFF, "gain", 0);
+            break;
+
+        case 0xE0: // Pitch Bend
+            midiDispatcher.broadcast(NOTE_ON, "pitch", midiNoteToFreq(data2));
+            break;
+
+        case 0xB0: // Control Change
+        
+            switch(data1){
+                case 0x01: // Mod Wheel
+                    midiDispatcher.broadcast(NOTE_ON, "larynxSplit", tablesize * (float)(1 + data2)/129.0f);
+                break;
+            }
             break;
         }
     }

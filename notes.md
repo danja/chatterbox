@@ -1,3 +1,16 @@
+**2020-08-06** *version chatterbox_1.1.0*
+
+Last week, quite a major milestone, got MIDI out doing something as well. That's kinda the hardware done. 
+But only this morning I swapped the internal amplifier for a PAM8403 module, is much better.
+
+Also, quite a priority : I need to see if there's anything I can do in hardware to reduce noise from pots. I'll try this on a separate ESP32 module so I'm less likely to break anything.
+
+NOTA BENE : I think sometimes when it's made a bad noise for no apparent reason, I think it could be some activity on the serial line that isn't visible. Try Upload without Monitor.
+
+I've been moving variables out of global scope into a class called Patchbay, as public members.
+I've moved the MIDI stuff to it's own class, MIDIConnector, which communicates with the main classes through dispatch/receive bits on Patchbay. Getting neater!
+
+
 **2020-07-23**   *version chatterbox_1.1.0*
 
 Ok, finally got MIDI input working using:

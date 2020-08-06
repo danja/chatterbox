@@ -21,10 +21,17 @@ void Patchbay::listener(EventType type, String name, float value)
     */
     if (name == "pitch") {
         pitch = value;
+        return;
     }
     if (name == "gain") {
         voicedGain = value;
+        return;
     }
+        if (name == "larynxSplit") {
+        larynxSplit = value;
+        return;
+    }
+    
 }
 
 

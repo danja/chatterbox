@@ -5,6 +5,7 @@
 #include <SVF.h>
 #include <Receiver.h>
 
+#include <Wavetable.h> // only for tablesize
 
 class Patchbay : public Receiver
 {
@@ -31,6 +32,9 @@ public:
     SVF sing2;
 
     float pitch = 0;
+int larynxSplit =  TABLESIZE / 2;
+int larynxSplitPrevious =  TABLESIZE / 2;
+
     float larynxPart = 0;
 
     float f1f = 0;

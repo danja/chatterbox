@@ -95,7 +95,7 @@
 #define PITCH_MIN 20
 #define PITCH_MAX 500
 
-#define LARYNX_MIN 5 // % of wave is larynxSplit open
+#define LARYNX_MIN 5 // % of wave is patchbay.larynxSplit open
 #define LARYNX_MAX 95
 
 #define F1F_LOW 150 // formant filter 1 centre frequency lowest value
@@ -322,22 +322,22 @@ void setup()
 }
 /*** END SETUP() ***/
 
-/* INITIALIZE larynxSplit WAVETABLE */
-int larynxSplit = TABLESIZE / 2; // point in wavetable corresponding to closed larynxSplit
+/* INITIALIZE patchbay.larynxSplit WAVETABLE */
+// int patchbay.larynxSplit = TABLESIZE / 2; // point in wavetable corresponding to closed patchbay.larynxSplit
 
 void initLarynxWavetable()
 {
-    float larynxPeak = 0.5f * (float)(larynxSplit * larynxSplit / tablesize); //  * larynxR * larynxR;
+    float larynxPeak = 0.5f * (float)(patchbay.larynxSplit * patchbay.larynxSplit / tablesize); //  * larynxR * larynxR;
 
     for (unsigned int i = 0; i < larynxPeak; i++)
     { // up slope+
         larynxWavetable[i] = 2.0f * (float)i / larynxPeak - 1.0f;
     }
-    for (unsigned int i = larynxPeak; i < larynxSplit; i++)
+    for (unsigned int i = larynxPeak; i < patchbay.larynxSplit; i++)
     { // down slope
-        larynxWavetable[i] = 1.0f - 2.0f * (i - larynxPeak) / (larynxSplit - larynxPeak);
+        larynxWavetable[i] = 1.0f - 2.0f * (i - larynxPeak) / (patchbay.larynxSplit - larynxPeak);
     }
-    for (unsigned int i = larynxSplit; i < TABLESIZE; i++)
+    for (unsigned int i = patchbay.larynxSplit; i < TABLESIZE; i++)
     { // flat section __
         larynxWavetable[i] = -1.0f;
     }
@@ -428,7 +428,7 @@ void ChatterboxInput::ControlInput(void *pvParameter)
             }
         }
 
-        pots.getPot(POT_GROWL).raw(pots.getPot(POT_P4).raw()); // same as larynxSplit TODO refactor
+        pots.getPot(POT_GROWL).raw(pots.getPot(POT_P4).raw()); // same as patchbay.larynxSplit TODO refactor
 
         if (switches.getSwitch(TOGGLE_CREAK).on())
         {
@@ -447,17 +447,24 @@ void ChatterboxInput::ControlInput(void *pvParameter)
             //  MIDI.sendNoteOn(freqToMIDINote(patchbay.pitch), 127, 1);
         }
 
+        // for midi
+        if (patchbay.larynxSplit != patchbay.larynxSplitPrevious) {
+            initLarynxWavetable();
+            patchbay.larynxSplitPrevious = patchbay.larynxSplit;
+            // vTaskDelay(1);
+        }
+
+        if (abs(patchbay.larynxSplit - pots.getPot(POT_P4).value()) > 8)
+        {
+            patchbay.larynxSplit = pots.getPot(POT_P4).value();
+            initLarynxWavetable();
+          //  vTaskDelay(1);
+        }
 
 
         patchbay.growl = pots.getPot(POT_GROWL).value();
 
         tableStep = patchbay.pitch * tablesize / samplerate; // tableStep aka delta
-
-        if (abs(larynxSplit - pots.getPot(POT_P4).value()) > 8)
-        {
-            larynxSplit = pots.getPot(POT_P4).value();
-            initLarynxWavetable();
-        }
 
         patchbay.f1f = pots.getPot(POT_P0).value();
         patchbay.f2f = pots.getPot(POT_P1).value();
@@ -718,7 +725,7 @@ void ChatterboxOutput::OutputDAC(void *pvParameter)
         }
         float vGain = switches.getSwitch(SWITCH_VOICED).gain();
         float nGain = switches.getSwitch(SWITCH_NASAL).gain();
-        
+
         voice =  max(vGain, nGain, patchbay.voicedGain) * voice;
 
         float aspiration = switches.getSwitch(SWITCH_ASPIRATED).gain() * noise / 2.0f;
