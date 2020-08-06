@@ -38,6 +38,8 @@ public:
     float f3f = 0;
     float f3q = 0;
 
+    float voicedGain = 1;
+
     float emphasisGain = 1.0f;
 
     float larynxRatio;

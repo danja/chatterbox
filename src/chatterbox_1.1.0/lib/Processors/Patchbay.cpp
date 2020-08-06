@@ -13,24 +13,29 @@ void Patchbay::registerCallback(Dispatcher<EventType, String, float> &dispatcher
 
 void Patchbay::listener(EventType type, String name, float value)
 {
- //   Serial.print(name + " PB: ");
-   // Serial.println(value, DEC);
-    if(name == "pitch"){
-       pitch = value;
+    /*
+    Serial.print("PB: ");
+    Serial.print(name);
+    Serial.print(" : ");
+    Serial.println(value);
+    */
+    if (name == "pitch") {
+        pitch = value;
+    }
+    if (name == "gain") {
+        voicedGain = value;
     }
 }
 
 
 ///////////////////////////////////
 
-void Patchbay::setModules(SVF const& svf1){
-//    svf1_ = svf1;
+void Patchbay::setModules(SVF const& svf1) {
+    //    svf1_ = svf1;
 }
 
 float Patchbay::process(const float x)
 {
-    
-
     return 0;
 }
 

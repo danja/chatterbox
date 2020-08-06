@@ -401,11 +401,11 @@ void ChatterboxInput::ControlInput(void *pvParameter)
 
     while (1)
     {
-       midiConnector.read();
-      // vTaskDelay(1);
-        //  Serial.println(MIDI.read(),BIN);
+        midiConnector.read();
+        // vTaskDelay(1);
+          //  Serial.println(MIDI.read(),BIN);
 
-        // vTaskDelay(1000 / portTICK_RATE_MS); // was 1000
+          // vTaskDelay(1000 / portTICK_RATE_MS); // was 1000
 
         bool potChanged = false;
 
@@ -605,6 +605,11 @@ void togglePushSwitch(int i)
     }
 }
 
+float max(float a, float b, float c) {
+    float max = (a<b)?b:a;
+    return (max<c)?c:max;
+}
+
 float minValue = 0;
 float maxValue = 0;
 
@@ -711,8 +716,10 @@ void ChatterboxOutput::OutputDAC(void *pvParameter)
                 switches.getSwitch(i).gain(switches.getSwitch(i).gain() - patchbay.decayStep); // TODO refactor
             }
         }
-
-        voice = (switches.getSwitch(SWITCH_VOICED).gain() + switches.getSwitch(SWITCH_NASAL).gain()) * voice / 2.0f;
+        float vGain = switches.getSwitch(SWITCH_VOICED).gain();
+        float nGain = switches.getSwitch(SWITCH_NASAL).gain();
+        
+        voice =  max(vGain, nGain, patchbay.voicedGain) * voice;
 
         float aspiration = switches.getSwitch(SWITCH_ASPIRATED).gain() * noise / 2.0f;
 
@@ -752,10 +759,10 @@ void ChatterboxOutput::OutputDAC(void *pvParameter)
         }
         float mix5 = patchbay.svf3.process(mix4);
 
-        xPlot = patchbay.larynxPart;
+        // xPlot = patchbay.larynxPart;
 
         // Outputs A, B
-        dac.writeSample(2.0f * patchbay.larynxPart, 2.0f * mix5); //mix5
+        dac.writeSample(patchbay.larynxPart, mix5); //mix5
 
         // ****************** END WIRING ******************
 

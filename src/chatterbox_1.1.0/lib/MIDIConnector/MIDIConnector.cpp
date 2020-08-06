@@ -68,27 +68,28 @@ void MIDIConnector::registerCallback(Dispatcher<EventType, String, float> &dispa
 void MIDIConnector::read() {
     if (MIDI.read())
     {
-       // byte type = MIDI.getType();
-     //   if (type == 0x90) { // Note On midiDefs.h
-            byte data1 = MIDI.getData1();
-            // Serial.println(data1, DEC);
-            float pitch = midiNoteToFreq(data1);
-            midiDispatcher.broadcast(VALUE_CHANGE, "pitch", pitch);
-            return;
-    //    }
-    /*
-        if (type == 0x80) { // Note Off
-            byte data1 = MIDI.getData1();
-            // Serial.println(data1, DEC);
-            float pitch = midiNoteToFreq(data1);
-           // midiDispatcher.broadcast(VALUE_CHANGE, "pitch", pitch);
-            return;
+        byte type = MIDI.getType();
+        
+        Serial.println(type,HEX);
+
+        float pitch;
+        float gain;
+
+        switch (type) {
+
+        case 0x90: // Note On midiDefs.h
+            pitch = midiNoteToFreq(MIDI.getData1());
+            gain = (float)MIDI.getData2()/128.0f;
+            midiDispatcher.broadcast(NOTE_ON, "pitch", pitch);
+            midiDispatcher.broadcast(NOTE_ON, "gain", gain);
+            break;
+
+        case 0x80: // Note Off midiDefs.h
+            midiDispatcher.broadcast(NOTE_OFF, "gain", 0);
+            break;
         }
-        */
     }
 }
-
-
 
 void MIDIConnector::listener(EventType type, String id, float value)
 {
