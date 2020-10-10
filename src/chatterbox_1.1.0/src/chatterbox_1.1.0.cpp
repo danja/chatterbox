@@ -600,11 +600,13 @@ void ChatterboxInput::ControlInput(void *pvParameter)
 
 void togglePushSwitch(int i)
 {
+    Serial.println("TOGGLE PUSH");
     if (switches.getSwitch(i).type() != PUSH)
         return;
 
     if (switches.getSwitch(TOGGLE_HOLD).on())
     {
+Serial.println("HOLD ON");
         if (switches.getSwitch(i).on())
         {
             switches.getSwitch(i).hold(!switches.getSwitch(i).hold()); // toggle, rename to flip method?
@@ -726,7 +728,7 @@ void ChatterboxOutput::OutputDAC(void *pvParameter)
         float vGain = switches.getSwitch(SWITCH_VOICED).gain();
         float nGain = switches.getSwitch(SWITCH_NASAL).gain();
 
-        voice =  max(vGain, nGain, patchbay.voicedGain) * voice;
+        voice =  max(vGain * patchbay.voicedGain, nGain) * voice;
 
         float aspiration = switches.getSwitch(SWITCH_ASPIRATED).gain() * noise / 2.0f;
 
