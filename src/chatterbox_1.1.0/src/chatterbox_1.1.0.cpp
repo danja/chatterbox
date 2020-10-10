@@ -172,7 +172,6 @@ SerialMonitor serialMonitor;
 WebConnector webConnector; ///
 MIDIConnector midiConnector;
 
-
 // MIDI
 /*
 using Transport = MIDI_NAMESPACE::SerialMIDI<HardwareSerial>;
@@ -244,8 +243,6 @@ void initInputs();
 Switches switches;
 Pots pots;
 
-
-
 float tableStep = 1;
 
 int bufferIndex = 0;
@@ -256,9 +253,7 @@ double yPlot;
 
 // Plotter plotter;
 
-void loop()
-{
-};
+void loop(){};
 
 /* *** START SETUP() *** */
 void setup()
@@ -361,8 +356,6 @@ void initFixedWavetables()
     }
 }
 
-
-
 /* INITIALISE INPUTS */
 void initInputs()
 {
@@ -375,7 +368,6 @@ void initInputs()
     switches.init();
 }
 /* END INITIALISE INPUTS */
-
 
 //   Biquad(int type, float Fc, float Q, float peakGainDB);
 //Biquad *n1 = new Biquad(HIGHSHELF, 1000.0f / samplerate, F1_NASALQ, F1_NASAL_GAIN);
@@ -403,9 +395,9 @@ void ChatterboxInput::ControlInput(void *pvParameter)
     {
         midiConnector.read();
         // vTaskDelay(1);
-          //  Serial.println(MIDI.read(),BIN);
+        //  Serial.println(MIDI.read(),BIN);
 
-          // vTaskDelay(1000 / portTICK_RATE_MS); // was 1000
+        // vTaskDelay(1000 / portTICK_RATE_MS); // was 1000
 
         bool potChanged = false;
 
@@ -442,13 +434,14 @@ void ChatterboxInput::ControlInput(void *pvParameter)
         if (potChanged)
         {
             // pitch control
-          //  MIDI.sendNoteOff(freqToMIDINote(patchbay.pitch), 127, 1); // temp test
+            //  MIDI.sendNoteOff(freqToMIDINote(patchbay.pitch), 127, 1); // temp test
             patchbay.pitch = pots.getPot(POT_P5).value();
             //  MIDI.sendNoteOn(freqToMIDINote(patchbay.pitch), 127, 1);
         }
 
         // for midi
-        if (patchbay.larynxSplit != patchbay.larynxSplitPrevious) {
+        if (patchbay.larynxSplit != patchbay.larynxSplitPrevious)
+        {
             initLarynxWavetable();
             patchbay.larynxSplitPrevious = patchbay.larynxSplit;
             // vTaskDelay(1);
@@ -458,9 +451,8 @@ void ChatterboxInput::ControlInput(void *pvParameter)
         {
             patchbay.larynxSplit = pots.getPot(POT_P4).value();
             initLarynxWavetable();
-          //  vTaskDelay(1);
+            //  vTaskDelay(1);
         }
-
 
         patchbay.growl = pots.getPot(POT_GROWL).value();
 
@@ -606,7 +598,7 @@ void togglePushSwitch(int i)
 
     if (switches.getSwitch(TOGGLE_HOLD).on())
     {
-Serial.println("HOLD ON");
+        Serial.println("HOLD ON");
         if (switches.getSwitch(i).on())
         {
             switches.getSwitch(i).hold(!switches.getSwitch(i).hold()); // toggle, rename to flip method?
@@ -614,9 +606,34 @@ Serial.println("HOLD ON");
     }
 }
 
-float max(float a, float b, float c) {
-    float max = (a<b)?b:a;
-    return (max<c)?c:max;
+int pointer = 0;
+
+float readWavetable(float wavetable[], int size, float offset)
+{
+    pointer = pointer + tableStep * offset;
+    if (pointer < 0)
+    {
+        pointer = 0;
+    }
+
+    if (pointer >= tablesize)
+        pointer = pointer - tablesize;
+
+    float err = 0;
+
+    // interpolate between neighbouring values
+    err = pointer - floor(pointer);
+
+    int lower = (int)floor(pointer);
+    int upper = ((int)ceil(pointer)) % size;
+
+    return wavetable[lower] * err + wavetable[upper] * (1 - err);
+}
+
+float max(float a, float b, float c)
+{
+    float max = (a < b) ? b : a;
+    return (max < c) ? c : max;
 }
 
 float minValue = 0;
@@ -649,7 +666,7 @@ void ChatterboxOutput::OutputDAC(void *pvParameter)
     patchbay.sing1.initParameters(SING1F, SING1Q, "bandPass", samplerate, SING1_GAIN);
     patchbay.sing2.initParameters(SING2F, SING2Q, "bandPass", samplerate, SING2_GAIN);
 
-    int pointer = 0;
+    //int pointer = 0;
 
     NoiseMaker creakNoise = NoiseMaker();
     NoiseMaker shoutNoise = NoiseMaker();
@@ -661,6 +678,14 @@ void ChatterboxOutput::OutputDAC(void *pvParameter)
     while (1)
     {
         // *** Read wavetable voice ***
+        // float readWavetable(int wavetable[], int size, float offset){
+        float pointerOffset = 1.0f;
+        if (switches.getSwitch(TOGGLE_CREAK).on())
+        {
+            pointerOffset -= creakNoise.stretchedNoise() * patchbay.growl;
+        }
+
+        /*
         if (switches.getSwitch(TOGGLE_CREAK).on())
         {
             pointer = pointer + tableStep * (1.0f - creakNoise.stretchedNoise() * patchbay.growl);
@@ -687,6 +712,13 @@ void ChatterboxOutput::OutputDAC(void *pvParameter)
 
         float sinePart = sineWavetable[lower] * err + sineWavetable[upper] * (1 - err);
         float sawtoothPart = sawtoothWavetable[lower] * err + sawtoothWavetable[upper] * (1 - err);
+
+*/
+        // float readWavetable(int wavetable[], int size, float offset){
+        patchbay.larynxPart = readWavetable(larynxWavetable, TABLESIZE, pointerOffset);
+
+        float sinePart = readWavetable(sineWavetable, TABLESIZE, pointerOffset);
+        float sawtoothPart = readWavetable(sawtoothWavetable, TABLESIZE, pointerOffset);
 
         float voice = patchbay.sineRatio * sinePart + patchbay.sawtoothRatio * sawtoothPart + patchbay.larynxRatio * patchbay.larynxPart;
 
@@ -728,7 +760,7 @@ void ChatterboxOutput::OutputDAC(void *pvParameter)
         float vGain = switches.getSwitch(SWITCH_VOICED).gain();
         float nGain = switches.getSwitch(SWITCH_NASAL).gain();
 
-        voice =  max(vGain * patchbay.voicedGain, nGain) * voice;
+        voice = max(vGain * patchbay.voicedGain, nGain) * voice;
 
         float aspiration = switches.getSwitch(SWITCH_ASPIRATED).gain() * noise / 2.0f;
 
