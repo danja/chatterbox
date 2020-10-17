@@ -17,6 +17,7 @@
 #include "Plotter.h"
 
 #include <SineWavetable.h>
+#include <SawtoothWavetable.h>
 
 #include <NoiseMaker.h>
 #include <Shapers.h>
@@ -167,7 +168,7 @@ float sawtoothWavetable[TABLESIZE];
 float sineWavetable[TABLESIZE];
 
 SineWavetable sineTable;
-
+SawtoothWavetable sawtoothTable;
 
 TaskHandle_t controlInputHandle = NULL;
 TaskHandle_t outputDACHandle = NULL;
@@ -298,6 +299,7 @@ void setup()
     }
 
 sineTable.init();
+sawtoothTable.init();
 
     static ChatterboxOutput chatterboxOutput;
     static ChatterboxInput chatterboxInput;
@@ -720,15 +722,16 @@ void ChatterboxOutput::OutputDAC(void *pvParameter)
         // float readWavetable(int wavetable[], int size, float offset){
         patchbay.larynxPart = readWavetable(larynxWavetable, TABLESIZE, pointerOffset);
 
-        float sinePart = readWavetable(sineWavetable, TABLESIZE, pointerOffset);
-        float sinPart = sineTable.get(tableStep * pointerOffset);
+       // float sinePart = readWavetable(sineWavetable, TABLESIZE, pointerOffset);
+        float sinePart = sineTable.get(tableStep * pointerOffset);
         /*
         Serial.print("pointerOffset : ");
         Serial.println(pointerOffset);
         Serial.print("sinPart : ");
         Serial.println(sinPart);
         */
-        float sawtoothPart = readWavetable(sawtoothWavetable, TABLESIZE, pointerOffset);
+        // float sawtoothPart = readWavetable(sawtoothWavetable, TABLESIZE, pointerOffset);
+ float sawtoothPart = sawtoothTable.get(tableStep * pointerOffset);
 
         float voice = patchbay.sineRatio * sinePart + patchbay.sawtoothRatio * sawtoothPart + patchbay.larynxRatio * patchbay.larynxPart;
 
@@ -813,7 +816,7 @@ void ChatterboxOutput::OutputDAC(void *pvParameter)
         // xPlot = patchbay.larynxPart;
 
         // Outputs A, B
-        dac.writeSample(sinPart, mix5); //mix5 patchbay.larynxPart
+        dac.writeSample(sawtoothPart, mix5); //mix5 patchbay.larynxPart
 
         // ****************** END WIRING ******************
 

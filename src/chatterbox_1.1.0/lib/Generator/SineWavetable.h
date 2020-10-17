@@ -1,6 +1,5 @@
-#include <array>
-#include <Wavetable.h>
 #include <Arduino.h>
+#include <Wavetable.h>
 
 const float sinScale = 2.0f * PI / tablesize;
 
@@ -10,6 +9,4 @@ public:
   SineWavetable();
   ~SineWavetable();
   void init();
-  const float get(const float hop);
-  int pointer = 0;
 };

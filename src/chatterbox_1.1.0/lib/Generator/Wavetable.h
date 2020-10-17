@@ -10,7 +10,10 @@ class Wavetable : public Node
 {
 public:
     void init();
+    const float get(const float hop);
+
     float wavetable[TABLESIZE];
+    int pointer = 0;
 
 private:
 };
