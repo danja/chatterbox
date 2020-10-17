@@ -9,9 +9,8 @@ const float tablesize = 2048.0f;
 class Wavetable : public Node
 {
 public:
-    // Control();
     void init();
-   // float wavetable[TABLESIZE];
+    float wavetable[TABLESIZE];
 
 private:
 };

@@ -30,7 +30,7 @@
 #define SING1Q 5.0f
 #define SING2Q 5.0f
 
-#define TABLESIZE 2048 // 1024
+#define TABLESIZE 2048 // 1024 is also in Wavetable.h
 
 #define DEFAULT_SINE_RATIO 0.4f // .4
 #define DEFAULT_SAWTOOTH_RATIO 0.0f

@@ -1,35 +1,45 @@
 #include <SineWavetable.h>
 #include <Arduino.h>
 
-float SineWavetable::sineWavetable[TABLESIZE];
+// float SineWavetable::wavetable[2048]; // TABLESIZE
 // std::array<float, TABLESIZE> SineWavetable::sineWavetable;
 
 SineWavetable::SineWavetable()
 {
-     for (unsigned int i = 0; i < tablesize; i++)
-    {
-        SineWavetable::sineWavetable[i] = sin((float)i * sinScale);
-    }
 }
 
 SineWavetable::~SineWavetable()
 {
-    delete[] SineWavetable::sineWavetable;
+    delete[] SineWavetable::wavetable;
 }
 
-/*
 void SineWavetable::init()
 {
-    for (unsigned int i = 0; i < tablesize; i++)
+    for (unsigned int i = 0; i < 2048; i++) // tablesize
     {
-        SineWavetable::sineWavetable[i] = sin((float)i * sinScale);
+        Wavetable::wavetable[i] = sin((float)i * sinScale);
     }
 }
-*/
 
-const float &SineWavetable::get(const int i)
+// float wavetable[], int size, float offset
+
+const float SineWavetable::get(float hop) // &SineWavetable
 {
-     
-    return sineWavetable[i];
-    // return SineWavetable::sineWavetable[i];
+    pointer = pointer + hop;
+
+    if (pointer < 0)
+        pointer = 0;
+
+    if (pointer >= tablesize)
+        pointer = pointer - tablesize;
+
+    float err = 0;
+    float flr = floor(pointer);
+    // interpolate between neighbouring values
+    err = pointer - flr;
+
+    int lower = (int)flr;
+    int upper = ((int)ceil(pointer)) % 2048; // TABLESIZE
+    float f = Wavetable::wavetable[lower] * err + Wavetable::wavetable[upper] * (1 - err);
+    return f;
 }
