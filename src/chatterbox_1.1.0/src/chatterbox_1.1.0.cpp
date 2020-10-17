@@ -164,8 +164,8 @@ static Patchbay patchbay;
 
 float larynxWavetable[TABLESIZE];
 
-float sawtoothWavetable[TABLESIZE];
-float sineWavetable[TABLESIZE];
+// float sawtoothWavetable[TABLESIZE];
+// float sineWavetable[TABLESIZE];
 
 SineWavetable sineTable;
 SawtoothWavetable sawtoothTable;
@@ -230,7 +230,7 @@ static Softclip softClip;
 
 //// FORWARD DECLARATIONS ////////////////////
 void initLarynxWavetable();
-void initFixedWavetables();
+// void initFixedWavetables();
 void ControlInput(void *pvParameter);
 
 void togglePushSwitch(int i);
@@ -283,7 +283,7 @@ void setup()
     patchbay.registerCallback(midiConnector.midiDispatcher);
 
     initLarynxWavetable();
-    initFixedWavetables();
+    // initFixedWavetables();
 
     Serial.println("portTICK_RATE_MS = " + portTICK_RATE_MS);
 
@@ -353,6 +353,7 @@ void initLarynxWavetable()
 /* END INITIALIZE WAVETABLE */
 
 /* INITIALISE STANDARD WAVETABLES */
+/*
 void initFixedWavetables()
 {
     float sawScale = 2.0f / (float)TABLESIZE;
@@ -364,7 +365,7 @@ void initFixedWavetables()
         sineWavetable[i] = sin((float)i * sinScale);
     }
 }
-
+*/
 /* INITIALISE INPUTS */
 void initInputs()
 {
