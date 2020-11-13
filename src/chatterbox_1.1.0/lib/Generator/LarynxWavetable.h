@@ -7,5 +7,6 @@ class LarynxWavetable : public Wavetable
 public:
    LarynxWavetable();
    ~LarynxWavetable();
-   void init();
+   void init(Patchbay patchbay);
+   static Softclip softClip;
 };

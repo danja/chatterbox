@@ -1,3 +1,6 @@
+For C++ source files, IntelliSenseMode was changed from "clang-x64" to "gcc-x64" based on compiler args and probing compilerPath: "/home/danny/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-gcc"
+
+
 **2020-08-06** *version chatterbox_1.1.0*
 
 Last week, quite a major milestone, got MIDI out doing something as well. That's kinda the hardware done. 

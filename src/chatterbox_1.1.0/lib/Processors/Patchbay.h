@@ -3,7 +3,7 @@
 
 #include <WString.h>
 #include <SVF.h>
-#include <Receiver.h>
+#include "Receiver.h"
 
 #include <Wavetable.h> // only for tablesize
 
@@ -14,7 +14,7 @@ public:
     void registerCallback(Dispatcher<EventType, String, float> &dispatcher);
 
     float process(const float x);
-    void setModules(SVF const& svf1);
+    void setModules(SVF const &svf1);
 
     SVF svf1;
     SVF svf2;
@@ -32,8 +32,9 @@ public:
     SVF sing2;
 
     float pitch = 0;
-int larynxSplit =  TABLESIZE / 2;
-int larynxSplitPrevious =  TABLESIZE / 2;
+    
+    int larynxSplit = TABLESIZE / 2;
+    int larynxSplitPrevious = TABLESIZE / 2;
 
     float larynxPart = 0;
 

@@ -352,20 +352,6 @@ void initLarynxWavetable()
 }
 /* END INITIALIZE WAVETABLE */
 
-/* INITIALISE STANDARD WAVETABLES */
-/*
-void initFixedWavetables()
-{
-    float sawScale = 2.0f / (float)TABLESIZE;
-    float sinScale = 2.0f * PI / (float)TABLESIZE;
-
-    for (unsigned int i = 0; i < TABLESIZE; i++)
-    {
-        sawtoothWavetable[i] = ((float)i * sawScale - 1);
-        sineWavetable[i] = sin((float)i * sinScale);
-    }
-}
-*/
 /* INITIALISE INPUTS */
 void initInputs()
 {
