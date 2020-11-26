@@ -1,3 +1,6 @@
+#ifndef _SINWAVETABLE_H_
+#define _SINWAVETABLE_H_
+
 #include <Arduino.h>
 #include <Wavetable.h>
 
@@ -10,3 +13,5 @@ public:
   ~SineWavetable();
   void init();
 };
+
+#endif

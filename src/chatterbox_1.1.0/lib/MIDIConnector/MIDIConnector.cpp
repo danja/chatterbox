@@ -3,7 +3,7 @@
 #include <HardwareSerial.h>
 #include <MIDIConnector.h>
 #include <dispatcher.hpp>
-#include <Receiver.h>
+#include <EventReceiver.h>
 
 #include <Wavetable.h> // only for tablesize
 

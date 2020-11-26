@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _NOISEMAKER_H_
+#define _NOISEMAKER_H_
 
 class NoiseMaker {
 
@@ -25,3 +26,5 @@ private:
   float stretchStep = 0.0f;
   float currentX = 0;
 };
+
+#endif

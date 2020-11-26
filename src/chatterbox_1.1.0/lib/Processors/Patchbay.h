@@ -2,12 +2,15 @@
 #define Patchbay_h
 
 #include <WString.h>
-#include <SVF.h>
-#include "Receiver.h"
-
 #include <Wavetable.h> // only for tablesize
 
-class Patchbay : public Receiver
+#include <SVF.h>
+#include <EventReceiver.h> // was "
+
+// const int TABLESIZE = 2048;
+//const float tablesize = 2048.0f;
+
+class Patchbay : public EventReceiver
 {
 public:
     Patchbay();

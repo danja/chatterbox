@@ -21,7 +21,9 @@
 			"variant": "cpp",
 			"array": "cpp"
 		},
-		"python.pythonPath": "/home/danny/anaconda3/envs/j/bin/python"
+		"python.pythonPath": "/home/danny/anaconda3/envs/j/bin/python",
+		"C_Cpp.autocomplete": "Disabled",
+		"C_Cpp.default.forcedInclude": ["/home/danny/anaconda3/envs/j/bin/python"]
 	},
 	"tasks": {
 		"version": "2.0.0",
@@ -29,7 +31,7 @@
 			{
 				"label": "build",
 				"type": "shell",
-				"command": "msbuild",
+				"command": "build",
 				"args": [
 					"/property:GenerateFullPaths=true",
 					"/t:build",

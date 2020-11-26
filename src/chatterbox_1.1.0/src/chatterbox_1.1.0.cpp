@@ -10,12 +10,16 @@
 /*    Danny Ayers 2020 | danny.ayers@gmail.com | #danja | https://hyperdata.it    */
 /**********************************************************************************/
 
+
+
 #include <Arduino.h>
 #include <driver/adc.h> // depends on Espressif ESP32 libs
 #include <I2SDAC.h>     // see src/lib - based on https://github.com/wjslager/esp32-dac
 
-#include "Plotter.h"
+// #include "Plotter.h"
 
+
+#include <Wavetable.h>
 #include <SineWavetable.h>
 #include <SawtoothWavetable.h>
 

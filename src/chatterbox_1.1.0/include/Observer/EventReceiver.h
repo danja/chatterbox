@@ -1,16 +1,16 @@
-#ifndef Receiver_h
-#define Receiver_h
+#ifndef EventReceiver_h
+#define EventReceiver_h
 
 #include <WString.h>
 #include <dispatcher.hpp>
 
 enum EventType {NOTE_ON, NOTE_OFF, VALUE_CHANGE, EVENT2, EVENT3};
 
-class Receiver
+class EventReceiver
 {
 
 public:
-    Receiver();
+    EventReceiver();
     void registerCallback(Dispatcher<EventType, String, float> &dispatcher);
 
 private:

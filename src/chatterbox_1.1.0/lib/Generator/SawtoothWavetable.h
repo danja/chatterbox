@@ -1,3 +1,6 @@
+#ifndef _SAWTOOTHWAVETABLE_H_
+#define _SAWTOOTHWAVETABLE_H_
+
 #include <Arduino.h>
 #include <Wavetable.h>
 
@@ -10,3 +13,5 @@ public:
    ~SawtoothWavetable();
    void init();
 };
+
+#endif

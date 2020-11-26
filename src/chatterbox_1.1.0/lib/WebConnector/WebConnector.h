@@ -2,13 +2,13 @@
 #define WebConnector_h
 
 #include <WString.h>
-#include <Receiver.h>
+#include <EventReceiver.h>
 
 #include "WiFi.h"
 #include "ESPAsyncWebServer.h"
 #include "SPIFFS.h"
 
-class WebConnector: public Receiver
+class WebConnector: public EventReceiver
 {
   static void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len);
 

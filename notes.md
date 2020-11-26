@@ -1,3 +1,39 @@
+**2020-11-26** *version chatterbox_1.1.0*
+
+Returning to the project after a break. 
+
+I did some more refactoring which I haven't written up. I *think* the reason I was having difficulties pulling out classes previously was that there was one or more serial print statements I'd forgotten about, hidden from immediate view.
+
+Now, when trying to compile again, I run into :
+```
+In file included from lib/Generator/LarynxWavetable.cpp:4:0:
+lib/Processors/Patchbay.h:6:36: fatal error: EventReceiver.h: No such file or directory
+```
+This file is on the path.
+
+I've a feeling I ran into this before but annoyingly can't see any note relating to it.
+
+The compile (using `pio run -v`) does warn of circular dependencies, but I haven't (yet) seen anything obvious.
+
+This was interesting:
+[[
+	I have found one way to get circular dependencies:
+
+Generate a DOT file which describes a #include dependency directed graph using cinclude2dot.pl Perl script.
+
+./cinclude2dot.pl --src path_to_include_dir graph.dot
+
+Decompose directed graph into strongly connected components (circular dependencies):
+
+sccmap -v graph.dot
+]] https://stackoverflow.com/questions/9885656/how-can-i-find-circular-dependencies
+
+workspace.code-workspace json
+changed
+"command": "msbuild",
+"command": "build",
+
+
 For C++ source files, IntelliSenseMode was changed from "clang-x64" to "gcc-x64" based on compiler args and probing compilerPath: "/home/danny/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-gcc"
 
 

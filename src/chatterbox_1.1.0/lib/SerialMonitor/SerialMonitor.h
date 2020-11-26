@@ -3,13 +3,13 @@
 
 #include <Arduino.h>
 #include <dispatcher.hpp>
-#include <Receiver.h>
+#include <EventReceiver.h>
 
 // enum EventType {VALUE_CHANGE, EVENT2, EVENT3};
 const int serial_rate = 115200;
 
 
-class SerialMonitor: public Receiver
+class SerialMonitor: public EventReceiver
 {
 
 public:

@@ -3,9 +3,9 @@
 
 #include <WString.h>
 #include <dispatcher.hpp>
-#include <Receiver.h>
+#include <EventReceiver.h>
 
-class MIDIConnector : public Receiver
+class MIDIConnector : public EventReceiver
 {
 
 public:

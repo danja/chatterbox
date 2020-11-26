@@ -1,8 +1,8 @@
 #include <Arduino.h>
 #include <dispatcher.hpp>
-#include <Receiver.h>
+#include <EventReceiver.h>
 
-Receiver::Receiver()
+EventReceiver::EventReceiver()
 {
     // delay(2000); // let it connect
 
@@ -11,13 +11,13 @@ Receiver::Receiver()
    // Serial.println("\n*** Starting Chatterbox ***\n");
 }
 
-void Receiver::registerCallback(Dispatcher<EventType, String, float> &dispatcher)
+void EventReceiver::registerCallback(Dispatcher<EventType, String, float> &dispatcher)
 {
     using namespace std::placeholders;
-    dispatcher.addCallback(std::bind(&Receiver::listener, this, _1, _2, _3));
+    dispatcher.addCallback(std::bind(&EventReceiver::listener, this, _1, _2, _3));
 }
 
-void Receiver::listener(EventType type, String name, float value)
+void EventReceiver::listener(EventType type, String name, float value)
 {
    // Serial.print(name + " : ");
    // Serial.println(value, DEC);

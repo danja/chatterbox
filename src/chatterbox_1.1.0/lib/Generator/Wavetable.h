@@ -1,7 +1,8 @@
-#ifndef Wavetable_h
-#define Wavetable_h
+#ifndef _WAVETABLE_H
+#define _WAVETABLE_H
 
 #include <Node.h>
+// #include <Patchbay.h>
 
 const int TABLESIZE = 2048;
 const float tablesize = 2048.0f;
