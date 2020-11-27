@@ -1,3 +1,20 @@
+**2020-11-27** *version chatterbox_1.1.0*
+
+Took a lot of hunting but I was able to fix the include path problem easily by manually adding the missing bit to `platformio.ini` :
+```
+build_flags = -Ilib/Observer
+```
+I haven't checked the MIDI etc, but the core bits appear to be working, as well as I've had them.
+
+Typical - just settled down at desk, postie visits, dog escapes...
+A fence repair later.
+
+So. Lots to do. I'm champing at the bit to try new things, but first I want to refactor the current setup a little more and make everything work a little better - ie. as good as possible without making any big changes to algorithms.
+
+First priority, right now, on some settings the level *somewhere* is overflowing. I found a very good article about this kind of issue: https://www.dsprelated.com/showarticle/532/overflow-i-had-too-much-to-add-last-night
+
+
+
 **2020-11-26** *version chatterbox_1.1.0*
 
 Returning to the project after a break. 
