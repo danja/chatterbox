@@ -10,14 +10,11 @@
 /*    Danny Ayers 2020 | danny.ayers@gmail.com | #danja | https://hyperdata.it    */
 /**********************************************************************************/
 
-
-
 #include <Arduino.h>
 #include <driver/adc.h> // depends on Espressif ESP32 libs
 #include <I2SDAC.h>     // see src/lib - based on https://github.com/wjslager/esp32-dac
 
 // #include "Plotter.h"
-
 
 #include <Wavetable.h>
 #include <SineWavetable.h>
@@ -68,8 +65,8 @@
 #define VOICED_GAIN_DESTRESSED 0.5f
 #define VOICED_GAIN_STRESSED 2.0f
 
-#define F1_GAIN 1.0f
-#define F2_GAIN 1.0f
+#define F1_GAIN 0.5f
+#define F2_GAIN 0.5f
 #define F3_GAIN 0.5f
 #define SF1_GAIN 0.4f
 #define SF2_GAIN 0.8f
@@ -99,28 +96,28 @@
 #define SHOUT_LARYNX_RATIO 0.2f
 
 // Variable parameter ranges
-#define PITCH_MIN 20
-#define PITCH_MAX 500
+// #define PITCH_MIN 20
+// #define PITCH_MAX 500
 
-#define LARYNX_MIN 5 // % of wave is patchbay.larynxSplit open
-#define LARYNX_MAX 95
+// #define LARYNX_MIN 5 // % of wave is patchbay.larynxSplit open
+// #define LARYNX_MAX 95
 
-#define F1F_LOW 150 // formant filter 1 centre frequency lowest value
-#define F1F_HIGH 1400
+// #define F1F_LOW 150 // formant filter 1 centre frequency lowest value
+// #define F1F_HIGH 1400
 
-#define NASAL_LOW 1000 // nasal filter 1 centre frequency lowest value
-#define NASAL_HIGH 3000
+// #define NASAL_LOW 1000 // nasal filter 1 centre frequency lowest value
+// #define NASAL_HIGH 3000
 
-#define F2F_LOW 500
-#define F2F_HIGH 5000
+// #define F2F_LOW 500
+// #define F2F_HIGH 5000
 
-#define F3F_LOW 50 // F3 is auxiliary filter, may or may not be a formant
-#define F3F_HIGH 7000
-#define F3Q_MIN 1.0f
-#define F3Q_MAX 10.0f
+// #define F3F_LOW 50 // F3 is auxiliary filter, may or may not be a formant
+// #define F3F_HIGH 7000
+// #define F3Q_MIN 1.0f
+// #define F3Q_MAX 10.0f
 
-#define GROWL_MIN 0.0f
-#define GROWL_MAX 2.0f
+// #define GROWL_MIN 0.0f
+// #define GROWL_MAX 2.0f
 
 // Fixed parameter values
 #define F1Q 5.0f
@@ -160,6 +157,8 @@
 #define SING1Q 5.0f
 #define SING2Q 5.0f
 
+#define CALIBRATE true
+
 float samplerate = (float)SAMPLERATE;
 
 I2sDAC dac;
@@ -173,6 +172,7 @@ float larynxWavetable[TABLESIZE];
 
 SineWavetable sineTable;
 SawtoothWavetable sawtoothTable;
+SawtoothWavetable calibrateTable;
 
 TaskHandle_t controlInputHandle = NULL;
 TaskHandle_t outputDACHandle = NULL;
@@ -302,8 +302,9 @@ void setup()
         Serial.println("DAC init fail");
     }
 
-sineTable.init();
-sawtoothTable.init();
+    sineTable.init();
+    sawtoothTable.init();
+    calibrateTable.init();
 
     static ChatterboxOutput chatterboxOutput;
     static ChatterboxInput chatterboxInput;
@@ -371,6 +372,26 @@ void initInputs()
 
 //   Biquad(int type, float Fc, float Q, float peakGainDB);
 //Biquad *n1 = new Biquad(HIGHSHELF, 1000.0f / samplerate, F1_NASALQ, F1_NASAL_GAIN);
+
+/* calibrate */
+float calibratePitchStep = 1.0f;
+float calibrateCutoffStep = 1.0f;
+
+float calibratePitch = PITCH_MIN;
+int calibrateCycles = TABLESIZE;
+int calibrateCycle = 0;
+
+void calibrateTick()
+{
+    calibratePitch += calibratePitchStep;
+    //  Serial.println(calibratePitch);
+    if (calibratePitch >= PITCH_MAX)
+    {
+        Serial.println("PITCH_MAX");
+        calibratePitch = PITCH_MIN;
+    }
+    calibratePitchStep = calibratePitch * tablesize / samplerate;
+}
 
 int dt = 0;
 
@@ -610,8 +631,9 @@ float readWavetable(float wavetable[], int size, float offset)
 {
     pointer = pointer + tableStep * offset;
 
-    if (pointer < 0) pointer = 0;
-  
+    if (pointer < 0)
+        pointer = 0;
+
     if (pointer >= tablesize)
         pointer = pointer - tablesize;
 
@@ -713,7 +735,7 @@ void ChatterboxOutput::OutputDAC(void *pvParameter)
         // float readWavetable(int wavetable[], int size, float offset){
         patchbay.larynxPart = readWavetable(larynxWavetable, TABLESIZE, pointerOffset);
 
-       // float sinePart = readWavetable(sineWavetable, TABLESIZE, pointerOffset);
+        // float sinePart = readWavetable(sineWavetable, TABLESIZE, pointerOffset);
         float sinePart = sineTable.get(tableStep * pointerOffset);
         /*
         Serial.print("pointerOffset : ");
@@ -722,7 +744,23 @@ void ChatterboxOutput::OutputDAC(void *pvParameter)
         Serial.println(sinPart);
         */
         // float sawtoothPart = readWavetable(sawtoothWavetable, TABLESIZE, pointerOffset);
- float sawtoothPart = sawtoothTable.get(tableStep * pointerOffset);
+        float sawtoothPart = sawtoothTable.get(tableStep * pointerOffset);
+
+        float calibratePart = sawtoothPart;
+
+        if (calibrateCycle >= calibrateCycles)
+        {
+            calibrateCycle = 0;
+            calibrateTick();
+
+            Serial.print("calibratePitchStep =");
+            Serial.println(calibratePitchStep);
+        }
+        calibrateCycle++;
+        //if (CALIBRATE)
+        //{
+        calibratePart = calibrateTable.get(calibratePitchStep);
+        //}
 
         float voice = patchbay.sineRatio * sinePart + patchbay.sawtoothRatio * sawtoothPart + patchbay.larynxRatio * patchbay.larynxPart;
 
@@ -807,7 +845,7 @@ void ChatterboxOutput::OutputDAC(void *pvParameter)
         // xPlot = patchbay.larynxPart;
 
         // Outputs A, B
-        dac.writeSample(sawtoothPart, mix5); //mix5 patchbay.larynxPart
+        dac.writeSample(calibratePart, mix5); //mix5 patchbay.larynxPart
 
         // ****************** END WIRING ******************
 

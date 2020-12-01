@@ -1,23 +1,23 @@
 #include <Arduino.h>
-#include <SineWavetable.h>
+#include <Wavetable.h>
 
 const float Wavetable::get(float hop) // &SineWavetable
 {
     pointer = pointer + hop;
 
-    if (pointer < 0)
-        pointer = 0;
+    if (pointer < 0.0f)
+        pointer = tablesize - pointer;
 
     if (pointer >= tablesize)
         pointer = pointer - tablesize;
 
-    float err = 0;
     float flr = floor(pointer);
     // interpolate between neighbouring values
-    err = pointer - flr;
+
+    float err = pointer - flr;
 
     int lower = (int)flr;
-    int upper = ((int)ceil(pointer)) % 2048; // TABLESIZE
+    int upper = ((int)ceil(pointer)) % TABLESIZE; // TABLESIZE 2048
     float f = Wavetable::wavetable[lower] * err + Wavetable::wavetable[upper] * (1 - err);
     return f;
 }

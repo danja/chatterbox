@@ -14,7 +14,7 @@ public:
     const float get(const float hop);
 
     float wavetable[TABLESIZE];
-    int pointer = 0;
+    float pointer = 0.0f;
 
 private:
 };

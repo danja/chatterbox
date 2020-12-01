@@ -1,3 +1,8 @@
+**2020-12-01** *version chatterbox_1.1.0*
+
+Hah! While adding some sweep code for calibration/overflow testing, discovered I'd made a silly mistake in the implementation of wavetables. The pointer through the wavetable which should have been a float was an int. D'oh!
+
+
 **2020-11-27** *version chatterbox_1.1.0*
 
 Took a lot of hunting but I was able to fix the include path problem easily by manually adding the missing bit to `platformio.ini` :
@@ -13,7 +18,29 @@ So. Lots to do. I'm champing at the bit to try new things, but first I want to r
 
 First priority, right now, on some settings the level *somewhere* is overflowing. I found a very good article about this kind of issue: https://www.dsprelated.com/showarticle/532/overflow-i-had-too-much-to-add-last-night
 
+Aha! Having a good break was a good idea. I can see several places where I have statements of the form:
+``` float sibilants = (s1 + s2 + s3) / 3.0f;```
 
+Adding first then scaling to prevent overflow!
+
+Oh wait...I'm using floats, aiming for the range -1...1. So adding first then scaling is fine. This should be a lot easier than the things in the link above that deal with integers.
+
+Hmm, CALIBRATE!
+Pseudocode:
+```
+gain = 0
+overflow = false
+while (!overflow){
+	gain++
+	filter.setGain(gain)
+	for freq = min to max
+		...
+		y = filter(x)
+		if y > 1 or y < -1 : overflow = true
+}
+return overflow
+
+	
 
 **2020-11-26** *version chatterbox_1.1.0*
 
