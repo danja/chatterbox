@@ -12,7 +12,8 @@ public:
    LarynxWavetable();
    ~LarynxWavetable();
    void init(Patchbay patchbay);
-   static Softclip softClip;
+   //  void init();
+// static Softclip softClip;
 };
 
 #endif

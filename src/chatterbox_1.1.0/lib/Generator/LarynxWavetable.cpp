@@ -6,6 +6,7 @@
 
 LarynxWavetable::LarynxWavetable()
 {
+      Serial.print("LarynxWavetable::LarynxWavetable()");
 }       
 
 LarynxWavetable::~LarynxWavetable()
@@ -13,14 +14,18 @@ LarynxWavetable::~LarynxWavetable()
     delete[] Wavetable::wavetable;
 }
 
+static Softclip softClip;
+
+// void LarynxWavetable::init()
+// {
+// }
+
 void LarynxWavetable::init(Patchbay patchbay)
 {
-    /*
-   for (unsigned int i = 0; i < tablesize; i++)
-    {
-        Wavetable::wavetable[i] = ((float)i * sawScale - 1);
-    }
-    */
+    //      Serial.print("LarynxWavetable::init HWM = ");
+    //    Serial.println(uxTaskGetStackHighWaterMark(NULL));
+ // vTaskDelay(10);
+
      float larynxPeak = 0.5f * (float)(patchbay.larynxSplit * patchbay.larynxSplit / tablesize); //  * larynxR * larynxR;
 
     for (unsigned int i = 0; i < larynxPeak; i++)
@@ -35,8 +40,8 @@ void LarynxWavetable::init(Patchbay patchbay)
     { // flat section __
         Wavetable::wavetable[i] = -1.0f;
     }
-    for (unsigned int i = 0; i < TABLESIZE; i++)
-    {
-        Wavetable::wavetable[i] = softClip.process(Wavetable::wavetable[i]);
+   for (unsigned int i = 0; i < TABLESIZE; i++)
+   {
+     // Wavetable::wavetable[i] = softClip.process(Wavetable::wavetable[i]); // LarynxWavetable::
     }
 }

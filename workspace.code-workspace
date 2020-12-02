@@ -19,7 +19,12 @@
 			"istream": "cpp",
 			"ostream": "cpp",
 			"variant": "cpp",
-			"array": "cpp"
+			"array": "cpp",
+			"*.tcc": "cpp",
+			"future": "cpp",
+			"tuple": "cpp",
+			"utility": "cpp",
+			"memory": "cpp"
 		},
 		"python.pythonPath": "/home/danny/anaconda3/envs/j/bin/python",
 		"C_Cpp.autocomplete": "Disabled",

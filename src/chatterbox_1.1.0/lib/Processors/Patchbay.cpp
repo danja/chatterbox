@@ -3,7 +3,9 @@
 #include <Arduino.h>
 #include <dispatcher.hpp>
 
-Patchbay::Patchbay() {}
+Patchbay::Patchbay() {
+   Serial.println("Patchbay::Patchbay()");
+}
 
 void Patchbay::registerCallback(Dispatcher<EventType, String, float> &dispatcher)
 {

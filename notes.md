@@ -1,7 +1,26 @@
 **2020-12-01** *version chatterbox_1.1.0*
 
+In the process of setting up the calibration stuff I discovered I'd left the bit of the refactoring I was on a few weeks ago unfinished. I hadn't moved the LarynxWavetable out to it's own class.
+After doing that, I got a stack overflow on the ControlInput task. I spent ages looking for a recursive loop.
+I had tried upping the available stack on that task x4, but that didn't help.
+Finally, I tried monitoring stack level, and for that I upped the available stack to 64k.
+It worked! And told me it was using 61k.
+
+I don't immediately see how the other changes I made can have kicked up the stack so much, but now at least it's working and I've a better chance of fixing any mistake.
+
+Hmm, the issue is somewhere around the calls to LarynxWavetable::init(patchbay) inside the ControlInput task (which are used to adjuct the larynx waveform). Leaving those out with low stack available caused the error. But now after commenting them out but leaving the availability high it's still saying it's using ~61k. I'm confused.
+
+I think I'll leave that bit as-is for now, get on with calibration thing.
+
+Serial.print("LarynxWavetable::init HWM = ");
+Serial.println(uxTaskGetStackHighWaterMark(NULL));
+vTaskDelay(10);
+
+**2020-12-01** *version chatterbox_1.1.0*
+
 Hah! While adding some sweep code for calibration/overflow testing, discovered I'd made a silly mistake in the implementation of wavetables. The pointer through the wavetable which should have been a float was an int. D'oh!
 
+Intellisense broken...
 
 **2020-11-27** *version chatterbox_1.1.0*
 
