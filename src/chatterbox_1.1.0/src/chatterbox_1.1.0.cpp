@@ -96,30 +96,6 @@
 #define SHOUT_SAWTOOTH_RATIO 0.8f
 #define SHOUT_LARYNX_RATIO 0.2f
 
-// Variable parameter ranges
-// #define PITCH_MIN 20
-// #define PITCH_MAX 500
-
-// #define LARYNX_MIN 5 // % of wave is patchbay.larynxSplit open
-// #define LARYNX_MAX 95
-
-// #define F1F_LOW 150 // formant filter 1 centre frequency lowest value
-// #define F1F_HIGH 1400
-
-// #define NASAL_LOW 1000 // nasal filter 1 centre frequency lowest value
-// #define NASAL_HIGH 3000
-
-// #define F2F_LOW 500
-// #define F2F_HIGH 5000
-
-// #define F3F_LOW 50 // F3 is auxiliary filter, may or may not be a formant
-// #define F3F_HIGH 7000
-// #define F3Q_MIN 1.0f
-// #define F3Q_MAX 10.0f
-
-// #define GROWL_MIN 0.0f
-// #define GROWL_MAX 2.0f
-
 // Fixed parameter values
 #define F1Q 5.0f
 #define F2Q 8.0f
@@ -162,16 +138,11 @@
 
 float samplerate = (float)SAMPLERATE;
 
+float stepScale = tablesize / samplerate;
+
 I2sDAC dac;
 
 static Patchbay patchbay;
-
-// float larynxWavetable[TABLESIZE];
-
-// float sawtoothWavetable[TABLESIZE];
-// float sineWavetable[TABLESIZE];
-
-/// WAS HERE
 
 TaskHandle_t controlInputHandle = NULL;
 TaskHandle_t outputDACHandle = NULL;
@@ -184,7 +155,7 @@ MIDIConnector midiConnector;
 LarynxWavetable larynxWavetable = LarynxWavetable();
 SineWavetable sineTable;
 SawtoothWavetable sawtoothTable;
-// SawtoothWavetable calibrateTable;
+SineWavetable calibrateTable;
 
 // MIDI
 /*
@@ -237,8 +208,6 @@ ChatterboxInput::ChatterboxInput()
 static Softclip softClip;
 
 //// FORWARD DECLARATIONS ////////////////////
-// void initLarynxWavetable();
-// void initFixedWavetables();
 void ControlInput(void *pvParameter);
 
 void togglePushSwitch(int i);
@@ -290,12 +259,7 @@ void setup()
 
     patchbay.registerCallback(midiConnector.midiDispatcher);
 
-    // initLarynxWavetable();
-    // initFixedWavetables();
-
-    Serial.println("portTICK_RATE_MS = " + portTICK_RATE_MS);
-
-    // Try to start the DAC
+    // Serial.println("portTICK_RATE_MS = " + portTICK_RATE_MS);
 
     if (dac.begin(SAMPLERATE, GPIO_DAC_DATAPORT, GPIO_DAC_BCLK, GPIO_DAC_WSEL, GPIO_DAC_DOUT))
     {
@@ -308,9 +272,7 @@ void setup()
 
     sineTable.init();
     sawtoothTable.init();
-    // calibrateTable.init();
-   
-
+    calibrateTable.init();
 
     static ChatterboxOutput chatterboxOutput;
     static ChatterboxInput chatterboxInput;
@@ -340,31 +302,6 @@ void setup()
 /* INITIALIZE patchbay.larynxSplit WAVETABLE */
 // int patchbay.larynxSplit = TABLESIZE / 2; // point in wavetable corresponding to closed patchbay.larynxSplit
 
-/*
-void initLarynxWavetable()
-{
-    float larynxPeak = 0.5f * (float)(patchbay.larynxSplit * patchbay.larynxSplit / tablesize); //  * larynxR * larynxR;
-
-    for (unsigned int i = 0; i < larynxPeak; i++)
-    { // up slope+
-        larynxWavetable[i] = 2.0f * (float)i / larynxPeak - 1.0f;
-    }
-    for (unsigned int i = larynxPeak; i < patchbay.larynxSplit; i++)
-    { // down slope
-        larynxWavetable[i] = 1.0f - 2.0f * (i - larynxPeak) / (patchbay.larynxSplit - larynxPeak);
-    }
-    for (unsigned int i = patchbay.larynxSplit; i < TABLESIZE; i++)
-    { // flat section __
-        larynxWavetable[i] = -1.0f;
-    }
-    for (unsigned int i = 0; i < TABLESIZE; i++)
-    {
-        larynxWavetable[i] = softClip.process(larynxWavetable[i]);
-    }
-}
-*/
-/* END INITIALIZE WAVETABLE */
-
 /* INITIALISE INPUTS */
 void initInputs()
 {
@@ -382,26 +319,34 @@ void initInputs()
 //Biquad *n1 = new Biquad(HIGHSHELF, 1000.0f / samplerate, F1_NASALQ, F1_NASAL_GAIN);
 
 /* calibrate */
-float sweepIncrement = 100.0f;
+float sweepIncrement = 1.0f;
 
 float calibrateCutoffStep = 1.0f;
 
 float calibratePitch = PITCH_MIN;
-float calibrateStep = 1.0f;
-int calibrateCycles = TABLESIZE;
+float calibrateStep = 50.0f;
+int calibrateCycles = 100*TABLESIZE;
 int calibrateCycle = 0;
 
 void calibrateIncrement()
 {
-    calibratePitch += sweepIncrement;
+/*  
+    if (calibrateCycle >= calibrateCycles)
+        {
+            calibrateCycle = 0;
+              calibratePitch += sweepIncrement;
+        }
+*/
+
+  
     //  Serial.println(calibratePitch);
     if (calibratePitch >= PITCH_MAX)
     {
-     //   Serial.println("PITCH_MAX");
+        //   Serial.println("PITCH_MAX");
         calibratePitch = PITCH_MIN;
     }
-   // sweepIncrement = calibratePitch * tablesize / samplerate;
-   calibrateStep = calibratePitch * tablesize / samplerate;  
+    // sweepIncrement = calibratePitch * tablesize / samplerate;
+    calibrateStep = calibratePitch * stepScale;
 }
 
 int dt = 0;
@@ -425,15 +370,9 @@ void ChatterboxInput::ControlInput(void *pvParameter)
 
     while (1)
     {
-
-   //     Serial.println("HWM = ");
-     //   Serial.println(uxTaskGetStackHighWaterMark(NULL));
-// vTaskDelay(10);
-
         midiConnector.read();
         // vTaskDelay(1);
         //  Serial.println(MIDI.read(),BIN);
-
         // vTaskDelay(1000 / portTICK_RATE_MS); // was 1000
 
         bool potChanged = false;
@@ -479,14 +418,14 @@ void ChatterboxInput::ControlInput(void *pvParameter)
         // for midi
         if (patchbay.larynxSplit != patchbay.larynxSplitPrevious)
         {
-           // initLarynxWavetable();
+            // initLarynxWavetable();
 
             // *****************
-             Serial.print("LarynxWavetable::init HWM = ");
-Serial.println(uxTaskGetStackHighWaterMark(NULL));
-    larynxWavetable.init(patchbay);
+            // Serial.print("LarynxWavetable::init HWM = ");
+            // Serial.println(uxTaskGetStackHighWaterMark(NULL));
+            larynxWavetable.init(patchbay);
 
-        larynxWavetable.init(patchbay);
+            larynxWavetable.init(patchbay);
             patchbay.larynxSplitPrevious = patchbay.larynxSplit;
             // vTaskDelay(1);
         }
@@ -494,17 +433,12 @@ Serial.println(uxTaskGetStackHighWaterMark(NULL));
         if (abs(patchbay.larynxSplit - pots.getPot(POT_P4).value()) > 8)
         {
             patchbay.larynxSplit = pots.getPot(POT_P4).value();
-            // initLarynxWavetable();
-
-            // *****************
-
-       larynxWavetable.init(patchbay);
-           
+            larynxWavetable.init(patchbay);
         }
 
         patchbay.growl = pots.getPot(POT_GROWL).value();
 
-        tableStep = patchbay.pitch * tablesize / samplerate; // tableStep aka delta
+        tableStep = patchbay.pitch * stepScale; // tableStep aka delta
 
         patchbay.f1f = pots.getPot(POT_P0).value();
         patchbay.f2f = pots.getPot(POT_P1).value();
@@ -652,32 +586,6 @@ void togglePushSwitch(int i)
     }
 }
 
-
-/*
-int pointer = 0;
-
-float readWavetable(float wavetable[], int size, float offset)
-{
-    pointer = pointer + tableStep * offset;
-
-    if (pointer < 0)
-        pointer = 0;
-
-    if (pointer >= tablesize)
-        pointer = pointer - tablesize;
-
-    float err = 0;
-    float flr = floor(pointer);
-    // interpolate between neighbouring values
-    err = pointer - flr;
-
-    int lower = (int)flr;
-    int upper = ((int)ceil(pointer)) % size;
-
-    return wavetable[lower] * err + wavetable[upper] * (1 - err);
-}
-*/
-
 float max(float a, float b, float c)
 {
     float max = (a < b) ? b : a;
@@ -733,40 +641,7 @@ void ChatterboxOutput::OutputDAC(void *pvParameter)
             pointerOffset -= creakNoise.stretchedNoise() * patchbay.growl;
         }
 
-        /*
-        if (switches.getSwitch(TOGGLE_CREAK).on())
-        {
-            pointer = pointer + tableStep * (1.0f - creakNoise.stretchedNoise() * patchbay.growl);
-            if (pointer < 0)
-                pointer = 0;
-        }
-        else
-        {
-            pointer = pointer + tableStep;
-        }
-
-        if (pointer >= tablesize)
-            pointer = pointer - tablesize;
-
-        float err = 0;
-
-        // interpolate between neighbouring values
-        err = pointer - floor(pointer);
-
-        int lower = (int)floor(pointer);
-        int upper = ((int)ceil(pointer)) % TABLESIZE;
-
-        patchbay.larynxPart = larynxWavetable[lower] * err + larynxWavetable[upper] * (1 - err);
-
-        float sinePart = sineWavetable[lower] * err + sineWavetable[upper] * (1 - err);
-        float sawtoothPart = sawtoothWavetable[lower] * err + sawtoothWavetable[upper] * (1 - err);
-
-*/
-        // float readWavetable(int wavetable[], int size, float offset){
-      //  patchbay.larynxPart = readWavetable(larynxWavetable, TABLESIZE, pointerOffset);
-
-      // ***************
- patchbay.larynxPart = larynxWavetable.get(tableStep * pointerOffset);
+        patchbay.larynxPart = larynxWavetable.get(tableStep * pointerOffset);
 
         // float sinePart = readWavetable(sineWavetable, TABLESIZE, pointerOffset);
         float sinePart = sineTable.get(tableStep * pointerOffset);
@@ -780,22 +655,17 @@ void ChatterboxOutput::OutputDAC(void *pvParameter)
         float sawtoothPart = sawtoothTable.get(tableStep * pointerOffset);
 
         float calibratePart = sawtoothPart;
+// calibrateIncrement();
+        
 
-        if (calibrateCycle >= calibrateCycles)
-        {
-            calibrateCycle = 0;
-            calibrateIncrement();
-
-          //  Serial.print("sweepIncrement =");
-          //  Serial.println(sweepIncrement);
-        }
         calibrateCycle++;
-       // calibratePart = calibrateTable.get(calibrateStep);
+        calibratePart = calibrateTable.get(calibrateStep);
 
         float voice = patchbay.sineRatio * sinePart + patchbay.sawtoothRatio * sawtoothPart + patchbay.larynxRatio * patchbay.larynxPart;
 
         // CHECK THE MIN/MAX OF A VALUE
-        float monitorValue = patchbay.larynxPart;
+        float monitorValue = calibratePart;
+        // patchbay.larynxPart;
         if (monitorValue < minValue)
         {
             minValue = monitorValue;
@@ -875,7 +745,7 @@ void ChatterboxOutput::OutputDAC(void *pvParameter)
         // xPlot = patchbay.larynxPart;
 
         // Outputs A, B
-        dac.writeSample(sawtoothPart, mix5); //mix5 patchbay.larynxPart calibratePart
+        dac.writeSample(calibratePart, mix5); //mix5 patchbay.larynxPart calibratePart
 
         // ****************** END WIRING ******************
 

@@ -16,7 +16,7 @@ void SineWavetable::init()
 {
     for (unsigned int i = 0; i < tablesize; i++) 
     {
-        Wavetable::wavetable[i] = sin((float)i * sinScale);
+        Wavetable::wavetable[i] = sin((float)i * sinScale * 0.9f);
     }
 }
 
