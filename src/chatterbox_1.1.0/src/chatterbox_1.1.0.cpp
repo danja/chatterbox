@@ -134,7 +134,7 @@
 #define SING1Q 5.0f
 #define SING2Q 5.0f
 
-#define CALIBRATE true
+#define CALIBRATE false
 
 float samplerate = (float)SAMPLERATE;
 
@@ -168,14 +168,19 @@ MIDI_NAMESPACE::MidiInterface<Transport> MIDI((Transport &)serialMIDI);
 */
 
 /* calibrate */
-float sweepIncrement = 1.0f;
-
-float calibrateCutoffStep = 1.0f;
+float sweepIncrement = 4.0f;
+float calibrateTestIncrement = 200.0f;
 
 float calibratePitch = PITCH_MIN;
-float calibrateStep = 8.0f;
-// int calibrateCycles = 100 * TABLESIZE;
-// int calibrateCycle = 0;
+float calibrateStep;
+
+float calibrateTestMin = F1F_LOW;
+float calibrateTestMax = F1F_HIGH;
+
+float calibrateTestValue = calibrateTestMin;
+
+float lowTrip = -1.0f;
+float highTrip = 1.0f;
 
 class ChatterboxOutput
 {
@@ -335,8 +340,17 @@ void calibrateIncrement()
 
     if (calibratePitch >= PITCH_MAX)
     {
-        //   Serial.println("PITCH_MAX");
         calibratePitch = PITCH_MIN;
+        calibrateTestValue += calibrateTestIncrement;
+        if (calibrateTestValue >= calibrateTestMax)
+        {
+            calibrateTestValue = calibrateTestMin;
+        }
+        Serial.print("calibrateTestValue = ");
+        Serial.println(calibrateTestValue);
+        // HARD WIRED
+        patchbay.f2f = calibrateTestValue;
+        patchbay.svf2.initParameters(calibrateTestValue, F2Q, "bandPass", samplerate, F2_GAIN);
     }
     // sweepIncrement = calibratePitch * tablesize / samplerate;
     calibrateStep = calibratePitch * stepScale;
@@ -647,32 +661,13 @@ void ChatterboxOutput::OutputDAC(void *pvParameter)
         // float sawtoothPart = readWavetable(sawtoothWavetable, TABLESIZE, pointerOffset);
         float sawtoothPart = sawtoothTable.get(tableStep * pointerOffset);
 
-        float calibratePart = sawtoothPart;
-        // calibrateIncrement();
-
-        //  calibrateCycle++;
-        calibratePart = calibrateTable.get(calibrateStep);
+        float calibratePart = calibrateTable.get(calibrateStep);
 
         float voice = patchbay.sineRatio * sinePart + patchbay.sawtoothRatio * sawtoothPart + patchbay.larynxRatio * patchbay.larynxPart;
 
-        // CHECK THE MIN/MAX OF A VALUE
-        float monitorValue = calibratePart;
-        // patchbay.larynxPart;
-        if (monitorValue < minValue)
-        {
-            minValue = monitorValue;
-        }
-        if (monitorValue > maxValue)
-        {
-            maxValue = monitorValue;
-        }
-        if (switches.getSwitch(SWITCH_STRESS).on() && switches.getSwitch(SWITCH_DESTRESS).on())
-        {
-            Serial.print("minValue = ");
-            Serial.println(minValue, DEC);
-            Serial.print("maxValue = ");
-            Serial.println(maxValue, DEC);
-        }
+        //
+        if (CALIBRATE)
+            voice = calibratePart;
 
         float noise = random(-32768, 32767) / 32768.0f;
 
@@ -734,17 +729,50 @@ void ChatterboxOutput::OutputDAC(void *pvParameter)
         }
         float mix5 = patchbay.svf3.process(mix4);
 
+        float calibrateOutput = mix5;
+
         // xPlot = patchbay.larynxPart;
 
         // Outputs A, B
-        dac.writeSample(calibratePart, mix5); //mix5 patchbay.larynxPart calibratePart
+        dac.writeSample(calibratePart, calibrateOutput); //mix5 patchbay.larynxPart calibratePart
 
         // ****************** END WIRING ******************
+
+        // CHECK THE MIN/MAX OF A VALUE
+        float monitorValue = calibrateOutput;
+
+        if (monitorValue > highTrip || monitorValue < lowTrip)
+        {
+            Serial.print("minValue = ");
+            Serial.println(minValue, DEC);
+            Serial.print("maxValue = ");
+            Serial.println(maxValue, DEC);
+        }
+
+        // patchbay.larynxPart;
+        if (monitorValue < minValue)
+        {
+            minValue = monitorValue;
+        }
+        if (monitorValue > maxValue)
+        {
+            maxValue = monitorValue;
+        }
+        if (switches.getSwitch(SWITCH_STRESS).on() && switches.getSwitch(SWITCH_DESTRESS).on())
+        {
+            Serial.print("minValue = ");
+            Serial.println(minValue, DEC);
+            Serial.print("maxValue = ");
+            Serial.println(maxValue, DEC);
+        }
 
         // Pause thread after delivering 128 samples so that other threads can do stuff
         if (frameCount++ % 128 == 0) // was 64
         {
-            calibrateIncrement();
+            if (CALIBRATE)
+            {
+                calibrateIncrement();
+            }
             vTaskDelay(1); // was 64, 1
             //  plotter.Plot();
         }

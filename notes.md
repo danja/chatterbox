@@ -15,6 +15,10 @@ if (frameCount++ % 128 == 0) // was 64
 
 This worked! 
 
+Right now I've got another value incrementing with every sweep (calibrateTestValue) and have it hard-wired to set the pitch of the second SVF. Only the value gets overridden pretty immediately.
+
+So I have to figure out how to integrate this stuff neatly. I guess using the event-handling bits (as used by MIDI etc) would make the most sense. But I've forgotten how I set that up. I guess next I'll have another look at the MIDI bits then come back to calibration.
+
 
 **2020-12-01** *version chatterbox_1.1.0*
 
