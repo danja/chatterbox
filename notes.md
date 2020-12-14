@@ -1,3 +1,21 @@
+**2020-12-14** *version chatterbox_1.1.0*
+
+I went back to the calibration stuff. I made a lot of silly mistakes thanks to getting variable names mixed up, but then got a sweep tone basically working. *But* it had a lot of crackly artifacts. These were also present on the normal channel, indicating the timing was getting messed up somewhere.
+I briefly tried a timer interrupt - [this example](https://techtutorialsx.com/2017/10/07/esp32-arduino-timer-interrupts/) appeared to work ok, but then when I tried to apply it to the sweep tone, it repeatedly crashed.
+Finally I modified the very last bit of code, doubling the number of ops on this thread and inserting the calibrateIncrement() there:
+```
+// Pause thread after delivering 128 samples so that other threads can do stuff
+if (frameCount++ % 128 == 0) // was 64
+{
+   calibrateIncrement();
+   vTaskDelay(1); // was 64, 1
+            //  plotter.Plot();
+}
+```
+
+This worked! 
+
+
 **2020-12-01** *version chatterbox_1.1.0*
 
 In the process of setting up the calibration stuff I discovered I'd left the bit of the refactoring I was on a few weeks ago unfinished. I hadn't moved the LarynxWavetable out to it's own class.

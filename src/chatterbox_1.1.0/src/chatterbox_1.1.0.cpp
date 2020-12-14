@@ -167,6 +167,16 @@ Transport serialMIDI(hardwareSerial);
 MIDI_NAMESPACE::MidiInterface<Transport> MIDI((Transport &)serialMIDI);
 */
 
+/* calibrate */
+float sweepIncrement = 1.0f;
+
+float calibrateCutoffStep = 1.0f;
+
+float calibratePitch = PITCH_MIN;
+float calibrateStep = 8.0f;
+// int calibrateCycles = 100 * TABLESIZE;
+// int calibrateCycle = 0;
+
 class ChatterboxOutput
 {
 public:
@@ -231,8 +241,8 @@ float tableStep = 1;
 int bufferIndex = 0;
 
 // Plotted variables must be declared as globals
-double xPlot;
-double yPlot;
+// double xPlot;
+// double yPlot;
 
 // Plotter plotter;
 
@@ -318,28 +328,11 @@ void initInputs()
 //   Biquad(int type, float Fc, float Q, float peakGainDB);
 //Biquad *n1 = new Biquad(HIGHSHELF, 1000.0f / samplerate, F1_NASALQ, F1_NASAL_GAIN);
 
-/* calibrate */
-float sweepIncrement = 1.0f;
-
-float calibrateCutoffStep = 1.0f;
-
-float calibratePitch = PITCH_MIN;
-float calibrateStep = 50.0f;
-int calibrateCycles = 100*TABLESIZE;
-int calibrateCycle = 0;
-
 void calibrateIncrement()
 {
-/*  
-    if (calibrateCycle >= calibrateCycles)
-        {
-            calibrateCycle = 0;
-              calibratePitch += sweepIncrement;
-        }
-*/
 
-  
-    //  Serial.println(calibratePitch);
+    calibratePitch += sweepIncrement;
+
     if (calibratePitch >= PITCH_MAX)
     {
         //   Serial.println("PITCH_MAX");
@@ -655,10 +648,9 @@ void ChatterboxOutput::OutputDAC(void *pvParameter)
         float sawtoothPart = sawtoothTable.get(tableStep * pointerOffset);
 
         float calibratePart = sawtoothPart;
-// calibrateIncrement();
-        
+        // calibrateIncrement();
 
-        calibrateCycle++;
+        //  calibrateCycle++;
         calibratePart = calibrateTable.get(calibrateStep);
 
         float voice = patchbay.sineRatio * sinePart + patchbay.sawtoothRatio * sawtoothPart + patchbay.larynxRatio * patchbay.larynxPart;
@@ -749,10 +741,10 @@ void ChatterboxOutput::OutputDAC(void *pvParameter)
 
         // ****************** END WIRING ******************
 
-        // Pause thread after delivering 64 samples so that other threads can do stuff
-
-        if (frameCount++ % 64 == 0)
+        // Pause thread after delivering 128 samples so that other threads can do stuff
+        if (frameCount++ % 128 == 0) // was 64
         {
+            calibrateIncrement();
             vTaskDelay(1); // was 64, 1
             //  plotter.Plot();
         }
