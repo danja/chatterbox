@@ -1,3 +1,9 @@
+**2021-02-07**  *version chatterbox_1.1.0*
+
+Blimey, time flies.
+
+strange merginess
+
 **2020-12-14** *version chatterbox_1.1.0*
 
 I went back to the calibration stuff. I made a lot of silly mistakes thanks to getting variable names mixed up, but then got a sweep tone basically working. *But* it had a lot of crackly artifacts. These were also present on the normal channel, indicating the timing was getting messed up somewhere.
