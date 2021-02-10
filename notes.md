@@ -1,8 +1,18 @@
+**2021-02-10**  *version chatterbox_1.1.0*
+
+I've make a start on the hardware for a version of Chatterbox without all the controls, [Headless Chatterbox](https://dannyayers.wordpress.com/2021/02/07/headless-chatterbox/).
+
+Is a good opportunity to go back over notes here. 
+
+I don't seem to have made any notes about the MIDI interface, grrr.
+
+But I think I just followed the MIDI spec circuit and added a 2N7000-based level shifter (bidirectonal-mosfet-level-shifter.png). Which, looking back, doesn't appear necessary. The MIDI in goes to an opto-isolator. The UART is on the other side of it, I think this should work, just power the opto-isolator transistor from 3.3v.  
+
 **2021-02-07**  *version chatterbox_1.1.0*
 
 Blimey, time flies.
 
-strange merginess
+strange git merginess, working across machines.
 
 **2020-12-14** *version chatterbox_1.1.0*
 
