@@ -236,7 +236,7 @@ ESP32
 pin 5 needed 10k pulldown
 
 ### ESP32 Devkit V1 DOIT (Banggood)
-
+```
 Pin
 1 EN - 100n -> GND
 2 GPIO 36 ADC -> JOYSTICK X f1f
@@ -275,11 +275,11 @@ Pin
 34 GPIO 1 [UART 0 TX] ...(((MIDI OUT)))
 35 GPIO 22 [I2C SCL] ...(((DISPLAY?)))
 36 GPIO 23 DIGITAL -> SWITCH sf2
-
+```
 ----
 
 ### AZ Delivery ESP32 Pinout
-
+```
 Pin
 1 3.3v x
 2 EN - 100n -> GND
@@ -320,7 +320,7 @@ Pin
 36 GPIO 22 [I2C SCL] ...(((DISPLAY?)))
 37 GPIO 23 DIGITAL -> SWITCH sf2
 38 GND
-
+```
 ----
 ## Initial Considerations
 
