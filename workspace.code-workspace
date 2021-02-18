@@ -6,6 +6,15 @@
 		{
 			"name": "chatterbox_1.1.0",
 			"path": "src/chatterbox_1.1.0"
+		},
+		{
+			"path": "../cat-toy"
+		},
+		{
+			"path": "../robot-arm"
+		},
+		{
+			"path": "../../todo"
 		}
 	],
 	"settings": {

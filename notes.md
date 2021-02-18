@@ -1,3 +1,50 @@
+**2021-02-18** *version chatterbox_1.1.0*
+
+Now I've got a JTAG interface board I want to get cracking on the *headless* version of Chatterbox, ie. no manual controls, just a MIDI in, audio out (and whatever WiFi/Bluetooth I get set up).
+
+Decided the best approach would be to wrap the manual-control oriented bits into their own class ```Manual```.
+
+So far I've put the ADC init and the pot & switch variables over there. Have to have a look how best to wire this with the input task (thread, is tied to one processor, the output task tied to the other). 
+
+Once I'd got it running the signal was very noisy with crunchy artifacts. This has happened before, when the fix seemed to be tweaking the stack sizes for the processors.
+
+I tried dropping the sample rate from 22kHz to 16kHz which got rid of the noise. That's not what I want, but I'll leave it for now, revisit performance once I've refactored a bit more.
+
+Frankly I'm not sure what's causing the performance hit, the additional resources needed to pull this stuff out into a separate (static) class should be minimal. I suspect there's extra comms between the processes, so if I aim to try and get all the input- (/output-)related bits more closely associated with each other, that may help.
+
+Current settings -
+
+```
+#define CHECK_STACK true // will make noisy
+#define INPUT_TASK_STACK_SIZE 72000
+#define OUTPUT_TASK_STACK_SIZE 3072
+
+#define SAMPLERATE 16000 // want at least 22000
+```
+
+Which on running produces:
+```
+esp_get_free_heap_size() = 72372
+esp_get_minimum_free_heap_size() = 72356
+uxTaskGetStackHighWaterMark(controlInputHandle) = 69132
+uxTaskGetStackHighWaterMark(outputDACHandle) = 1960
+uxTaskGetNumberOfTasks() = 14
+```
+
+**2021-02-11**  *version chatterbox_1.1.0*
+
+JTAG connections : 
+```
+GPIO14 => JTAG TMS
+GPIO12 => JTAG TDI
+GPIO13 => JTAG TCK
+GPIO15 =>JTAG TDO
+```
+
+https://www.esp32.com/viewtopic.php?t=1887
+
+https://hydrabus.com/wp-content/uploads/2016/10/esp32-devkitc_with_FTDI_C232HM_DDHSL-0_JTAG_Debug.jpg
+
 **2021-02-10**  *version chatterbox_1.1.0*
 
 I've make a start on the hardware for a version of Chatterbox without all the controls, [Headless Chatterbox](https://dannyayers.wordpress.com/2021/02/07/headless-chatterbox/).
@@ -7,6 +54,8 @@ Is a good opportunity to go back over notes here.
 I don't seem to have made any notes about the MIDI interface, grrr.
 
 But I think I just followed the MIDI spec circuit and added a 2N7000-based level shifter (bidirectonal-mosfet-level-shifter.png). Which, looking back, doesn't appear necessary. The MIDI in goes to an opto-isolator. The UART is on the other side of it, I think this should work, just power the opto-isolator transistor from 3.3v.  
+
+https://hackaday.com/2016/12/05/taking-it-to-another-level-making-3-3v-and-5v-logic-communicate-with-level-shifters/
 
 **2021-02-07**  *version chatterbox_1.1.0*
 
