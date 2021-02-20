@@ -15,7 +15,7 @@ Frankly I'm not sure what's causing the performance hit, the additional resource
 Current settings -
 
 ```
-#define CHECK_STACK true // will make noisy
+#define CHECK_STACK false // will make noisy
 #define INPUT_TASK_STACK_SIZE 72000
 #define OUTPUT_TASK_STACK_SIZE 3072
 
