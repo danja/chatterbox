@@ -3,15 +3,15 @@
 
 Node::Node(){}
 
-Node::Node(String id){
+Node::Node(const String& id){
 id_ = id;
 }
 
-  void Node::id(String id) {
+  void Node::id(const String& id) {
     id_ = id;
 }
 
-  String Node::id() {
+  String& Node::id() {
     return id_;
 }
 

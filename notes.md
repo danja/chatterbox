@@ -1,3 +1,37 @@
+**2021-02-21** *version chatterbox_1.1.0*
+
+Rearranged a little, moved all the files that were under ```lib/Graph/src``` (pots, switches etc) to ```lib/Manual```.
+
+Contemplating performance, it seems the Arduino ```String``` class is notorious for inefficiency. I have quite a few of these being passed around. It seems to make sense to change the current pass-by-values to pass-by-reference.
+
+```
+void passByValue(String s);
+->
+void passByRef(const String& s);
+```
+https://cpp4arduino.com/2018/11/21/eight-tips-to-use-the-string-class-efficiently.html
+
+All the controls inherit from Node.h, so in ```lib/Manual/Node.h``` :
+
+```
+      Node(String id);
+      void id(String id);
+      String id();
+```
+
+->
+
+```
+      Node(const String& id);
+      void id(const String& id);
+      String& id();
+```
+
+Yay! Can move back to 22kHz sample rate!
+
+made similar change in ```EventReceiver::listener(...)```
+
+
 **2021-02-18** *version chatterbox_1.1.0*
 
 Now I've got a JTAG interface board I want to get cracking on the *headless* version of Chatterbox, ie. no manual controls, just a MIDI in, audio out (and whatever WiFi/Bluetooth I get set up).

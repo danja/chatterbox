@@ -16,7 +16,7 @@
 #define INPUT_TASK_STACK_SIZE 72000
 #define OUTPUT_TASK_STACK_SIZE 3072
 
-#define SAMPLERATE 16000 // want at least 22000
+#define SAMPLERATE 22000 // 16000 // want at least 22000
 
 #include <Arduino.h>
 #include <driver/adc.h> // depends on Espressif ESP32 libs

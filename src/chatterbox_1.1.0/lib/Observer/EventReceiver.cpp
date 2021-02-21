@@ -17,7 +17,7 @@ void EventReceiver::registerCallback(Dispatcher<EventType, String, float> &dispa
     dispatcher.addCallback(std::bind(&EventReceiver::listener, this, _1, _2, _3));
 }
 
-void EventReceiver::listener(EventType type, String name, float value)
+void EventReceiver::listener(const EventType& type, const String& name, const float& value)
 {
    // Serial.print(name + " : ");
    // Serial.println(value, DEC);

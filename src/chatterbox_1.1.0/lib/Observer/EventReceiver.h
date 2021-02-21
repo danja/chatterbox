@@ -14,7 +14,8 @@ public:
     void registerCallback(Dispatcher<EventType, String, float> &dispatcher);
 
 private:
-    void listener(EventType type, String name, float value);
+// void listener(EventType type, String name, float value);
+    void listener(const EventType& type, const String& name, const float& value);
 };
 
 #endif

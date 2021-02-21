@@ -7,9 +7,9 @@ class Node {
 
   public:
       Node();
-      Node(String id);
-      void id(String id);
-      String id();
+      Node(const String& id);
+      void id(const String& id);
+      String& id();
   private:
       String id_;
 };
