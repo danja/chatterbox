@@ -7,7 +7,7 @@
 /*                                                                                */
 /*    unless otherwise stated: MIT license, attribution appreciated               */
 /*                                                                                */
-/*    Danny Ayers 2020 | danny.ayers@gmail.com | #danja | https://hyperdata.it    */
+/*    Danny Ayers 2020-2021 | danny.ayers@gmail.com | @danja | https://hyperdata.it    */
 /**********************************************************************************/
 
 #define HEADLESS false

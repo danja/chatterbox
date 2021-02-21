@@ -18,7 +18,7 @@ public:
    // void handleNoteOff(byte channel, byte note, byte velocity);
 
 private:
-    void listener(EventType type, String name, float value);
+    void listener(const EventType& type, const String& name, const float& value);
    
 };
 #endif

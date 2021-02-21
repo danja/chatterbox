@@ -90,7 +90,7 @@ void WebConnector::registerCallback(Dispatcher<EventType, String, float> &dispat
     dispatcher.addCallback(std::bind(&WebConnector::listener, this, _1, _2, _3));
 }
 
-void WebConnector::listener(EventType type, String id, float value)
+void WebConnector::listener(const EventType& type, const String& id, const float& value)
 {
   char snum[5];
   itoa(value, snum, 10);

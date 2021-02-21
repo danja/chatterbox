@@ -113,7 +113,7 @@ void MIDIConnector::read() {
     }
 }
 
-void MIDIConnector::listener(EventType type, String id, float value)
+void MIDIConnector::listener(const EventType& type, const String& id, const float& value)
 {
     char snum[5];
     itoa(value, snum, 10);

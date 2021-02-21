@@ -13,7 +13,7 @@ void Patchbay::registerCallback(Dispatcher<EventType, String, float> &dispatcher
     dispatcher.addCallback(std::bind(&Patchbay::listener, this, _1, _2, _3));
 }
 
-void Patchbay::listener(EventType type, String name, float value)
+void Patchbay::listener(const EventType& type, const String& name, const float& value)
 {
     /*
     Serial.print("PB: ");

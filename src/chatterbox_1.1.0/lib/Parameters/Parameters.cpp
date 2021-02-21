@@ -23,35 +23,41 @@ void Parameters::switches(Switch switches[])
 }
 
 // Pots - setters
-        void Parameters::pitch(float pitch)
-        {
-pitch_ = pitch;
-        }
+void Parameters::pitch(float pitch)
+{
+    pitch_ = pitch;
+}
 
-    void Parameters::larynx(float larynx){
-larynx_ = larynx;
-    }
+void Parameters::larynx(float larynx)
+{
+    larynx_ = larynx;
+}
 
-    void Parameters::f1f(float f1f){
-        f1f_ = f1f;
-    }
+void Parameters::f1f(float f1f)
+{
+    f1f_ = f1f;
+}
 
-    void Parameters::f2f(float f2f){
-        f2f_ = f2f;
-    }
+void Parameters::f2f(float f2f)
+{
+    f2f_ = f2f;
+}
 
-    void Parameters::f3f(float f3f){
-        f3f_ = f3f;
-    }
-    void Parameters::f3q(float f3q){
-        f3q_ = f3q;
-    }
+void Parameters::f3f(float f3f)
+{
+    f3f_ = f3f;
+}
+void Parameters::f3q(float f3q)
+{
+    f3q_ = f3q;
+}
 
-    void Parameters::growl(float growl){
-        growl_ = growl;
-    }
+void Parameters::growl(float growl)
+{
+    growl_ = growl;
+}
 
-    // Pots - getters
+// Pots - getters
 float Parameters::pitch()
 {
     // return pots_[POT_P5].value();
@@ -66,19 +72,19 @@ float Parameters::larynx()
 
 float Parameters::f1f()
 {
-   // return pots_[POT_P0].value();
-   return f1f_;
+    // return pots_[POT_P0].value();
+    return f1f_;
 }
 
 float Parameters::f2f()
 {
-   // return pots_[POT_P1].value();
-   return f2f_;
+    // return pots_[POT_P1].value();
+    return f2f_;
 }
 
 float Parameters::f3f()
 {
-  //  return pots_[POT_P2].value();
+    //  return pots_[POT_P2].value();
     return f3f_;
 }
 
@@ -90,8 +96,8 @@ float Parameters::f3q()
 
 float Parameters::growl()
 {
-   // return pots_[POT_GROWL].value();
-   return growl_;
+    // return pots_[POT_GROWL].value();
+    return growl_;
 }
 
 // Switches

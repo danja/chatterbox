@@ -62,7 +62,7 @@ public:
     float decayStep;
 
 private:
-    void listener(EventType type, String name, float value);
+    void listener(const EventType& type, const String& name, const float& value);
     //  SVF svf1_;
 };
 
