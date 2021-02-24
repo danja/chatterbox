@@ -8,13 +8,22 @@
 			"path": "src/chatterbox_1.1.0"
 		},
 		{
-			"path": "../cat-toy"
-		},
-		{
 			"path": "../robot-arm"
 		},
 		{
 			"path": "../../todo"
+		},
+		{
+			"name": "cat-toy",
+			"path": "../cat-toy"
+		},
+		{
+			"name": "cat-toy",
+			"path": "../cat-toy/cat-toy"
+		},
+		{
+			"name": "mini-draw",
+			"path": "../mini-draw"
 		}
 	],
 	"settings": {

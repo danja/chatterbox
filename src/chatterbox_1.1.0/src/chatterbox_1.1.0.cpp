@@ -1,14 +1,14 @@
-/**********************************************************************************/
-/*    Chatterbox                                                                  */
-/*                                                                                */
-/*    a voice-like sound generator                                                */
-/*                                                                                */
-/*    see http://github.com/danja/chatterbox                                      */
-/*                                                                                */
-/*    unless otherwise stated: MIT license, attribution appreciated               */
-/*                                                                                */
-/*    Danny Ayers 2020-2021 | danny.ayers@gmail.com | @danja | https://hyperdata.it    */
-/**********************************************************************************/
+/************************************************************************************/
+/*    Chatterbox                                                                    */
+/*                                                                                  */
+/*    a voice-like sound generator                                                  */
+/*                                                                                  */
+/*    see http://github.com/danja/chatterbox                                        */
+/*                                                                                  */
+/*    unless otherwise stated: MIT license, attribution appreciated                 */
+/*                                                                                  */
+/*    Danny Ayers 2020-2021 | danny.ayers@gmail.com | @danja | https://hyperdata.it */
+/************************************************************************************/
 
 #define HEADLESS false
 
@@ -16,7 +16,7 @@
 #define INPUT_TASK_STACK_SIZE 72000
 #define OUTPUT_TASK_STACK_SIZE 3072
 
-#define SAMPLERATE 22000 // 16000 // want at least 22000
+#define SAMPLERATE  22000 // 16000 // want at least 22000
 
 #include <Arduino.h>
 #include <driver/adc.h> // depends on Espressif ESP32 libs
