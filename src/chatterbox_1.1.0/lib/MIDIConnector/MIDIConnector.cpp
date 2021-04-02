@@ -19,7 +19,6 @@ HardwareSerial hardwareSerial = HardwareSerial(1); // UART_NUM_1
 Transport serialMIDI(hardwareSerial);
 MIDI_NAMESPACE::MidiInterface<Transport> MIDI((Transport &)serialMIDI);
 
-
 /*
 void handleNoteOn(byte channel, byte note, byte velocity) {
     float pitch = midiNoteToFreq(note);
@@ -30,11 +29,12 @@ void handleNoteOff(byte channel, byte note, byte velocity) {
 }
 */
 
-void MIDIConnector::start() {
+void MIDIConnector::start()
+{
     MIDI.begin(1); // MIDI_CHANNEL_OMNI Listen to all incoming messages
     hardwareSerial.begin(31250, SERIAL_8N1, rxPin, txPin, false, 100);
     //    MIDI.setHandleNoteOn(handleNoteOn);
-      //  MIDI.setHandleNoteOff(handleNoteOff);
+    //  MIDI.setHandleNoteOff(handleNoteOff);
 }
 
 // https://en.wikipedia.org/wiki/MIDI_tuning_standard
@@ -49,16 +49,13 @@ float midiNoteToFreq(int note)
     return 440.0f * powf(2.0f, pwr);
 }
 
-
-
 //////////////////////////////
 MIDIConnector::MIDIConnector() {}
 
-
 // void HardwareSerial::begin
-    // (unsigned long baud, uint32_t config, int8_t rxPin, int8_t txPin, bool invert, unsigned long timeout_ms)
-    // Each byte is prefaced with a start bit (always zero),
-    // followed by 8 data bits, then one stop bit (always high). MIDI doesn't use parity bits.
+// (unsigned long baud, uint32_t config, int8_t rxPin, int8_t txPin, bool invert, unsigned long timeout_ms)
+// Each byte is prefaced with a start bit (always zero),
+// followed by 8 data bits, then one stop bit (always high). MIDI doesn't use parity bits.
 
 void MIDIConnector::registerCallback(Dispatcher<EventType, String, float> &dispatcher)
 {
@@ -66,16 +63,17 @@ void MIDIConnector::registerCallback(Dispatcher<EventType, String, float> &dispa
     dispatcher.addCallback(std::bind(&MIDIConnector::listener, this, _1, _2, _3));
 }
 
-
-void MIDIConnector::read() {
+void MIDIConnector::read()
+{
     if (MIDI.read())
     {
         byte type = MIDI.getType();
-        if (type == 0xFE) return;
+        if (type == 0xFE)
+            return;
 
         byte channel = MIDI.getChannel();
 
-        Serial.println(type, HEX);
+        // Serial.println(type, HEX);
 
         byte data1 = MIDI.getData1();
         byte data2 = MIDI.getData2();
@@ -86,11 +84,13 @@ void MIDIConnector::read() {
         Serial.print("data2 ");
         Serial.println(data2, HEX);
         */
-        switch (type) {
+        switch (type)
+        {
 
         case 0x90: // Note On midiDefs.h
+        // Serial.println(midiNoteToFreq(data1));
             midiDispatcher.broadcast(NOTE_ON, "pitch", midiNoteToFreq(data1));
-            midiDispatcher.broadcast(NOTE_ON, "gain", (float)MIDI.getData2()/128.0f);
+            midiDispatcher.broadcast(NOTE_ON, "gain", (float)MIDI.getData2() / 128.0f);
             break;
 
         case 0x80: // Note Off midiDefs.h
@@ -102,10 +102,11 @@ void MIDIConnector::read() {
             break;
 
         case 0xB0: // Control Change
-        
-            switch(data1){
-                case 0x01: // Mod Wheel
-                    midiDispatcher.broadcast(NOTE_ON, "larynxSplit", tablesize * (float)(1 + data2)/129.0f);
+
+            switch (data1)
+            {
+            case 0x01: // Mod Wheel
+                midiDispatcher.broadcast(NOTE_ON, "larynxSplit", tablesize * (float)(1 + data2) / 129.0f);
                 break;
             }
             break;
@@ -113,14 +114,14 @@ void MIDIConnector::read() {
     }
 }
 
-void MIDIConnector::listener(const EventType& type, const String& id, const float& value)
+void MIDIConnector::listener(const EventType &type, const String &id, const float &value)
 {
     char snum[5];
     itoa(value, snum, 10);
     String message = id + ":" + snum;
-    // Serial.println(message);
+    Serial.println(message);
     // ws.textAll(message);
-        // MIDI.sendNoteOff(freqToMIDINote(patchbay.pitch), 127, 1); // temp test
+    // MIDI.sendNoteOff(freqToMIDINote(patchbay.pitch), 127, 1); // temp test
 
-           //   MIDI.sendNoteOn(freqToMIDINote(patchbay.pitch), 127, 1);
+    //   MIDI.sendNoteOn(freqToMIDINote(patchbay.pitch), 127, 1);
 }

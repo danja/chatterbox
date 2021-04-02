@@ -14,13 +14,12 @@ void Patchbay::registerCallback(Dispatcher<EventType, String, float> &dispatcher
 }
 
 void Patchbay::listener(const EventType& type, const String& name, const float& value)
-{
-    /*
+{    
     Serial.print("PB: ");
     Serial.print(name);
     Serial.print(" : ");
     Serial.println(value);
-    */
+    
     if (name == "pitch") {
         pitch = value;
         return;

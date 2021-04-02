@@ -1,3 +1,18 @@
+**2021-04-02** *version chatterbox_1.1.0*
+
+Having another quick look.
+
+Current version seems a bit flaky. Took sample rate back down to 16kHz.
+
+Thinking about headless version. No obvious clean way of block-ignoring the manual controls. 
+
+I think it would make sense to wrap the Manual class up to operate as another Dispatcher/Listener.
+
+in EventReceiver.h :
+```
+enum EventType {NOTE_ON, NOTE_OFF, VALUE_CHANGE, EVENT2, EVENT3};
+```
+
 **2021-02-21** *version chatterbox_1.1.0*
 
 Rearranged a little, moved all the files that were under ```lib/Graph/src``` (pots, switches etc) to ```lib/Manual```.

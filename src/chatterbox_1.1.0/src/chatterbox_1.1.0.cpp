@@ -10,13 +10,13 @@
 /*    Danny Ayers 2020-2021 | danny.ayers@gmail.com | @danja | https://hyperdata.it */
 /************************************************************************************/
 
-#define HEADLESS false
+#define HEADLESS true
 
 #define CHECK_STACK false // will make noisy
 #define INPUT_TASK_STACK_SIZE 72000
 #define OUTPUT_TASK_STACK_SIZE 3072
 
-#define SAMPLERATE  22000 // 16000 // want at least 22000
+#define SAMPLERATE  16000 // 16000 // want at least 22000
 
 #include <Arduino.h>
 #include <driver/adc.h> // depends on Espressif ESP32 libs
@@ -403,8 +403,12 @@ void ChatterboxInput::ControlInput(void *pvParameter)
     while (1)
     {
         midiConnector.read();
+        
         // vTaskDelay(1);
-        //  Serial.println(MIDI.read(),BIN);
+        // Serial.println(MIDI.read(),BIN);
+        
+        // HERE Serial.println(midiRead);
+        
         // vTaskDelay(1000 / portTICK_RATE_MS); // was 1000
 
         bool potChanged = false;
