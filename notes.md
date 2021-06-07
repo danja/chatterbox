@@ -2,6 +2,8 @@
 
 Last night I did a quick check to see if PC-Chatterbox comms were still working ok after I just upgraded Ubuntu on the PC (to 21.04). That seemed fine, but when I tried putting the audio out to a guitar amp, it was incredibly noisy.
 
+https://www.youtube.com/watch?v=OfPHS5UEFvQ
+
 Rather than dive into the box right away, decided to do a little more on the headless version. 
 
 I've used a little PSU module to supply 3.3v to all modules.
