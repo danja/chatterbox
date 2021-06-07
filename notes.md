@@ -1,3 +1,23 @@
+**2021--06-07**  *version chatterbox_1.1.0*
+
+Last night I did a quick check to see if PC-Chatterbox comms were still working ok after I just upgraded Ubuntu on the PC (to 21.04). That seemed fine, but when I tried putting the audio out to a guitar amp, it was incredibly noisy.
+
+Rather than dive into the box right away, decided to do a little more on the headless version. 
+
+I've used a little PSU module to supply 3.3v to all modules.
+
+NB. looks like (MIDIConnector.cpp) I changed the MIDI pins to use -
+
+int rxPin = 21;                                    //  1; //
+int txPin = 22;                                    // 3;
+
+different from in the manual.md notes.
+
+https://docs.platformio.org/en/latest/plus/debug-tools/esp-prog.html
+
+https://www.hackster.io/brian-lough/use-the-platformio-debugger-on-the-esp32-using-an-esp-prog-f633b6
+
+
 **2021-04-02** *version chatterbox_1.1.0*
 
 Having another quick look.

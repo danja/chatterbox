@@ -7,6 +7,7 @@
 
 #include <Wavetable.h> // only for tablesize
 
+// check these!! - are GPIO not pin, other way around below!!! #
 #define TXD_PIN (GPIO_NUM_21)
 #define RXD_PIN (GPIO_NUM_22)
 
